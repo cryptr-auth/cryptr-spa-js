@@ -79,7 +79,7 @@
   ],
   "dependencies": {
     "@cryptography/sha256": "^0.2.0",
-    "@cryptr/cryptr-config-validation": "^1.0.1",
+    "@cryptr/cryptr-config-validation": "^0.1.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
     "@sentry/browser": "^5.27.1",
