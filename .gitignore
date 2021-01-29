@@ -1,0 +1,10 @@
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+# package-lock.json
+.env
+cypress/.DS_Store
+.DS_Store
+coverage/
+.cc_token

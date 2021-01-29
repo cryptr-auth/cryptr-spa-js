@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<title>Cryptr</title>
+<meta charset="utf-8" />
+<script src="../dist/cryptr-spa-js.umd.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"
+  integrity="sha512-QJsj3afWlCpnQ60XzzYE8Jb3IgHIK1BcGZox9rUSmRRq3Ocz9vQ1yR80eX2/b9jfx/UuT5zYWNdrM8Te/eCMhQ=="
+  crossorigin="anonymous">
+  </script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+  integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</link>
+
+<body>
+  <div id="app">
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+      <h5 class="my-0 mr-md-auto font-weight-normal">Cryptr SPA Js</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="https://www.cryptr.co">By Cryptr</a>
+        |
+        <div v-if="user.email">
+          Bonjour {{ user.email }} !
+        </div>
+      </nav>
+      <a v-if="isAuthenticated" class="btn btn-outline-danger mr-3" @click="logOut" href="#">Logout</a>
+      <a v-if="isAuthenticated" class="btn btn-outline-info mr-3" @click="refreshTokens" href="#">
+        Refresh
+      </a>
+
+      <div v-if="!isAuthenticated">
+        <a data-cy="btn__sign-in" v-if="!loading" @click="signinWithRedirect" class="btn btn-outline-primary mr-3"
+          href="#">Login</a>
+        <a data-cy="btn__sign-up" v-if="!loading" @click="signupWithRedirect" class="btn btn-primary" href="#">Sign
+          up</a>
+      </div>
+    </div>
+
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h1 class="display-4">Development mode</h1>
+      <p class="lead">This local static site use our cryptr API on our test environment.</p>
+    </div>
+
+    <div class="container">
+      <div class="card-deck mb-3 text-center">
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">cryptr.config.json</h4>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled mt-3 mb-4">
+              <li>
+                tenantd domain : <span id="tenant-domain"></span>
+              </li>
+              <li>
+                client id : <span id="client-id"></span>
+              </li>
+              <li>
+                audience : <span id="audience"></span>
+              </li>
+              <li>
+                redirect uri : <span id="redirect-uri"></span>
+              </li>
+              <li>
+                cryptr base url : <span id="cryptr-base-url"></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Need to login</h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">Profile <small class="text-muted">/ OpenId</small></h1>
+            <a v-if="isAuthenticated" class="btn btn-success" href="#">Authentifié !</a>
+            <a v-if="!isAuthenticated" class="btn btn-danger" href="#">Non Authentifié !</a>
+            <ul v-if="!user.email" class="list-unstyled mt-3 mb-4">
+              <li>Not available</li>
+            </ul>
+            <ul v-if="user.email" class="mt-3 mb-4">
+              <li>
+                <span>You got access to</span>
+                <code>{{ user.aud }}</code>
+              </li>
+              <li>
+                <span>from issuer</span>
+                <code>
+                  {{ user.iss }} ( {{ user.tnt }})
+                </code>
+              </li>
+              <li>
+                <span>with scope items</span>
+                <ul>
+                  <li v-for="scope in user.scp" :key="scope">
+                    {{ scope }}
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <div class="row">
+          <div class="col-12 col-md">
+            <img class="mb-2" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="24"
+              height="24">
+            <small class="d-block mb-3 text-muted">© 2020</small>
+          </div>
+          <div class="col-6 col-md">
+            <h5>Features</h5>
+            <ul class="list-unstyled text-small">
+              <li><a class="text-muted" href="#">Cool stuff</a></li>
+              <li><a class="text-muted" href="#">Random feature</a></li>
+              <li><a class="text-muted" href="#">Team feature</a></li>
+              <li><a class="text-muted" href="#">Stuff for developers</a></li>
+              <li><a class="text-muted" href="#">Another one</a></li>
+              <li><a class="text-muted" href="#">Last time</a></li>
+            </ul>
+          </div>
+          <div class="col-6 col-md">
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+              <li><a class="text-muted" href="#">Resource</a></li>
+              <li><a class="text-muted" href="#">Resource name</a></li>
+              <li><a class="text-muted" href="#">Another resource</a></li>
+              <li><a class="text-muted" href="#">Final resource</a></li>
+            </ul>
+          </div>
+          <div class="col-6 col-md">
+            <h5>About</h5>
+            <ul class="list-unstyled text-small">
+              <li><a class="text-muted" href="#">Team</a></li>
+              <li><a class="text-muted" href="#">Locations</a></li>
+              <li><a class="text-muted" href="#">Privacy</a></li>
+              <li><a class="text-muted" href="#">Terms</a></li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+</body>
+
+</html>
+<script>
+
+  var config = {
+    tenant_domain: 'shark-academy',
+    client_id: '5e5e284c-8aea-4efe-a50d-61f6c82bd72d',
+    audience: 'http://127.0.0.1:5000',
+    redirect_uri: 'http://127.0.0.1:5000/dev/',
+    cryptr_base_url: 'http://localhost:4000',
+    locale: 'en'
+  }
+
+  document.getElementById("tenant-domain").innerText = config.tenant_domain;
+  document.getElementById("client-id").innerText = config.client_id;
+  document.getElementById("audience").innerText = config.audience;
+  document.getElementById("redirect-uri").innerText = config.redirect_uri;
+  document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
+
+  var app = new Vue({
+    el: '#app',
+
+    data() {
+      return {
+        message: 'hello world',
+        loading: false,
+        isAuthenticated: false,
+        user: {},
+        cryptrClient: null,
+        error: null
+      }
+    },
+    methods: {
+      /** Authenticates the user using the redirect method */
+      signinWithRedirect() {
+        return this.cryptrClient.signInWithRedirect();
+      },
+
+      /** Authenticates the user using the redirect method */
+      signupWithRedirect() {
+        return this.cryptrClient.signUpWithRedirect();
+      },
+      refreshTokens() {
+        return this.cryptrClient.refreshTokens();
+      },
+      /** Logs out the current user**/
+      logOut() {
+        return this.cryptrClient.logOut(() => {
+          alert('You are now logged out ! Bye :(')
+          window.location.reload()
+          window.location.replace(location.href.split('?')[0])
+          // this.isAuthenticated = false
+         });
+      }
+    },
+    /** Use this lifecycle method to instantiate the SDK client */
+    async created() {
+      // Create a new instance of the SDK client using members of the given config object
+      this.cryptrClient = await CryptrSpa.createClient({
+        tenant_domain: config.tenant_domain,
+        client_id: config.client_id,
+        audience: config.audience,
+        redirect_uri: config.redirect_uri,
+        locale: config.locale,
+        cryptr_base_url: config.cryptr_base_url
+      });
+
+      try {
+        // If the user is returning to the app after authentication..
+        const canAuthenticate = await this.cryptrClient.canHandleAuthentication()
+        if (canAuthenticate) {
+          // handle the redirect and retrieve tokens
+          const tokens = await this.cryptrClient.handleRedirectCallback();
+          // Notify subscribers that the redirect callback has happened, passing the appState
+          // (useful for retrieving any pre-authentication state)
+          onRedirectCallback(tokens);
+          window.location.replace(location.href.split('?')[0])
+        }
+      } catch (e) {
+        this.error = e;
+      } finally {
+        // Initialize our internal authentication state
+        // this.isAuthenticated = await this.cryptrClient.isAuthenticated();
+        // this.user = await this.auth0Client.getUser();
+
+        this.isAuthenticated = await this.cryptrClient.isAuthenticated();
+        if(this.cryptrClient.getUser()) {
+          this.user = this.cryptrClient.getUser()
+        }else {
+          this.user = {}
+        }
+        this.loading = false;
+      }
+    }
+  });
+</script>

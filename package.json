@@ -1,0 +1,119 @@
+{
+  "name": "@cryptr/cryptr-spa-js",
+  "description": "Cryptr SDK for Single Page Applications using passwordless authentication",
+  "version": "0.2.11-beta",
+  "main": "dist/cryptr-spa-js.cjs.js",
+  "module": "dist/cryptr-spa-js.esm.js",
+  "browser": "dist/cryptr-spa-js.umd.js",
+  "types": "dist/types/main.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "7.10.5",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.11.0",
+    "@babel/preset-env": "7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
+    "@lopatnov/rollup-plugin-uglify": "^2.1.0",
+    "@types/crypto-js": "^3.1.47",
+    "@types/jest": "^26.0.5",
+    "@types/uuid": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
+    "babel-jest": "24.9.0",
+    "chrome-ext-downloader": "^1.0.4",
+    "concurrently": "5.0.1",
+    "cypress": "^4.12.1",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "faker": "^4.1.0",
+    "istanbul-badges-readme": "^1.0.5",
+    "jest": ">=26.0.0",
+    "jest-mock-axios": "^4.2.1",
+    "msw": "^0.19.5",
+    "prettier": "^2.0.5",
+    "rollup": "1.32.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "serve": "11.3.2",
+    "terser": "^5.0.0",
+    "ts-jest": "^26.1.3",
+    "typescript": "^3.9.7",
+    "yarn": "^1.22.10"
+  },
+  "scripts": {
+    "prepare": "yarn build",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "rollup -c",
+    "build": "rm -rf dist && yarn build:types && yarn build:js",
+    "build:watch": "rollup -c -w",
+    "make-badges": "istanbul-badges-readme",
+    "watch": "concurrently 'yarn build:watch' 'yarn serve -l tcp://localhost'",
+    "test": "jest && npm run make-badges && yarn build",
+    "coverage": "jest --env=jsdom --watchAll=false --coverage",
+    "test:watch": "jest --env=jsdom --watchAll --coverage",
+    "test:with-badges": "npm run coverage && npm run make-badges",
+    "format": "prettier --write '**/*.{js,ts,json,md}'",
+    "dev": "concurrently 'yarn watch' 'sleep 2 && open http://127.0.0.1:5000/dev/'",
+    "download-extension": "ced gleekbfjekiniecknbkamfmkohkpodhe extensions/ignore-x-frame-headers",
+    "unpublish:lib": "npm unpublish ${npm_package_name}@${npm_package_version} --force",
+    "publish-force": "npm run test && npm run unpublish:lib && npm run build && ls && npm run publish:lib",
+    "publish:lib": "npm run test && npm run build && ls && npm publish"
+  },
+  "renovate": {
+    "extends": [
+      "config:js-lib"
+    ],
+    "automerge": true,
+    "major": {
+      "automerge": false
+    },
+    "automergeType": "branch"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@cryptography/sha256": "^0.2.0",
+    "@cryptr/cryptr-config-validation": "^1.0.1",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@sentry/browser": "^5.27.1",
+    "@sentry/tracing": "^5.27.1",
+    "@types/jwt-decode": "^2.2.1",
+    "Base64": "^1.1.0",
+    "axios": "^0.21.1",
+    "chrome-ext-downloader": "^1.0.4",
+    "crypto-js": "^4.0.0",
+    "es-cookie": "^1.3.2",
+    "fast-text-encoding": "^1.0.3",
+    "hasha": "^5.2.0",
+    "jwt-decode": "^2.2.0",
+    "promise-polyfill": "^8.1.3",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "secure-random": "^1.1.2",
+    "uuid": "^8.2.0"
+  },
+  "keywords": [
+    "cryptr",
+    "authentication",
+    "SPA",
+    "oAuth",
+    "client",
+    "token",
+    "user-account"
+  ],
+  "author": "Cryptr <jeremie@cryptr.co> (https://www.cryptr.co)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cryptr-auth/cryptr-spa-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cryptr-auth/cryptr-spa-js/issues"
+  },
+  "homepage": "https://github.com/cryptr-auth/cryptr-spa-js#readme"
+}
