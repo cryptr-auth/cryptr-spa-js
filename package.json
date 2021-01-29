@@ -1,7 +1,7 @@
 {
   "name": "@cryptr/cryptr-spa-js",
   "description": "Cryptr SDK for Single Page Applications using passwordless authentication",
-  "version": "0.2.11-beta",
+  "version": "0.1.0",
   "main": "dist/cryptr-spa-js.cjs.js",
   "module": "dist/cryptr-spa-js.esm.js",
   "browser": "dist/cryptr-spa-js.umd.js",
@@ -79,7 +79,7 @@
   ],
   "dependencies": {
     "@cryptography/sha256": "^0.2.0",
-    "@cryptr/cryptr-config-validation": "^1.0.1",
+    "@cryptr/cryptr-config-validation": "^0.1.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
     "@sentry/browser": "^5.27.1",
