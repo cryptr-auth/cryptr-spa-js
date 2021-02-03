@@ -177,11 +177,14 @@ class Client {
     }
   }
 
-  private finalScope(scope?: string): string {
+  finalScope(scope?: string): string {
     if (!scope || scope === DEFAULT_SCOPE) {
       return DEFAULT_SCOPE
     }
-    return `${DEFAULT_SCOPE} ${scope}`
+    const scopeArray = scope.split(" ")
+    const defaultScopeArray = DEFAULT_SCOPE.split(" ")
+    const union = [...new Set([...defaultScopeArray, ...scopeArray])]
+    return union.join(" ")
   }
 
   private async signWithoutRedirect(
