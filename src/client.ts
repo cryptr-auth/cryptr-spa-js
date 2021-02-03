@@ -177,87 +177,86 @@ class Client {
     }
   }
 
+  private finalScope(scope?: string): string {
+    if (!scope || scope === DEFAULT_SCOPE) {
+      return DEFAULT_SCOPE
+    }
+    return `${DEFAULT_SCOPE} ${scope}`
+  }
+
   private async signWithoutRedirect(
     sign: Sign,
-    scope: string,
+    scope = DEFAULT_SCOPE,
     locale?: Locale,
     redirectUri = this.config.default_redirect_uri,
   ) {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    await Transaction.create(sign, scopeToSend, locale, redirectUri)
+    await Transaction.create(sign, this.finalScope(scope), locale, redirectUri)
   }
 
   async signInWithoutRedirect(
-    scope: string,
+    scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    this.signWithoutRedirect(Sign.In, scopeToSend, locale, redirectUri)
+    this.signWithoutRedirect(Sign.In, scope, locale, redirectUri)
   }
 
   async signUpWithoutRedirect(
-    scope: string,
+    scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    this.signWithoutRedirect(Sign.Up, scopeToSend, locale, redirectUri)
+    this.signWithoutRedirect(Sign.Up, scope, locale, redirectUri)
   }
 
   async inviteWithoutRedirect(
-    scope: string,
+    scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    this.signWithoutRedirect(Sign.Invite, scopeToSend, locale, redirectUri)
+    this.signWithoutRedirect(Sign.Invite, scope, locale, redirectUri)
   }
 
   private async signWithRedirect(
     sign: Sign,
-    scope: string,
+    scope = DEFAULT_SCOPE,
     locale?: Locale,
     redirectUri = this.config.default_redirect_uri,
   ) {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    const transaction = await Transaction.create(sign, scopeToSend, locale, redirectUri)
+    const transaction = await Transaction.create(sign, this.finalScope(scope), locale, redirectUri)
     const url = await Transaction.signUrl(this.config, transaction)
 
     window.location.assign(url.href)
   }
 
   async signInWithRedirect(
-    scope: string,
+    scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    this.signWithRedirect(Sign.In, scopeToSend, locale, redirectUri)
+    this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
   async signUpWithRedirect(
-    scope: string,
+    scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    this.signWithRedirect(Sign.Up, scopeToSend, locale, redirectUri)
+    this.signWithRedirect(Sign.Up, scope, locale, redirectUri)
   }
 
   async inviteWithRedirect(
-    scope: string,
+    scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
-    const scopeToSend = `${DEFAULT_SCOPE} ${scope}`
-    this.signWithRedirect(Sign.Invite, scopeToSend, locale, redirectUri)
+    this.signWithRedirect(Sign.Invite, scope, locale, redirectUri)
   }
 
   async handleInvitationState(scope = DEFAULT_SCOPE) {
