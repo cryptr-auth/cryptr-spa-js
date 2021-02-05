@@ -243,6 +243,7 @@ describe('userAccountAccess', () => {
 describe('finalScope', () => {
   let client = new Client(validConfig)
   let newScope = 'read:invoices delete:tutu'
+  let duplicatedScope = 'email email openid read:invoices delete:tutu'
   let scopeWithPartDefault = 'email read:invoices delete:tutu'
 
   it('returns DEFAULT_SCOPE if none provided', async () => {
@@ -254,6 +255,10 @@ describe('finalScope', () => {
   })
   it('returns DEFAULT_SCOPE appendend to scope if one provided', async () => {
     expect(client.finalScope(newScope)).toEqual("openid email read:invoices delete:tutu")
+  })
+
+  it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
+    expect(client.finalScope(duplicatedScope)).toEqual("openid email read:invoices delete:tutu")
   })
 
   it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
