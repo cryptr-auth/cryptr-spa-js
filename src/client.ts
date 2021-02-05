@@ -243,6 +243,7 @@ class Client {
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
+
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
