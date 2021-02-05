@@ -37,8 +37,7 @@ const CRYPTR_EU_BASE_URL = 'https://auth.cryptr.eu'
 const CRYPTR_US_BASE_URL = 'https://auth.cryptr.us'
 
 export const cryptrBaseUrl = (config: Config) => {
-  const errorMsg = `You must provide region or url in values ${Object.values(Region)}, found '${config.region
-    }`
+  const errorMsg = `You must provide region or url in values [${Object.values(Region)}] found '${config.region}'`
   switch (config.region) {
     case Region.eu:
       return CRYPTR_EU_BASE_URL
