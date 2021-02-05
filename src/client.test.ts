@@ -12,7 +12,7 @@ const validConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  development: true,
+  cryptr_base_url: 'http://localhost:4000',
   // locale: 'fr',
 }
 
