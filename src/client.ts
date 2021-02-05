@@ -177,6 +177,16 @@ class Client {
     }
   }
 
+  finalScope(scope?: string): string {
+    if (!scope || scope === DEFAULT_SCOPE) {
+      return DEFAULT_SCOPE
+    }
+    const scopeArray = scope.split(" ")
+    const defaultScopeArray = DEFAULT_SCOPE.split(" ")
+    const union = [...new Set([...defaultScopeArray, ...scopeArray])]
+    return union.join(" ")
+  }
+
   private async signWithoutRedirect(
     sign: Sign,
     scope = DEFAULT_SCOPE,
@@ -186,7 +196,7 @@ class Client {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    await Transaction.create(sign, scope, locale, redirectUri)
+    await Transaction.create(sign, this.finalScope(scope), locale, redirectUri)
   }
 
   async signInWithoutRedirect(
@@ -222,7 +232,7 @@ class Client {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    const transaction = await Transaction.create(sign, scope, locale, redirectUri)
+    const transaction = await Transaction.create(sign, this.finalScope(scope), locale, redirectUri)
     const url = await Transaction.signUrl(this.config, transaction)
 
     window.location.assign(url.href)

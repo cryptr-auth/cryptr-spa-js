@@ -150,18 +150,21 @@
 
   var config = {
     tenant_domain: 'shark-academy',
-    client_id: '5e5e284c-8aea-4efe-a50d-61f6c82bd72d',
+    client_id: '457cf3d5-bdc8-42fb-89f3-41a8a2bc507f',
     audience: 'http://127.0.0.1:5000',
-    redirect_uri: 'http://127.0.0.1:5000/dev/',
+    default_redirect_uri: 'http://127.0.0.1:5000/dev/',
+    development: true,
     cryptr_base_url: 'http://localhost:4000',
-    locale: 'en'
-  }
+    default_locale: 'en',
+    telemetry: false
+  };
 
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
   document.getElementById("client-id").innerText = config.client_id;
   document.getElementById("audience").innerText = config.audience;
   document.getElementById("redirect-uri").innerText = config.redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
+  var scopes = 'openid profile email address phone';
 
   var app = new Vue({
     el: '#app',
@@ -179,7 +182,7 @@
     methods: {
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
-        return this.cryptrClient.signInWithRedirect();
+        return this.cryptrClient.signInWithRedirect(scopes);
       },
 
       /** Authenticates the user using the redirect method */
@@ -202,14 +205,7 @@
     /** Use this lifecycle method to instantiate the SDK client */
     async created() {
       // Create a new instance of the SDK client using members of the given config object
-      this.cryptrClient = await CryptrSpa.createClient({
-        tenant_domain: config.tenant_domain,
-        client_id: config.client_id,
-        audience: config.audience,
-        redirect_uri: config.redirect_uri,
-        locale: config.locale,
-        cryptr_base_url: config.cryptr_base_url
-      });
+      this.cryptrClient = await CryptrSpa.createClient(config);
 
       try {
         // If the user is returning to the app after authentication..

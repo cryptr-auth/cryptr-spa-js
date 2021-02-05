@@ -5,6 +5,7 @@ import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
+import { DEFAULT_SCOPE } from './constants'
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -236,6 +237,32 @@ describe('userAccountAccess', () => {
     await client.userAccountAccess()
     expect(accessTokenFn).toHaveBeenCalled()
     accessTokenFn.mockRestore()
+  })
+})
+
+describe('finalScope', () => {
+  let client = new Client(validConfig)
+  let newScope = 'read:invoices delete:tutu'
+  let duplicatedScope = 'email email openid read:invoices delete:tutu'
+  let scopeWithPartDefault = 'email read:invoices delete:tutu'
+
+  it('returns DEFAULT_SCOPE if none provided', async () => {
+    expect(client.finalScope(undefined)).toEqual(DEFAULT_SCOPE)
+  })
+
+  it('returns DEFAULT_SCOPE if DEFAULT_SCOPE provided', async () => {
+    expect(client.finalScope(DEFAULT_SCOPE)).toEqual(DEFAULT_SCOPE)
+  })
+  it('returns DEFAULT_SCOPE appendend to scope if one provided', async () => {
+    expect(client.finalScope(newScope)).toEqual("openid email read:invoices delete:tutu")
+  })
+
+  it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
+    expect(client.finalScope(duplicatedScope)).toEqual("openid email read:invoices delete:tutu")
+  })
+
+  it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
+    expect(client.finalScope(scopeWithPartDefault)).toEqual("openid email read:invoices delete:tutu")
   })
 })
 
