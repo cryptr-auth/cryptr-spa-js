@@ -33,22 +33,19 @@ export const DEFAULT_REFRESH_ROTATION_DURATION: number = 900
 
 export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
 
-const CRYPTR_DEV_BASE_URL = 'http://localhost:4000'
 const CRYPTR_EU_BASE_URL = 'https://auth.cryptr.eu'
 const CRYPTR_US_BASE_URL = 'https://auth.cryptr.us'
 
 export const cryptrBaseUrl = (config: Config) => {
-  const errorMsg = `You must provide region in values ${Object.values(Region)}, found '${
-    config.region
-  }`
+  const errorMsg = `You must provide region or url in values [${Object.values(Region)}] found '${config.region}'`
   switch (config.region) {
     case Region.eu:
       return CRYPTR_EU_BASE_URL
     case Region.us:
       return CRYPTR_US_BASE_URL
     case undefined:
-      if (config.development) {
-        return CRYPTR_DEV_BASE_URL
+      if (config.cryptr_base_url) {
+        return config.cryptr_base_url
       } else {
         throw new Error(errorMsg)
       }

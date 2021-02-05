@@ -12,7 +12,7 @@ export interface Config {
   default_redirect_uri: string
   default_locale?: Locale
   region?: Region
-  development?: boolean
+  cryptr_base_url?: string
   telemetry?: boolean
 }
 
