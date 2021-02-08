@@ -1,8 +1,8 @@
 import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
 import axios from 'axios'
-import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
-import { Locale, Sign } from './types'
+import { ALLOWED_LOCALES, cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
+import { Sign } from './types'
 import Request from './request'
 import Storage from './storage'
 import Transaction, { refreshKey, transactionKey } from './transaction'
@@ -49,7 +49,11 @@ class Client {
     validAppBaseUrl(cryptrBaseUrl(config))
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
-
+    if (config.default_locale && !ALLOWED_LOCALES.includes(config.default_locale)) {
+      throw new Error(
+        `'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
+      )
+    }
     this.config = config
     // this.worker = new Worker('/src/token.worker.js')
     // if ('serviceWorker' in navigator) {
@@ -181,16 +185,16 @@ class Client {
     if (!scope || scope === DEFAULT_SCOPE) {
       return DEFAULT_SCOPE
     }
-    const scopeArray = scope.split(" ")
-    const defaultScopeArray = DEFAULT_SCOPE.split(" ")
+    const scopeArray = scope.split(' ')
+    const defaultScopeArray = DEFAULT_SCOPE.split(' ')
     const union = [...new Set([...defaultScopeArray, ...scopeArray])]
-    return union.join(" ")
+    return union.join(' ')
   }
 
   private async signWithoutRedirect(
     sign: Sign,
     scope = DEFAULT_SCOPE,
-    locale?: Locale,
+    locale?: string,
     redirectUri = this.config.default_redirect_uri,
   ) {
     if (redirectUri !== this.config.default_redirect_uri) {
@@ -202,7 +206,7 @@ class Client {
   async signInWithoutRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
-    locale?: Locale,
+    locale?: string,
   ) {
     this.signWithoutRedirect(Sign.In, scope, locale, redirectUri)
   }
@@ -210,7 +214,7 @@ class Client {
   async signUpWithoutRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
-    locale?: Locale,
+    locale?: string,
   ) {
     this.signWithoutRedirect(Sign.Up, scope, locale, redirectUri)
   }
@@ -218,7 +222,7 @@ class Client {
   async inviteWithoutRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
-    locale?: Locale,
+    locale?: string,
   ) {
     this.signWithoutRedirect(Sign.Invite, scope, locale, redirectUri)
   }
@@ -226,7 +230,7 @@ class Client {
   private async signWithRedirect(
     sign: Sign,
     scope = DEFAULT_SCOPE,
-    locale?: Locale,
+    locale?: string,
     redirectUri = this.config.default_redirect_uri,
   ) {
     if (redirectUri !== this.config.default_redirect_uri) {
@@ -241,16 +245,15 @@ class Client {
   async signInWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
-    locale?: Locale,
+    locale?: string,
   ) {
-
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
-    locale?: Locale,
+    locale?: string,
   ) {
     this.signWithRedirect(Sign.Up, scope, locale, redirectUri)
   }
@@ -258,7 +261,7 @@ class Client {
   async inviteWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
-    locale?: Locale,
+    locale?: string,
   ) {
     this.signWithRedirect(Sign.Invite, scope, locale, redirectUri)
   }

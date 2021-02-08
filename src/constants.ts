@@ -32,11 +32,15 @@ export const DEFAULT_REFRESH_ROTATION_DURATION: number = 900
 
 export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
 
+export const ALLOWED_LOCALES = ['en', 'fr']
+
+export const ALLOWED_REGIONS = ['eu', 'us']
+
 const CRYPTR_EU_BASE_URL = 'https://auth.cryptr.eu'
 const CRYPTR_US_BASE_URL = 'https://auth.cryptr.us'
 
 export const cryptrBaseUrl = (config: Config) => {
-  const errorMsg = `You must provide region or url in values [eu,us] found '${config.region}'`
+  const errorMsg = `You must provide region in values ${ALLOWED_REGIONS} found '${config.region}', if not provide your cryptr_base_url`
   switch (config.region) {
     case 'eu':
       return CRYPTR_EU_BASE_URL
