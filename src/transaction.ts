@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import * as I from './interfaces'
 
-import { Locale, Sign } from './enums'
+import { Locale, Sign } from './types'
 import {
   STORAGE_KEY_PREFIX,
   DEFAULT_REFRESH_ROTATION_DURATION,

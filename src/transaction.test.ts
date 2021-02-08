@@ -3,7 +3,7 @@ import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
 import Transaction from './transaction'
-import { Sign } from './enums'
+import { Sign } from './types'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import { tokenUrl } from './request'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'

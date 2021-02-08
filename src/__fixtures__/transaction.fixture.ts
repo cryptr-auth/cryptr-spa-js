@@ -1,5 +1,5 @@
 import { Transaction } from '../interfaces'
-import { Sign } from '../enums'
+import { Sign } from '../types'
 import Pkce from '../pkce'
 
 const TransactionFixure = {
