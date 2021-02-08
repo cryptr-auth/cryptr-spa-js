@@ -104,7 +104,7 @@ describe('Transaction', () => {
       client_id: '876fe074-3be7-4616-98e5-b4195c97e0b5',
       audience: 'http://127.0.0.1:5000/dev/',
       default_redirect_uri: 'http://127.0.0.1:5000/dev/',
-      cryptr_base_url: "http://localhost:4000",
+      cryptr_base_url: 'http://localhost:4000',
       // locale: 'en',
     }
 

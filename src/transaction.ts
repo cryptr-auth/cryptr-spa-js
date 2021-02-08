@@ -77,12 +77,7 @@ const Transaction: any = {
 
   new: newTransaction,
 
-  create: (
-    signType: Sign,
-    scope: string,
-    locale: string,
-    redirect_uri: string,
-  ): I.Transaction => {
+  create: (signType: Sign, scope: string, locale: string, redirect_uri: string): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
     }

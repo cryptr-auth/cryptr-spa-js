@@ -50,7 +50,9 @@ class Client {
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
     if (config.default_locale && !ALLOWED_LOCALES.includes(config.default_locale)) {
-      throw new Error(`'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`);
+      throw new Error(
+        `'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
+      )
     }
     this.config = config
     // this.worker = new Worker('/src/token.worker.js')
@@ -183,10 +185,10 @@ class Client {
     if (!scope || scope === DEFAULT_SCOPE) {
       return DEFAULT_SCOPE
     }
-    const scopeArray = scope.split(" ")
-    const defaultScopeArray = DEFAULT_SCOPE.split(" ")
+    const scopeArray = scope.split(' ')
+    const defaultScopeArray = DEFAULT_SCOPE.split(' ')
     const union = [...new Set([...defaultScopeArray, ...scopeArray])]
-    return union.join(" ")
+    return union.join(' ')
   }
 
   private async signWithoutRedirect(
@@ -245,7 +247,6 @@ class Client {
     redirectUri = this.config.default_redirect_uri,
     locale?: string,
   ) {
-
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
