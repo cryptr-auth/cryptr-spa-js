@@ -58,6 +58,36 @@ describe('Transaction', () => {
     })
   })
 
+  it('throw error if wrong locale using create function', () => {
+    expect(() => Transaction.create(Sign.In, 'openid email', 'de')).toThrowError("'de' locale not valid, possible values en,fr")
+  })
+
+  it('creates proper transaction with fr locale using create function', () => {
+    expect(Transaction.create(Sign.In, 'openid email', 'fr')).toMatchObject({
+      ...TransactionFixure.valid(),
+      pkce: {
+        code_challenge: expect.any(String),
+        code_verifier: expect.any(String),
+        state: expect.any(String),
+      },
+      nonce: expect.any(String),
+      locale: 'fr'
+    })
+  })
+
+  it('creates proper transaction with en locale using create function', () => {
+    expect(Transaction.create(Sign.In, 'openid email', 'en')).toMatchObject({
+      ...TransactionFixure.valid(),
+      pkce: {
+        code_challenge: expect.any(String),
+        code_verifier: expect.any(String),
+        state: expect.any(String),
+      },
+      nonce: expect.any(String),
+      locale: 'en'
+    })
+  })
+
   it('creates proper transaction using createFromState function', () => {
     var state = '123-xeab'
     const transaction = Transaction.createFromState(state, Sign.In, 'openid email')
@@ -75,6 +105,28 @@ describe('Transaction', () => {
   xit('creates proper storage cookie using createFromState function', () => {
     var state = '123-xeab'
     Transaction.createFromState(state, Sign.In, 'openid email')
+    expect(Transaction.get(state)).toMatchObject({})
+  })
+
+  it('creates proper transaction with locale using createFromState function', () => {
+    var state = '123-xeab'
+    const transaction = Transaction.createFromState(state, Sign.In, 'openid email', 'fr')
+    expect(transaction).toMatchObject({
+      ...TransactionFixure.valid(),
+      pkce: {
+        code_challenge: expect.any(String),
+        code_verifier: expect.any(String),
+        state: state,
+      },
+      nonce: expect.any(String),
+      locale: 'fr'
+    })
+  })
+
+  it('throw error if wrong locale using createFromState function', () => {
+    var state = '123-xeab'
+    expect(() => Transaction.createFromState(state, Sign.In, 'openid email', 'be')).toThrowError("'be' locale not valid, possible values en,fr")
+
     expect(Transaction.get(state)).toMatchObject({})
   })
 

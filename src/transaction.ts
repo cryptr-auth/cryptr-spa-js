@@ -7,6 +7,7 @@ import {
   DEFAULT_REFRESH_ROTATION_DURATION,
   DEFAULT_REFRESH_EXPIRATION,
   cryptrBaseUrl,
+  ALLOWED_LOCALES,
 } from './constants'
 import Jwt from './jwt'
 import Pkce from './pkce'
@@ -81,6 +82,11 @@ const Transaction: any = {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
     }
+    if (locale && !ALLOWED_LOCALES.includes(locale)) {
+      throw new Error(
+        `'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
+      )
+    }
     const transaction = newTransaction(signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction)
     return transaction
@@ -95,6 +101,11 @@ const Transaction: any = {
   ): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
+    }
+    if (locale && !ALLOWED_LOCALES.includes(locale)) {
+      throw new Error(
+        `'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
+      )
     }
     const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
     Storage.createCookie(transactionKey(state), transaction)
