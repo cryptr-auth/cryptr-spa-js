@@ -39,6 +39,23 @@ const wrongBaseUrlConfig: Config = {
   default_redirect_uri: 'http://localhost:1234',
 }
 
+const wrongLocaleConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  region: 'eu',
+  default_locale: 'de'
+}
+
+const wrongRegionConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  region: 'asia'
+}
+
 const validAccessToken =
   'eyJhbGciOiJSUzI1NiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDAwMC90L3NoYXJrLWFjYWRlbXkiLCJraWQiOiJlYTE2NzI1ZS1jYTAwLTQxN2QtOTRmZS1hNzBiMTFhMGU0OTMiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJjaWQiOiI5ZTljMjEwMS0xMDM1LTQwNDItOWMwZS01ZGI5NjM1ZDQwNDgiLCJleHAiOjE2MDMyNzQxODg3MTQsImlhdCI6MTYwMzI3MzI4ODcxNCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo0MDAwL3Qvc2hhcmstYWNhZGVteSIsImp0aSI6IjJjOGM2ZGNjLTMwYzktNDRjOC1hNzIyLWQ0M2VmZmNkZWQ4NiIsImp0dCI6ImFjY2VzcyIsInJlc291cmNlX293bmVyX21ldGFkYXRhIjp7fSwic2NwIjpbImxpbWl0ZWQiXSwic3ViIjoiYjlhZmRmN2ItNTljMS00NjNkLTg1N2MtNTdmYWQzMzU5ZmY0IiwidG50Ijoic2hhcmstYWNhZGVteSIsInZlciI6MX0.A-TBRr6pue9sPwYroMQ2QVEnGgk5n8T-_8pmIrDfgYniqlcDMPOwU4wMpyvace48TOvhd0wsHPG5ep-7ZkIjuDRam6bVdRlmvGJBhvz0zyeAW12YuNqDwTkmKc-P2lTEGC_b5pq0Gn-97P3hGX2e35Wgkvseh2AP7T8crF58hdOxS-vwKGR0SoqdunzqFdTEWmpoUK0aFgkSIuCfBwBapYrHXcD0-yD6w-QzEi-c06HibTt32vXmWOtuOuy1z_os1SXqUR-rlUX1or8HusxMMhmv8lWi7LJnDjPBciL4_hW52hq0WdgdLvtsCeC03uVMyCPrBDK9m3AOb0b3t6looN7Bj7U8AtGmJh7P16hhHhlDoSdhOMdj-9SyU82S9kBQnlk_ReQCu26P1U-_SkT56LDA1RzlzLgTDB1fqadpTie7KAWwJS4HRgqIDHer5reK6-zHjmjUtfJR9Fs6WjSEbbZ0A9EqUxb5SS1e8G4QuhCRMKyXvkLslLD_zwapRHWp5AsIKXDhHunmzeP4KHMuJg05V7sMeag7MCr_BmR4Db0qd2cOyF0vEmW-sMRcICks50xZq-n6cM3rlGMEzPg3A9mqol8gnOCeGCQESfYv2D8h_mrOxXbBBGQlZZdxd1IP7LHAvIspzM6N1AYeyyqOLA1qf2NLVloAvdDaHd4qqX4'
 
@@ -56,7 +73,7 @@ describe('Cryptr Base url', () => {
   })
 
   it('should throw error if neither region nor cryptr_base_url', () => {
-    expect(() => cryptrBaseUrl(wrongBaseUrlConfig)).toThrowError("You must provide region or url in values [eu,us] found 'undefined'")
+    expect(() => cryptrBaseUrl(wrongBaseUrlConfig)).toThrowError("You must provide region in values eu,us found 'undefined', if not provide your cryptr_base_url")
   })
 })
 describe('client creation', () => {
@@ -88,6 +105,14 @@ describe('client creation', () => {
     expect(sentryInitFn).not.toBeCalled()
     expect(sentryInitFn).not.toHaveBeenCalled()
     sentryInitFn.mockRestore()
+  })
+
+  it('should throw error if  wrong locale defined', () => {
+    expect(() => new Client(wrongLocaleConfig)).toThrowError("'de' locale not valid, possible values en,fr")
+  })
+
+  it('should throw error if  wrong region defined', () => {
+    expect(() => new Client(wrongRegionConfig)).toThrowError("You must provide region in values eu,us found 'asia', if not provide your cryptr_base_url")
   })
 })
 

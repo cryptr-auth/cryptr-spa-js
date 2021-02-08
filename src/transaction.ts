@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import * as I from './interfaces'
 
-import { Locale, Sign } from './types'
+import { Sign } from './types'
 import {
   STORAGE_KEY_PREFIX,
   DEFAULT_REFRESH_ROTATION_DURATION,
@@ -19,7 +19,7 @@ const newTransaction = (
   signType: Sign,
   scope: string,
   redirect_uri: string,
-  locale: Locale,
+  locale: string,
 ): I.Transaction => {
   if (redirect_uri !== undefined && redirect_uri != null) {
     validRedirectUri(redirect_uri)
@@ -39,7 +39,7 @@ const newTransactionWithState = (
   scope: string,
   state: string,
   redirect_uri: string,
-  locale: Locale,
+  locale: string,
 ): I.Transaction => {
   if (redirect_uri !== undefined && redirect_uri != null) {
     validRedirectUri(redirect_uri)
@@ -80,7 +80,7 @@ const Transaction: any = {
   create: (
     signType: Sign,
     scope: string,
-    locale: Locale,
+    locale: string,
     redirect_uri: string,
   ): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
@@ -95,7 +95,7 @@ const Transaction: any = {
     state: string,
     signType: Sign,
     scope: string,
-    locale: Locale,
+    locale: string,
     redirect_uri: string,
   ): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {

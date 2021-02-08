@@ -7,7 +7,7 @@ const ConfigFixure = {
     audience: 'https://encheres.misapret.com',
     default_redirect_uri: 'https://encheres.misapret.com',
     cryptr_base_url: 'http://localhost:4000',
-    // locale: Locale.Fr,
+    // default_locale: 'fr',
   }),
 }
 

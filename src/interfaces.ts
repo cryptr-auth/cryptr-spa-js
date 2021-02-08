@@ -1,4 +1,4 @@
-import { Locale, Region, Sign } from './types'
+import { Sign } from './types'
 
 export interface Authorization {
   id: string
@@ -10,8 +10,8 @@ export interface Config {
   client_id: string
   audience: string
   default_redirect_uri: string
-  default_locale?: Locale
-  region?: Region
+  default_locale?: string
+  region?: string
   cryptr_base_url?: string
   telemetry?: boolean
 }
@@ -27,7 +27,7 @@ export interface Transaction {
   pkce: ProofKeyChallengeExchange
   sign_type: Sign
   scope: string
-  locale?: Locale
+  locale?: string
   redirect_uri?: string
   // Constant to validate redirections & mitigates replay/middleman attacks
   nonce?: string
