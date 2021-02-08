@@ -83,9 +83,7 @@ const Transaction: any = {
       validRedirectUri(redirect_uri)
     }
     if (locale && !ALLOWED_LOCALES.includes(locale)) {
-      throw new Error(
-        `'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
-      )
+      throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransaction(signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction)
@@ -103,9 +101,7 @@ const Transaction: any = {
       validRedirectUri(redirect_uri)
     }
     if (locale && !ALLOWED_LOCALES.includes(locale)) {
-      throw new Error(
-        `'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
-      )
+      throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
     Storage.createCookie(transactionKey(state), transaction)

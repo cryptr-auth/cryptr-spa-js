@@ -59,7 +59,9 @@ describe('Transaction', () => {
   })
 
   it('throw error if wrong locale using create function', () => {
-    expect(() => Transaction.create(Sign.In, 'openid email', 'de')).toThrowError("'de' locale not valid, possible values en,fr")
+    expect(() => Transaction.create(Sign.In, 'openid email', 'de')).toThrowError(
+      "'de' locale not valid, possible values en,fr",
+    )
   })
 
   it('creates proper transaction with fr locale using create function', () => {
@@ -71,7 +73,7 @@ describe('Transaction', () => {
         state: expect.any(String),
       },
       nonce: expect.any(String),
-      locale: 'fr'
+      locale: 'fr',
     })
   })
 
@@ -84,7 +86,7 @@ describe('Transaction', () => {
         state: expect.any(String),
       },
       nonce: expect.any(String),
-      locale: 'en'
+      locale: 'en',
     })
   })
 
@@ -119,13 +121,15 @@ describe('Transaction', () => {
         state: state,
       },
       nonce: expect.any(String),
-      locale: 'fr'
+      locale: 'fr',
     })
   })
 
   it('throw error if wrong locale using createFromState function', () => {
     var state = '123-xeab'
-    expect(() => Transaction.createFromState(state, Sign.In, 'openid email', 'be')).toThrowError("'be' locale not valid, possible values en,fr")
+    expect(() => Transaction.createFromState(state, Sign.In, 'openid email', 'be')).toThrowError(
+      "'be' locale not valid, possible values en,fr",
+    )
 
     expect(Transaction.get(state)).toMatchObject({})
   })
