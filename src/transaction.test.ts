@@ -3,7 +3,7 @@ import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
 import Transaction from './transaction'
-import { Sign } from './enums'
+import { Sign } from './types'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import { tokenUrl } from './request'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
@@ -104,8 +104,7 @@ describe('Transaction', () => {
       client_id: '876fe074-3be7-4616-98e5-b4195c97e0b5',
       audience: 'http://127.0.0.1:5000/dev/',
       default_redirect_uri: 'http://127.0.0.1:5000/dev/',
-      development: true,
-      // cryptr_base_url: 'https://cryptr-test.onrender.com/',
+      cryptr_base_url: "http://localhost:4000",
       // locale: 'en',
     }
 

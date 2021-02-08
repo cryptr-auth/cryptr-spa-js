@@ -5,19 +5,60 @@ import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
+import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  development: true,
-  // locale: 'fr',
+  cryptr_base_url: 'http://localhost:4000',
+  default_locale: 'fr',
+}
+
+const euValidConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  region: 'eu',
+}
+
+const usValidConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  region: 'us',
+}
+
+const wrongBaseUrlConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
 }
 
 const validAccessToken =
   'eyJhbGciOiJSUzI1NiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDAwMC90L3NoYXJrLWFjYWRlbXkiLCJraWQiOiJlYTE2NzI1ZS1jYTAwLTQxN2QtOTRmZS1hNzBiMTFhMGU0OTMiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjQyMDAiLCJjaWQiOiI5ZTljMjEwMS0xMDM1LTQwNDItOWMwZS01ZGI5NjM1ZDQwNDgiLCJleHAiOjE2MDMyNzQxODg3MTQsImlhdCI6MTYwMzI3MzI4ODcxNCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo0MDAwL3Qvc2hhcmstYWNhZGVteSIsImp0aSI6IjJjOGM2ZGNjLTMwYzktNDRjOC1hNzIyLWQ0M2VmZmNkZWQ4NiIsImp0dCI6ImFjY2VzcyIsInJlc291cmNlX293bmVyX21ldGFkYXRhIjp7fSwic2NwIjpbImxpbWl0ZWQiXSwic3ViIjoiYjlhZmRmN2ItNTljMS00NjNkLTg1N2MtNTdmYWQzMzU5ZmY0IiwidG50Ijoic2hhcmstYWNhZGVteSIsInZlciI6MX0.A-TBRr6pue9sPwYroMQ2QVEnGgk5n8T-_8pmIrDfgYniqlcDMPOwU4wMpyvace48TOvhd0wsHPG5ep-7ZkIjuDRam6bVdRlmvGJBhvz0zyeAW12YuNqDwTkmKc-P2lTEGC_b5pq0Gn-97P3hGX2e35Wgkvseh2AP7T8crF58hdOxS-vwKGR0SoqdunzqFdTEWmpoUK0aFgkSIuCfBwBapYrHXcD0-yD6w-QzEi-c06HibTt32vXmWOtuOuy1z_os1SXqUR-rlUX1or8HusxMMhmv8lWi7LJnDjPBciL4_hW52hq0WdgdLvtsCeC03uVMyCPrBDK9m3AOb0b3t6looN7Bj7U8AtGmJh7P16hhHhlDoSdhOMdj-9SyU82S9kBQnlk_ReQCu26P1U-_SkT56LDA1RzlzLgTDB1fqadpTie7KAWwJS4HRgqIDHer5reK6-zHjmjUtfJR9Fs6WjSEbbZ0A9EqUxb5SS1e8G4QuhCRMKyXvkLslLD_zwapRHWp5AsIKXDhHunmzeP4KHMuJg05V7sMeag7MCr_BmR4Db0qd2cOyF0vEmW-sMRcICks50xZq-n6cM3rlGMEzPg3A9mqol8gnOCeGCQESfYv2D8h_mrOxXbBBGQlZZdxd1IP7LHAvIspzM6N1AYeyyqOLA1qf2NLVloAvdDaHd4qqX4'
 
+describe('Cryptr Base url', () => {
+
+  it('should have eu base value if region EU', () => {
+    expect(cryptrBaseUrl(euValidConfig)).toEqual('https://auth.cryptr.eu')
+  })
+
+  it('should have us base value if region US', () => {
+    expect(cryptrBaseUrl(usValidConfig)).toEqual('https://auth.cryptr.us')
+  })
+  it('should have localhost:400 base value if set so', () => {
+    expect(cryptrBaseUrl(validConfig)).toEqual('http://localhost:4000')
+  })
+
+  it('should throw error if neither region nor cryptr_base_url', () => {
+    expect(() => cryptrBaseUrl(wrongBaseUrlConfig)).toThrowError("You must provide region or url in values [eu,us] found 'undefined'")
+  })
+})
 describe('client creation', () => {
   let client = new Client(validConfig)
   it('should succeed', () => {
@@ -236,6 +277,32 @@ describe('userAccountAccess', () => {
     await client.userAccountAccess()
     expect(accessTokenFn).toHaveBeenCalled()
     accessTokenFn.mockRestore()
+  })
+})
+
+describe('finalScope', () => {
+  let client = new Client(validConfig)
+  let newScope = 'read:invoices delete:tutu'
+  let duplicatedScope = 'email email openid read:invoices delete:tutu'
+  let scopeWithPartDefault = 'email read:invoices delete:tutu'
+
+  it('returns DEFAULT_SCOPE if none provided', async () => {
+    expect(client.finalScope(undefined)).toEqual(DEFAULT_SCOPE)
+  })
+
+  it('returns DEFAULT_SCOPE if DEFAULT_SCOPE provided', async () => {
+    expect(client.finalScope(DEFAULT_SCOPE)).toEqual(DEFAULT_SCOPE)
+  })
+  it('returns DEFAULT_SCOPE appendend to scope if one provided', async () => {
+    expect(client.finalScope(newScope)).toEqual("openid email read:invoices delete:tutu")
+  })
+
+  it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
+    expect(client.finalScope(duplicatedScope)).toEqual("openid email read:invoices delete:tutu")
+  })
+
+  it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
+    expect(client.finalScope(scopeWithPartDefault)).toEqual("openid email read:invoices delete:tutu")
   })
 })
 

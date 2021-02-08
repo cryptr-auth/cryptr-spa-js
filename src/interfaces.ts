@@ -1,4 +1,4 @@
-import { Locale, Region, Sign } from './enums'
+import { Locale, Region, Sign } from './types'
 
 export interface Authorization {
   id: string
@@ -12,7 +12,7 @@ export interface Config {
   default_redirect_uri: string
   default_locale?: Locale
   region?: Region
-  development?: boolean
+  cryptr_base_url?: string
   telemetry?: boolean
 }
 
