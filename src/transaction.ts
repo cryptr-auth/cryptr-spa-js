@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import * as I from './interfaces'
 
-import { Locale, Sign } from './enums'
+import { Locale, Sign } from './types'
 import {
   STORAGE_KEY_PREFIX,
   DEFAULT_REFRESH_ROTATION_DURATION,
@@ -62,7 +62,7 @@ export const validatesNonce = (transaction: I.Transaction, submittedNonce: strin
 }
 
 const signPath = (config: I.Config, transaction: I.Transaction): string => {
-  const locale = transaction.locale || config.default_locale || Locale.En
+  const locale = transaction.locale || config.default_locale || 'en'
   return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
 }
 

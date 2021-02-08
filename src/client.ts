@@ -2,7 +2,7 @@ import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
 import axios from 'axios'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
-import { Locale, Sign } from './enums'
+import { Locale, Sign } from './types'
 import Request from './request'
 import Storage from './storage'
 import Transaction, { refreshKey, transactionKey } from './transaction'
@@ -243,6 +243,7 @@ class Client {
     redirectUri = this.config.default_redirect_uri,
     locale?: Locale,
   ) {
+
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 

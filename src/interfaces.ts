@@ -1,4 +1,4 @@
-import { Locale, Region, Sign } from './enums'
+import { Locale, Region, Sign } from './types'
 
 export interface Authorization {
   id: string

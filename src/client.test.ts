@@ -6,7 +6,6 @@ import Transaction, { refreshKey } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
-import { Region } from './enums'
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -14,7 +13,7 @@ const validConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   cryptr_base_url: 'http://localhost:4000',
-  // locale: 'fr',
+  default_locale: 'fr',
 }
 
 const euValidConfig: Config = {
@@ -22,7 +21,7 @@ const euValidConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  region: Region.eu,
+  region: 'eu',
 }
 
 const usValidConfig: Config = {
@@ -30,7 +29,7 @@ const usValidConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  region: Region.us,
+  region: 'us',
 }
 
 const wrongBaseUrlConfig: Config = {
