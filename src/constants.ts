@@ -8,6 +8,7 @@ export const CODE_GRANT: string = 'code'
 
 export const DEFAULT_EXPIRY_ADJUSTMENT_SECONDS: number = 0
 
+
 export const DEFAULT_ISSUER: string = 'cryptr'
 
 export const DEFAULT_SCOPE: string = 'openid email'
@@ -28,7 +29,7 @@ export const SHA256: string = 'S256'
 export const STORAGE_KEY_PREFIX: string = '$cryptr-spa-js$'
 
 // In ms -> 90s
-export const DEFAULT_REFRESH_ROTATION_DURATION: number = 900
+export const DEFAULT_REFRESH_ROTATION_DURATION: number = 10000
 
 export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
 
