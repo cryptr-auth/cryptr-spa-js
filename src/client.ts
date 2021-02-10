@@ -128,7 +128,7 @@ class Client {
       if (refresh_token !== undefined) {
         let refreshObj = {
           refresh_token: refresh_token,
-          rotation_duration: 10000,
+          rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
           expiration_date: expiration_date,
         }
         Storage.createCookie(refreshKey(), refreshObj)
