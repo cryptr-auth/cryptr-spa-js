@@ -1,12 +1,10 @@
 import * as Cookies from 'es-cookie'
-import { STORAGE_KEY_PREFIX } from './constants'
+import { EXPIRATION_DAYS, STORAGE_KEY_PREFIX } from './constants'
 
 export interface Entry {
   key: string
   body: string
 }
-
-const EXPIRATION_DAYS: number = 1
 
 const storageKey = (client_id: string): string => `${STORAGE_KEY_PREFIX}.store.${client_id}`
 
