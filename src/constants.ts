@@ -28,8 +28,8 @@ export const SHA256: string = 'S256'
 // Same as COOKIE_KEY
 export const STORAGE_KEY_PREFIX: string = '$cryptr-spa-js$'
 
-// In ms -> 90s
-export const DEFAULT_REFRESH_ROTATION_DURATION: number = 10000
+// -> 1 month
+export const DEFAULT_REFRESH_ROTATION_DURATION: number = 1000 * 60 * 60 * 24 * 30
 
 export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
 
