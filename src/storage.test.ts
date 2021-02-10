@@ -3,7 +3,7 @@ jest.mock('es-cookie')
 
 describe('Storage.createCookie(clientId, value)', () => {
   const CLIENT_ID = 'adefe2f4-fe71-4187-809f-c39f20d8f792'
-  const EXPIRATION = 1
+  const EXPIRATION = 30
   const TOKENS = {
     id: '5c20cccd-55d0-4c11-8c4a-bf4c38fa8588',
     client_id: CLIENT_ID,
