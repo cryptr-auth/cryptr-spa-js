@@ -15,7 +15,7 @@ const CryptrSpa = {
   crypto: Crypto,
   storage: Storage,
   transaction: Transaction,
-  version: '0.1.3',
+  version: '0.1.$',
 }
 
 export default CryptrSpa
