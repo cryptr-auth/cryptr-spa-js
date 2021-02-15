@@ -32,3 +32,8 @@ export interface Transaction {
   // Constant to validate redirections & mitigates replay/middleman attacks
   nonce?: string
 }
+
+export interface AuthResponseError {
+  field: string
+  message: string
+}
