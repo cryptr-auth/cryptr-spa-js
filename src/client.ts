@@ -51,7 +51,7 @@ const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
   config: Interface.Config
   private memory: InMemory = new InMemory()
-  private worker
+  private worker?: Worker
 
   constructor(config: Interface.Config) {
     this.configureSentry(config)
@@ -66,7 +66,7 @@ class Client {
     this.config = config
     if ('serviceWorker' in navigator) {
       this.worker = new TokenWorker();
-      this.worker.addEventListener('message', (event: MessageEvent) => {
+      this.worker?.addEventListener('message', (event: MessageEvent) => {
         if (event.data == 'rotate') {
           this.refreshTokens()
         }
