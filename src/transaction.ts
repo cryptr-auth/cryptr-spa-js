@@ -1,12 +1,13 @@
 import { v4 as uuid } from 'uuid'
 import * as I from './interfaces'
 
-import { Locale, Sign } from './types'
+import { Sign } from './types'
 import {
   STORAGE_KEY_PREFIX,
   DEFAULT_REFRESH_ROTATION_DURATION,
   DEFAULT_REFRESH_EXPIRATION,
   cryptrBaseUrl,
+  ALLOWED_LOCALES,
 } from './constants'
 import Jwt from './jwt'
 import Pkce from './pkce'
@@ -19,7 +20,7 @@ const newTransaction = (
   signType: Sign,
   scope: string,
   redirect_uri: string,
-  locale: Locale,
+  locale: string,
 ): I.Transaction => {
   if (redirect_uri !== undefined && redirect_uri != null) {
     validRedirectUri(redirect_uri)
@@ -39,7 +40,7 @@ const newTransactionWithState = (
   scope: string,
   state: string,
   redirect_uri: string,
-  locale: Locale,
+  locale: string,
 ): I.Transaction => {
   if (redirect_uri !== undefined && redirect_uri != null) {
     validRedirectUri(redirect_uri)
@@ -77,14 +78,12 @@ const Transaction: any = {
 
   new: newTransaction,
 
-  create: (
-    signType: Sign,
-    scope: string,
-    locale: Locale,
-    redirect_uri: string,
-  ): I.Transaction => {
+  create: (signType: Sign, scope: string, locale: string, redirect_uri: string): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
+    }
+    if (locale && !ALLOWED_LOCALES.includes(locale)) {
+      throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransaction(signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction)
@@ -95,11 +94,14 @@ const Transaction: any = {
     state: string,
     signType: Sign,
     scope: string,
-    locale: Locale,
+    locale: string,
     redirect_uri: string,
   ): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
+    }
+    if (locale && !ALLOWED_LOCALES.includes(locale)) {
+      throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
     Storage.createCookie(transactionKey(state), transaction)

@@ -31,8 +31,9 @@ export const refreshTokensParams = (
 })
 
 export const revokeTokenUrl = (config: Config) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
-    }/oauth/token/revoke`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
+    config.client_id
+  }/oauth/token/revoke`
 }
 
 export const tokenUrl = (
@@ -40,11 +41,13 @@ export const tokenUrl = (
   authorization: Authorization,
   transaction: TransactionInterface,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
+    config.client_id
   }/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
 
 export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
+    config.client_id
   }/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
@@ -84,7 +87,7 @@ const Request = {
 
   decoratedRequest: (accessToken: any, axiosRequestConfig: any) => {
     if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
-      return axiosRequestConfig;
+      return axiosRequestConfig
     }
     if (accessToken !== undefined) {
       let authBearer = `Bearer ${accessToken}`

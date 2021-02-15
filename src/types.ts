@@ -4,7 +4,3 @@ export enum Sign {
   Up = 'signup',
   Refresh = 'refresh',
 }
-
-export type Locale = 'en' | 'fr'
-
-export type Region = 'eu' | 'us'
