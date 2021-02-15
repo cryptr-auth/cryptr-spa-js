@@ -17,6 +17,8 @@ import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
 import EventTypes from './event_types'
 import { Integrations } from '@sentry/tracing'
+import TokenWorker from './token.worker.js'
+
 
 const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
@@ -48,7 +50,7 @@ const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
   config: Interface.Config
   private memory: InMemory = new InMemory()
-  // worker: Worker
+  worker: Worker
 
   constructor(config: Interface.Config) {
     this.configureSentry(config)
@@ -61,23 +63,15 @@ class Client {
       )
     }
     this.config = config
-    // this.worker = new Worker('/src/token.worker.js')
-    // if ('serviceWorker' in navigator) {
-    //   navigator.serviceWorker
-    //     .register('/src/token.worker.js')
-    //     .then(function (registration) {
-    //       console.log('Registration successful, scope is:', registration.scope)
-    //     })
-    //     .catch(function (error) {
-    //       console.log(error)
-    //       console.log('Service worker registration failed, error:', error)
-    //     })
-    // }
-    // this.worker.addEventListener('message', (event) => {
-    //   if (event.data == 'rotate') {
-    //     this.refreshTokens()
-    //   }
-    // })
+    if ('serviceWorker' in navigator) {
+      this.worker = new TokenWorker();
+      this.worker.addEventListener('message', (event) => {
+        if (event.data == 'rotate') {
+          this.refreshTokens()
+        }
+      })
+
+    }
   }
 
   private configureSentry(config: Interface.Config) {
@@ -197,6 +191,7 @@ class Client {
   }
 
   async refreshTokens() {
+    console.debug('refreshTokens')
     let refreshTokenData = Storage.getCookie(refreshKey())
     // @ts-ignore
     if (refreshTokenData.hasOwnProperty('refresh_token') && refreshTokenData.refresh_token) {
