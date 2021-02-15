@@ -2,7 +2,7 @@
 <html>
 <title>Cryptr</title>
 <meta charset="utf-8" />
-<script src="../dist/cryptr-spa-js.umd.js"></script>
+<script src="http://localhost:7000/cryptr-spa-js.umd.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"
   integrity="sha512-QJsj3afWlCpnQ60XzzYE8Jb3IgHIK1BcGZox9rUSmRRq3Ocz9vQ1yR80eX2/b9jfx/UuT5zYWNdrM8Te/eCMhQ=="
@@ -74,8 +74,8 @@
           </div>
           <div class="card-body">
             <h1 class="card-title pricing-card-title">Profile <small class="text-muted">/ OpenId</small></h1>
-            <a v-if="isAuthenticated" class="btn btn-success" href="#">Authentifié !</a>
-            <a v-if="!isAuthenticated" class="btn btn-danger" href="#">Non Authentifié !</a>
+            <a v-if="isAuthenticated" class="btn btn-success" href="#">Authenticated</a>
+            <a v-if="!isAuthenticated" class="btn btn-danger" href="#">Not authenticated</a>
             <ul v-if="!user.email" class="list-unstyled mt-3 mb-4">
               <li>Not available</li>
             </ul>
@@ -102,45 +102,6 @@
           </div>
         </div>
       </div>
-
-      <footer class="pt-4 my-md-5 pt-md-5 border-top">
-        <div class="row">
-          <div class="col-12 col-md">
-            <img class="mb-2" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="24"
-              height="24">
-            <small class="d-block mb-3 text-muted">© 2020</small>
-          </div>
-          <div class="col-6 col-md">
-            <h5>Features</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="#">Cool stuff</a></li>
-              <li><a class="text-muted" href="#">Random feature</a></li>
-              <li><a class="text-muted" href="#">Team feature</a></li>
-              <li><a class="text-muted" href="#">Stuff for developers</a></li>
-              <li><a class="text-muted" href="#">Another one</a></li>
-              <li><a class="text-muted" href="#">Last time</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-md">
-            <h5>Resources</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="#">Resource</a></li>
-              <li><a class="text-muted" href="#">Resource name</a></li>
-              <li><a class="text-muted" href="#">Another resource</a></li>
-              <li><a class="text-muted" href="#">Final resource</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-md">
-            <h5>About</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="#">Team</a></li>
-              <li><a class="text-muted" href="#">Locations</a></li>
-              <li><a class="text-muted" href="#">Privacy</a></li>
-              <li><a class="text-muted" href="#">Terms</a></li>
-            </ul>
-          </div>
-        </div>
-      </footer>
     </div>
 
 </body>
@@ -149,10 +110,10 @@
 <script>
 
   var config = {
-    tenant_domain: 'shark-academy',
-    client_id: '457cf3d5-bdc8-42fb-89f3-41a8a2bc507f',
-    audience: 'http://127.0.0.1:5000',
-    default_redirect_uri: 'http://127.0.0.1:5000/dev/',
+    tenant_domain: 'cryptr',
+    client_id: '1c2417e6-757d-47fe-b564-57b7c6f39b1b',
+    audience: 'http://localhost/',
+    default_redirect_uri: 'http://localhost:8000/',
     cryptr_base_url: 'http://localhost:4000',
     default_locale: 'en',
     telemetry: false
@@ -161,9 +122,9 @@
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
   document.getElementById("client-id").innerText = config.client_id;
   document.getElementById("audience").innerText = config.audience;
-  document.getElementById("redirect-uri").innerText = config.redirect_uri;
+  document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
-  var scopes = 'openid profile email address phone';
+  var scopes = 'openid email';
 
   var app = new Vue({
     el: '#app',
