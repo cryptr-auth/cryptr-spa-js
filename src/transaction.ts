@@ -73,6 +73,29 @@ const setTransactionKey = (transaction: I.Transaction): string =>
 
 export const refreshKey = (): string => `${STORAGE_KEY_PREFIX}.refresh`
 
+const formatAuthorizationResponse = (config: I.Config, accessToken?: string, idToken?: string, refreshToken?: string) => {
+  let valid = true
+  let errors: I.AuthResponseError[] = []
+  const validIdToken = Jwt.validatesIdToken(idToken || '', config)
+  const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config)
+  if (!validAccessToken) {
+    valid = false
+    errors = [{ field: 'idToken', message: 'Not retrieve' }]
+  }
+  if (!idToken || !validIdToken) {
+    valid = false
+    errors = validIdToken ? errors : errors.concat([{ field: 'idToken', message: 'Can’t process request' }])
+    errors = idToken ? errors : errors.concat([{ field: 'idToken', message: 'Not retrieve' }])
+  }
+  return {
+    valid: valid,
+    accessToken: accessToken || '',
+    idToken: idToken || '',
+    refreshToken: refreshToken || '',
+    errors: [{}],
+  }
+}
+
 const Transaction: any = {
   key: transactionKey,
 
@@ -132,8 +155,8 @@ const Transaction: any = {
         const accessToken: string = response['data']['access_token']
         const idToken: any = response['data']['id_token']
         const refreshToken: any = response['data']['refresh_token']
+
         if (Jwt.validatesAccessToken(accessToken, config)) {
-          // store the refresh token
           if (refreshToken) {
             Storage.createCookie(refreshKey(), {
               refresh_token: refreshToken,
@@ -142,41 +165,54 @@ const Transaction: any = {
             })
           }
           Storage.deleteCookie(transactionKey(transaction.pkce.state))
-          if (idToken) {
-            if (Jwt.validatesIdToken(idToken, config)) {
-              accessResult = {
-                ...accessResult,
-                valid: true,
-                accessToken: accessToken,
-                idToken: idToken,
-                refreshToken: refreshToken,
-                errors: [],
-              }
-            } else {
-              accessResult = {
-                ...accessResult,
-                valid: false,
-                accessToken: accessToken,
-                refreshToken: refreshToken,
-                errors: accessResult.errors.concat([
-                  { field: 'idToken', message: 'Can’t process request' },
-                ]),
-              }
-            }
-          } else {
-            accessResult = {
-              ...accessResult,
-              valid: false,
-              errors: accessResult.errors.concat([{ field: 'idToken', message: 'Not retrieve' }]),
-            }
-          }
-        } else {
-          accessResult = {
-            ...accessResult,
-            valid: false,
-            errors: [{ field: 'accessToken', message: 'Invalid access token' }],
-          }
         }
+
+        formatAuthorizationResponse(config, accessToken, idToken, refreshToken)
+        // if (Jwt.validatesAccessToken(accessToken, config)) {
+        //   // store the refresh token
+        //   if (refreshToken) {
+        //     Storage.createCookie(refreshKey(), {
+        //       refresh_token: refreshToken,
+        //       rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
+        //       expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
+        //     })
+        //   }
+        //   Storage.deleteCookie(transactionKey(transaction.pkce.state))
+        //   if (idToken) {
+        //     if (Jwt.validatesIdToken(idToken, config)) {
+        //       accessResult = {
+        //         ...accessResult,
+        //         valid: true,
+        //         accessToken: accessToken,
+        //         idToken: idToken,
+        //         refreshToken: refreshToken,
+        //         errors: [],
+        //       }
+        //     } else {
+        //       accessResult = {
+        //         ...accessResult,
+        //         valid: false,
+        //         accessToken: accessToken,
+        //         refreshToken: refreshToken,
+        //         errors: accessResult.errors.concat([
+        //           { field: 'idToken', message: 'Can’t process request' },
+        //         ]),
+        //       }
+        //     }
+        //   } else {
+        //     accessResult = {
+        //       ...accessResult,
+        //       valid: false,
+        //       errors: accessResult.errors.concat([{ field: 'idToken', message: 'Not retrieve' }]),
+        //     }
+        //   }
+        // } else {
+        //   accessResult = {
+        //     ...accessResult,
+        //     valid: false,
+        //     errors: [{ field: 'accessToken', message: 'Invalid access token' }],
+        //   }
+        // }
       })
       .catch((error) => {
         const errors = [{ field: '', message: error.message }]
