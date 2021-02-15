@@ -1,7 +1,7 @@
 import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
 import axios from 'axios'
-import { ALLOWED_LOCALES, cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
+import { ALLOWED_LOCALES, cryptrBaseUrl, DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE } from './constants'
 import { Sign } from './types'
 import Request from './request'
 import Storage from './storage'
@@ -128,7 +128,7 @@ class Client {
       if (refresh_token !== undefined) {
         let refreshObj = {
           refresh_token: refresh_token,
-          rotation_duration: 10000,
+          rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
           expiration_date: expiration_date,
         }
         Storage.createCookie(refreshKey(), refreshObj)

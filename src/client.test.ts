@@ -5,7 +5,7 @@ import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
-import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
+import { cryptrBaseUrl, DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE } from './constants'
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -205,7 +205,7 @@ describe('handlerefresh token', () => {
     client.handleRefreshTokens(response)
     let refreshObj = {
       refresh_token: 'eab12-ered-123',
-      rotation_duration: 10000,
+      rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
       expiration_date: Date.parse('01 Jan 2022 00:00:00 GMT'),
       access_token: '1',
     }

@@ -8,6 +8,13 @@ export const CODE_GRANT: string = 'code'
 
 export const DEFAULT_EXPIRY_ADJUSTMENT_SECONDS: number = 0
 
+export const EXPIRATION_DAYS: number = 30
+
+// -> 1 month
+export const DEFAULT_REFRESH_ROTATION_DURATION: number = 1000 * 60 * 60 * 24 * EXPIRATION_DAYS
+
+export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
+
 export const DEFAULT_ISSUER: string = 'cryptr'
 
 export const DEFAULT_SCOPE: string = 'openid email'
@@ -27,10 +34,9 @@ export const SHA256: string = 'S256'
 // Same as COOKIE_KEY
 export const STORAGE_KEY_PREFIX: string = '$cryptr-spa-js$'
 
-// In ms -> 90s
-export const DEFAULT_REFRESH_ROTATION_DURATION: number = 900
+export const ALLOWED_LOCALES = ['en', 'fr']
 
-export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
+export const ALLOWED_REGIONS = ['eu', 'us']
 
 export const ALLOWED_LOCALES = ['en', 'fr']
 
