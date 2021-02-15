@@ -179,7 +179,7 @@
           const tokens = await this.cryptrClient.handleRedirectCallback();
           // Notify subscribers that the redirect callback has happened, passing the appState
           // (useful for retrieving any pre-authentication state)
-          onRedirectCallback(tokens);
+          // onRedirectCallback(tokens);
           window.location.replace(location.href.split('?')[0])
         }
       } catch (e) {
