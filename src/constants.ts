@@ -13,6 +13,10 @@ export const EXPIRATION_DAYS: number = 30
 // -> 1 month
 export const DEFAULT_REFRESH_ROTATION_DURATION: number = 1000 * 60 * 60 * 24 * EXPIRATION_DAYS
 
+export const DEFAULT_LEEWAY_IN_SECONDS: number = 60
+
+export const DEFAULT_REFRESH_RETRY: number = 5
+
 export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
 
 export const DEFAULT_ISSUER: string = 'cryptr'

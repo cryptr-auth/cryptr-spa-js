@@ -1,7 +1,13 @@
 import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
 import axios from 'axios'
-import { ALLOWED_LOCALES, cryptrBaseUrl, DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE } from './constants'
+import {
+  ALLOWED_LOCALES,
+  cryptrBaseUrl,
+  DEFAULT_LEEWAY_IN_SECONDS,
+  DEFAULT_REFRESH_RETRY,
+  DEFAULT_SCOPE,
+} from './constants'
 import { Sign } from './types'
 import Request from './request'
 import Storage from './storage'
@@ -123,13 +129,22 @@ class Client {
   handleRefreshTokens(response: any) {
     if (response['data'] !== undefined) {
       let data = response['data']
+      console.log('data')
+      console.log(data)
+
+      let access_token_expiration_date = Date.parse(data['expires_at'])
       let refresh_token = data['refresh_token']
-      let expiration_date = Date.parse(data['refresh_token_expires_at'])
+      let refresh_leeway = data['refresh_leeway']
+      let refresh_retry = data['refresh_retry']
+      let refresh_expiration_date = Date.parse(data['refresh_token_expires_at'])
+
       if (refresh_token !== undefined) {
         let refreshObj = {
+          refresh_expiration_date: refresh_expiration_date,
           refresh_token: refresh_token,
-          rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-          expiration_date: expiration_date,
+          refresh_leeway: refresh_leeway,
+          refresh_retry: refresh_retry,
+          access_token_expiration_date: access_token_expiration_date,
         }
         Storage.createCookie(refreshKey(), refreshObj)
 
@@ -147,15 +162,38 @@ class Client {
   }
 
   private postponeRefresh(refresObj: any) {
-    let { rotation_duration, expiration_date } = refresObj
-    if (new Date().getTime() <= expiration_date) {
-      setTimeout(() => {
+    let {
+      access_token_expiration_date,
+      refresh_expiration_date,
+      refresh_leeway,
+      refresh_retry,
+    } = refresObj
+    console.log('refresObj')
+    console.log(refresObj)
+    let tryToRefreshDateStart = new Date(access_token_expiration_date)
+
+    const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
+    const retry = refresh_retry || DEFAULT_REFRESH_RETRY
+
+    // tryToRefreshDateStart with
+    tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
+
+    //  INFINITE LOOP IN N LEEWAY SECONDS
+    // Should be in service worker js (soon)
+    // for (;;) {
+    setTimeout(() => {
+      if (refresh_expiration_date < new Date()) {
+        console.error('refresh is no more valid')
+        window.dispatchEvent(new Event(EventTypes.REFRESH_EXPIRED))
+        return
+      } else if (tryToRefreshDateStart < new Date()) {
+        console.log('time to refresh')
         this.refreshTokens()
-      }, rotation_duration)
-    } else {
-      console.error('refresh is no more valid')
-      window.dispatchEvent(new Event(EventTypes.REFRESH_EXPIRED))
-    }
+        return
+      }
+      console.log('Not time to refresh')
+      return
+    }, DEFAULT_LEEWAY_IN_SECONDS)
   }
 
   async refreshTokens() {
