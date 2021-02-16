@@ -7,7 +7,7 @@ describe('Storage.createCookie(clientId, value)', () => {
   const TOKENS = {
     id: '5c20cccd-55d0-4c11-8c4a-bf4c38fa8588',
     client_id: CLIENT_ID,
-    audience: 'https://encheres.misapret.com',
+    audience: 'http://localhost/',
     scope: 'limited',
     authenticated: true,
     accessToken:
