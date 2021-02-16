@@ -21,8 +21,13 @@ const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
     return window.location.search
   } else {
+    /* istanbul ignore next */
     return ''
   }
+}
+
+const canHandleWorker = (navigator: Navigator) => {
+  return 'serviceWorker' in navigator
 }
 
 const parseRedirectParams = (): { state: string; authorization: Interface.Authorization } => {
@@ -61,14 +66,16 @@ class Client {
     }
     this.config = config
 
-    if ('serviceWorker' in navigator) {
-      this.worker = new TokenWorker()
-      this.worker?.addEventListener('message', (event: MessageEvent) => {
-        if (event.data == 'rotate') {
-          this.handleRefreshTokens()
-        }
-      })
+    if (!canHandleWorker(navigator)) {
+      // @docJerem may we do like postpone here ?
+      return;
     }
+    this.worker = new TokenWorker()
+    this.worker?.addEventListener('message', (event: MessageEvent) => {
+      if (event.data == 'rotate') {
+        this.handleRefreshTokens()
+      }
+    })
   }
 
   private configureSentry(config: Interface.Config) {

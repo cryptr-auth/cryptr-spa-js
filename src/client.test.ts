@@ -1,18 +1,18 @@
 import Client from './client'
 // import InMemory from './memory'
-// import Request from './request'
-// import Storage from './storage'
-// import Transaction, { refreshKey } from './transaction'
+import Request from './request'
+import Storage from './storage'
+import Transaction from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import {
-  cryptrBaseUrl,
+  cryptrBaseUrl, DEFAULT_SCOPE,
   //   DEFAULT_REFRESH_ROTATION_DURATION,
   // DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE
 } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-// import { refreshKey } from './transaction'
+import { refreshKey } from './transaction'
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -165,33 +165,33 @@ describe('valid client', () => {
 //   }
 
 //   it('can retrieve claims from valid access token', () => {
-//     expect(client.handleRefreshTokens(response)).not.toEqual(2)
+//     expect(client.handleRefreshTokens()).not.toEqual(2)
 //   })
 // })
 
-// describe('refreshTokens()', () => {
-//   let client = new Client(validConfig)
-//   let cookieRefreshBody = {
-//     refresh_token: 'azerty-951-mlkj',
-//   }
-//   beforeEach(() => {
-//     Storage.createCookie(refreshKey(), cookieRefreshBody)
-//   })
+describe('refreshTokens()', () => {
+  let client = new Client(validConfig)
+  let cookieRefreshBody = {
+    refresh_token: 'azerty-951-mlkj',
+  }
+  beforeEach(() => {
+    Storage.createCookie(refreshKey(), cookieRefreshBody)
+  })
 
-//   it('should create Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.refreshTokens()
-//     expect(transactionCreateFn).toHaveBeenCalled()
-//     transactionCreateFn.mockRestore()
-//   })
+  it('should create Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.handleRefreshTokens()
+    expect(transactionCreateFn).toHaveBeenCalled()
+    transactionCreateFn.mockRestore()
+  })
 
-//   it('should call request refresh tokens', async () => {
-//     const RequestRefreshTokensFn = jest.spyOn(Request, 'refreshTokens')
-//     await client.refreshTokens()
-//     expect(RequestRefreshTokensFn).toHaveBeenCalled()
-//     RequestRefreshTokensFn.mockRestore()
-//   })
-// })
+  it('should call request refresh tokens', async () => {
+    const RequestRefreshTokensFn = jest.spyOn(Request, 'refreshTokens')
+    await client.handleRefreshTokens()
+    expect(RequestRefreshTokensFn).toHaveBeenCalled()
+    RequestRefreshTokensFn.mockRestore()
+  })
+})
 
 describe('handlerefresh token', () => {
   let client = new Client(validConfig)
@@ -257,139 +257,139 @@ describe('valid client handling redirect callback', () => {
   })
 })
 
-// describe('signin process', () => {
-//   let client = new Client(validConfig)
+describe('signin process', () => {
+  let client = new Client(validConfig)
 
-//   it('signInWithoutRedirect creates a Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.signInWithoutRedirect()
-//     expect(transactionCreateFn).toHaveBeenCalledWith(
-//       'signin',
-//       'openid email',
-//       undefined,
-//       validConfig.default_redirect_uri,
-//     )
-//     transactionCreateFn.mockRestore()
-//   })
+  it('signInWithoutRedirect creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signInWithoutRedirect()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'signin',
+      'openid email',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
 
-//   it('signUpWithoutRedirect creates a Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.signUpWithoutRedirect()
-//     expect(transactionCreateFn).toHaveBeenCalledWith(
-//       'signup',
-//       'openid email',
-//       undefined,
-//       validConfig.default_redirect_uri,
-//     )
-//     transactionCreateFn.mockRestore()
-//   })
+  it('signUpWithoutRedirect creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signUpWithoutRedirect()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'signup',
+      'openid email',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
 
-//   it('inviteWithoutRedirect creates a Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.inviteWithoutRedirect()
-//     expect(transactionCreateFn).toHaveBeenCalledWith(
-//       'invite',
-//       'openid email',
-//       undefined,
-//       validConfig.default_redirect_uri,
-//     )
-//     transactionCreateFn.mockRestore()
-//   })
+  it('inviteWithoutRedirect creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.inviteWithoutRedirect()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'invite',
+      'openid email',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
 
-//   it('signInWithRedirect creates a Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.signInWithRedirect()
-//     expect(transactionCreateFn).toHaveBeenCalledWith(
-//       'signin',
-//       'openid email',
-//       undefined,
-//       validConfig.default_redirect_uri,
-//     )
-//     transactionCreateFn.mockRestore()
-//   })
+  it('signInWithRedirect creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signInWithRedirect()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'signin',
+      'openid email',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
 
-//   it('signUpWithRedirect creates a Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.signUpWithRedirect()
-//     expect(transactionCreateFn).toHaveBeenCalledWith(
-//       'signup',
-//       'openid email',
-//       undefined,
-//       validConfig.default_redirect_uri,
-//     )
-//     transactionCreateFn.mockRestore()
-//   })
+  it('signUpWithRedirect creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signUpWithRedirect()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'signup',
+      'openid email',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
 
-//   it('inviteWithRedirect creates a Transaction', async () => {
-//     const transactionCreateFn = jest.spyOn(Transaction, 'create')
-//     await client.inviteWithRedirect()
-//     expect(transactionCreateFn).toHaveBeenCalledWith(
-//       'invite',
-//       'openid email',
-//       undefined,
-//       validConfig.default_redirect_uri,
-//     )
-//     transactionCreateFn.mockRestore()
-//   })
-// })
+  it('inviteWithRedirect creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.inviteWithRedirect()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'invite',
+      'openid email',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
+})
 
-// describe('userAccountAccess', () => {
-//   let client = new Client(validConfig)
+describe('userAccountAccess', () => {
+  let client = new Client(validConfig)
 
-//   it('should call getCurrentAccessToken', async () => {
-//     const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
-//     await client.userAccountAccess()
-//     expect(accessTokenFn).toHaveBeenCalled()
-//     accessTokenFn.mockRestore()
-//   })
-// })
+  it('should call getCurrentAccessToken', async () => {
+    const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
+    await client.userAccountAccess()
+    expect(accessTokenFn).toHaveBeenCalled()
+    accessTokenFn.mockRestore()
+  })
+})
 
-// describe('finalScope', () => {
-//   let client = new Client(validConfig)
-//   let newScope = 'read:invoices delete:tutu'
-//   let duplicatedScope = 'email email openid read:invoices delete:tutu'
-//   let scopeWithPartDefault = 'email read:invoices delete:tutu'
+describe('finalScope', () => {
+  let client = new Client(validConfig)
+  let newScope = 'read:invoices delete:tutu'
+  let duplicatedScope = 'email email openid read:invoices delete:tutu'
+  let scopeWithPartDefault = 'email read:invoices delete:tutu'
 
-//   it('returns DEFAULT_SCOPE if none provided', async () => {
-//     expect(client.finalScope(undefined)).toEqual(DEFAULT_SCOPE)
-//   })
+  it('returns DEFAULT_SCOPE if none provided', async () => {
+    expect(client.finalScope(undefined)).toEqual(DEFAULT_SCOPE)
+  })
 
-//   it('returns DEFAULT_SCOPE if DEFAULT_SCOPE provided', async () => {
-//     expect(client.finalScope(DEFAULT_SCOPE)).toEqual(DEFAULT_SCOPE)
-//   })
-//   it('returns DEFAULT_SCOPE appendend to scope if one provided', async () => {
-//     expect(client.finalScope(newScope)).toEqual('openid email read:invoices delete:tutu')
-//   })
+  it('returns DEFAULT_SCOPE if DEFAULT_SCOPE provided', async () => {
+    expect(client.finalScope(DEFAULT_SCOPE)).toEqual(DEFAULT_SCOPE)
+  })
+  it('returns DEFAULT_SCOPE appendend to scope if one provided', async () => {
+    expect(client.finalScope(newScope)).toEqual('openid email read:invoices delete:tutu')
+  })
 
-//   it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
-//     expect(client.finalScope(duplicatedScope)).toEqual('openid email read:invoices delete:tutu')
-//   })
+  it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
+    expect(client.finalScope(duplicatedScope)).toEqual('openid email read:invoices delete:tutu')
+  })
 
-//   it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
-//     expect(client.finalScope(scopeWithPartDefault)).toEqual(
-//       'openid email read:invoices delete:tutu',
-//     )
-//   })
-// })
+  it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
+    expect(client.finalScope(scopeWithPartDefault)).toEqual(
+      'openid email read:invoices delete:tutu',
+    )
+  })
+})
 
-// describe('logOut process', () => {
-//   let client = new Client(validConfig)
+describe('logOut process', () => {
+  let client = new Client(validConfig)
 
-//   it('should call getCurrentAccessToken', async () => {
-//     const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
-//     await client.logOut(null)
-//     expect(accessTokenFn).toHaveBeenCalled()
-//     accessTokenFn.mockRestore()
-//   })
-// })
+  it('should call getCurrentAccessToken', async () => {
+    const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
+    await client.logOut(null)
+    expect(accessTokenFn).toHaveBeenCalled()
+    accessTokenFn.mockRestore()
+  })
+})
 
-// describe('decorate request process', () => {
-//   let client = new Client(validConfig)
+describe('decorate request process', () => {
+  let client = new Client(validConfig)
 
-//   it('should call Request decoratedRequest', async () => {
-//     const decoratedRequestFn = jest.spyOn(Request, 'decoratedRequest')
-//     await client.decoratedRequest(null)
-//     expect(decoratedRequestFn).toHaveBeenLastCalledWith(client.getCurrentAccessToken(), null)
-//     decoratedRequestFn.mockRestore()
-//   })
-// })
+  it('should call Request decoratedRequest', async () => {
+    const decoratedRequestFn = jest.spyOn(Request, 'decoratedRequest')
+    await client.decoratedRequest(null)
+    expect(decoratedRequestFn).toHaveBeenLastCalledWith(client.getCurrentAccessToken(), null)
+    decoratedRequestFn.mockRestore()
+  })
+})
