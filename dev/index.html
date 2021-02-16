@@ -185,17 +185,22 @@
           console.log(location.href)
           window.location.replace(location.href.split('?')[0])
         } else {
-          console.log('handleRefreshTokens')
-          this.client.handRefreshTokens()
+          console.log('>> handleRefreshTokens')
+          await this.cryptrClient.handleRefreshTokens()
+          console.log('<< handleRefreshTokens')
         }
       } catch (e) {
         this.error = e;
+        console.error('index error')
+        console.error(e)
       } finally {
         // Initialize our internal authentication state
         // this.isAuthenticated = await this.cryptrClient.isAuthenticated();
         // this.user = await this.auth0Client.getUser();
         console.log('finally')
         console.log(location.href)
+
+        console.log(this.cryptrClient.getCurrentAccessToken())
 
         this.isAuthenticated = await this.cryptrClient.isAuthenticated();
         if(this.cryptrClient.getUser()) {
