@@ -109,7 +109,6 @@ const validateAndFormatAuthResp = (
 }
 
 const getRefreshParameters = (resp: any) => {
-  console.log('getRefreshParameters')
   try {
     return {
       access_token_expiration_date: Date.parse(resp.expires_at),
@@ -119,8 +118,6 @@ const getRefreshParameters = (resp: any) => {
       refresh_expiration_date: Date.parse(resp.refresh_token_expires_at),
     }
   } catch (err) {
-    console.error('err')
-    console.error(err)
     return {}
   }
 }
@@ -148,7 +145,7 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
       Storage.deleteCookie(transactionKey(transaction.pkce.state))
     }
   }
-  console.log('return of parseTokensAndStoreRefresh')
+
   return {
     ...validateAndFormatAuthResp(config, accessToken, idToken, refreshToken),
     ...getRefreshParameters(responseData),
@@ -222,8 +219,6 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
-        console.log("response['data']")
-        console.debug(response['data'])
         validatesNonce(transaction, response['data']['nonce'])
 
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
@@ -266,7 +261,6 @@ const Transaction: any = {
       errors: [{}],
     }
 
-    console.debug('refreshTokens')
     // @ts-ignore
     if (refresh_token) {
       const transaction = Transaction.create(Sign.Refresh, '')
