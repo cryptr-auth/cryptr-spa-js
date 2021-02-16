@@ -387,10 +387,15 @@ class Client {
     console.debug(refreshTokenWrapper)
     const handleRefreshTrigger = () => this.handleRefreshTokens()
     console.debug(handleRefreshTrigger)
-    this.worker?.postMessage({
+    console.debug(this.worker)
+    const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
-      refreshTrigger: handleRefreshTrigger,
-    })
+      // refreshTrigger: handleRefreshTrigger,
+    }
+    console.debug('eventData')
+    console.debug(eventData)
+    this.worker?.postMessage("toto")
+    this.worker?.postMessage(eventData)
   }
 
   getUser() {

@@ -27,6 +27,7 @@ self.addEventListener('activate', function (_event) {
 // }
 
 self.addEventListener('message', (event) => {
+  console.debug(event)
   console.debug('wait to trigger refresh')
 
   let data = event.data

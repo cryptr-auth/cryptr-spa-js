@@ -148,7 +148,7 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
       Storage.deleteCookie(transactionKey(transaction.pkce.state))
     }
   }
-
+  console.log('return of parseTokensAndStoreRefresh')
   return {
     ...validateAndFormatAuthResp(config, accessToken, idToken, refreshToken),
     ...getRefreshParameters(responseData),
