@@ -104,16 +104,16 @@ class Client {
   }
 
   async isAuthenticated() {
-    if (!this.currentAccessTokenPresent()) {
-      let canAUthenticate = this.hasAuthenticationParams()
-      let canInvite = this.hasInvitationParams()
+    // if (!this.currentAccessTokenPresent()) {
+    //   let canAUthenticate = this.hasAuthenticationParams()
+    //   let canInvite = this.hasInvitationParams()
 
-      if (!canInvite && !canAUthenticate) {
-        await this.handleRefreshTokens()
+    //   if (!canInvite && !canAUthenticate) {
+    //     await this.handleRefreshTokens()
 
-        return this.currentAccessTokenPresent()
-      }
-    }
+    //     return this.currentAccessTokenPresent()
+    //   }
+    // }
     return this.currentAccessTokenPresent()
   }
 
