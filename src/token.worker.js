@@ -35,6 +35,7 @@ self.addEventListener('message', (event) => {
   const WAIT_SECONDS = 10
 
   setTimeout(() => {
+    console.log('refreshTrigger from worker')
     refreshTrigger()
   }, WAIT_SECONDS)
 })

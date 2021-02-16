@@ -37,3 +37,8 @@ export interface AuthResponseError {
   field: string
   message: string
 }
+
+export interface RefreshStore {
+  refresh_token: string
+  access_token_expiration_date: Date
+}

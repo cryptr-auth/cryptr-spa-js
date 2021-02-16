@@ -109,6 +109,7 @@ const validateAndFormatAuthResp = (
 }
 
 const getRefreshParameters = (resp: any) => {
+  console.log('getRefreshParameters')
   try {
     return {
       access_token_expiration_date: Date.parse(resp.expires_at),
@@ -117,15 +118,18 @@ const getRefreshParameters = (resp: any) => {
       refresh_retry: resp.refresh_retry,
       refresh_expiration_date: Date.parse(resp.refresh_token_expires_at),
     }
-  } catch {
+  } catch (err) {
+    console.error('err')
+    console.error(err)
     return {}
   }
 }
 
 const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any, opts: any) => {
-  const accessToken: string = response['data']['access_token']
-  const idToken: any = response['data']['id_token']
-  const refreshToken: any = response['data']['refresh_token']
+  const responseData = response['data']
+  const accessToken: string = responseData['access_token']
+  const idToken: any = responseData['id_token']
+  const refreshToken: any = responseData['refresh_token']
 
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
@@ -137,7 +141,7 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
         // @thib DEPRECATED
         expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
         // @thib new parameters :
-        ...getRefreshParameters(response),
+        ...getRefreshParameters(responseData),
       })
     }
     if (opts.withPKCE) {
@@ -147,7 +151,7 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
 
   return {
     ...validateAndFormatAuthResp(config, accessToken, idToken, refreshToken),
-    ...getRefreshParameters(response),
+    ...getRefreshParameters(responseData),
   }
 }
 
@@ -218,6 +222,8 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
+        console.log("response['data']")
+        console.debug(response['data'])
         validatesNonce(transaction, response['data']['nonce'])
 
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
@@ -262,7 +268,7 @@ const Transaction: any = {
 
     console.debug('refreshTokens')
     // @ts-ignore
-    if (refreshTokenData?.refresh_token) {
+    if (refresh_token) {
       const transaction = Transaction.create(Sign.Refresh, '')
 
       // @ts-ignore

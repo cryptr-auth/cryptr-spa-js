@@ -174,13 +174,19 @@
       try {
         // If the user is returning to the app after authentication..
         const canAuthenticate = await this.cryptrClient.canHandleAuthentication()
+        console.log(`can authenticate ${canAuthenticate}`)
         if (canAuthenticate) {
           // handle the redirect and retrieve tokens
           const tokens = await this.cryptrClient.handleRedirectCallback();
           // Notify subscribers that the redirect callback has happened, passing the appState
           // (useful for retrieving any pre-authentication state)
           // onRedirectCallback(tokens);
+          console.log('here')
+          console.log(location.href)
           window.location.replace(location.href.split('?')[0])
+        } else {
+          console.log('handleRefreshTokens')
+          this.client.handRefreshTokens()
         }
       } catch (e) {
         this.error = e;
@@ -188,6 +194,8 @@
         // Initialize our internal authentication state
         // this.isAuthenticated = await this.cryptrClient.isAuthenticated();
         // this.user = await this.auth0Client.getUser();
+        console.log('finally')
+        console.log(location.href)
 
         this.isAuthenticated = await this.cryptrClient.isAuthenticated();
         if(this.cryptrClient.getUser()) {

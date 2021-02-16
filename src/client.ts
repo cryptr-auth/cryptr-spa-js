@@ -4,18 +4,15 @@ import axios from 'axios'
 import {
   ALLOWED_LOCALES,
   cryptrBaseUrl,
-  DEFAULT_LEEWAY_IN_SECONDS,
-  DEFAULT_REFRESH_RETRY,
   DEFAULT_SCOPE,
 } from './constants'
 import { Sign } from './types'
 import Request from './request'
 import Storage from './storage'
-import Transaction, { refreshKey, transactionKey } from './transaction'
+import Transaction, { refreshKey } from './transaction'
 import Jwt from './jwt'
 import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
-import EventTypes from './event_types'
 import { Integrations } from '@sentry/tracing'
 // @ts-ignore
 import TokenWorker from './token.worker.js'
@@ -66,11 +63,11 @@ class Client {
 
     if ('serviceWorker' in navigator) {
       this.worker = new TokenWorker()
-      this.worker?.addEventListener('message', (event: MessageEvent) => {
-        if (event.data == 'rotate') {
-          this.refreshTokens()
-        }
-      })
+      // this.worker?.addEventListener('message', (event: MessageEvent) => {
+      //   if (event.data == 'rotate') {
+      //     this.refreshTokens()
+      //   }
+      // })
     }
   }
 
@@ -108,11 +105,11 @@ class Client {
 
   async isAuthenticated() {
     if (!this.currentAccessTokenPresent()) {
-      let canAuthentify = this.hasAuthenticationParams()
+      let canAUthenticate = this.hasAuthenticationParams()
       let canInvite = this.hasInvitationParams()
 
-      if (!canInvite && !canAuthentify) {
-        await this.refreshTokens()
+      if (!canInvite && !canAUthenticate) {
+        await this.handleRefreshTokens()
 
         return this.currentAccessTokenPresent()
       }
@@ -318,6 +315,7 @@ class Client {
       redirectParams.authorization,
       transaction,
     )
+    console.log('store tokens in memory')
     this.memory.setAccessToken(tokens.accessToken)
     this.memory.setIdToken(tokens.idToken)
 
@@ -327,28 +325,41 @@ class Client {
     // if (config.useRefreshToken && tokens.valid)
     if (tokens.valid) {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
+      console.log('tokens')
+      console.debug(tokens)
       const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
+      console.debug('refreshTokenWrapper')
+      console.debug(refreshTokenWrapper)
       Storage.createCookie(refreshKey(), refreshTokenWrapper)
 
-      recurringRefreshToken(refreshTokenWrapper)
+      this.recurringRefreshToken(refreshTokenWrapper)
     }
 
     return tokens
   }
 
+  canRefresh(refreshStore: Interface.RefreshStore): boolean {
+    const now = new Date()
+    return !this.currentAccessTokenPresent() || refreshStore.access_token_expiration_date < now
+  }
+
+  getRefreshStore(): Interface.RefreshStore {
+    return Storage.getCookie(refreshKey()) as Interface.RefreshStore
+  }
+
   // @thib, we just need to call handleRefresh before the call of handleRedirectCallback
-  handleRefreshTokens() {
-    const refreshStore = Storage.getCookie(refreshKey())
+  async handleRefreshTokens() {
+    const refreshStore = this.getRefreshStore()
+    console.debug(refreshStore)
+    console.debug(refreshStore?.refresh_token)
     if (!refreshStore?.refresh_token) {
       return false
     }
-
-    const now = new Date()
     // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
     // refreshTokenWrapper
 
     // @thib then if it works , we can handle  leeway too
-    if (!this.currentAccessTokenPresent() || refreshStore.access_token_expiration_date < now) {
+    if (this.canRefresh(refreshStore)) {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
 
@@ -356,21 +367,27 @@ class Client {
       this.memory.setIdToken(tokens.idToken)
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
-      Storage.createCookie(refreshKey(), Transaction.getRefreshParameters(tokens))
+      console.log('create cookie')
+      Storage.createCookie(refreshKey(), refreshTokenWrapper)
 
       // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
-      recurringRefreshToken(refreshTokenWrapper)
+      this.recurringRefreshToken(refreshTokenWrapper)
+    } else {
+      this.recurringRefreshToken(refreshStore)
     }
     return true
   }
 
-  recurringRefreshToken(refreshTokenWrapper) {
-    // @thib instianciation of the function signature in a ready,
+  recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
+    // @thib instanciation of the function signature in a ready,
     //  we can store JS function without "parenthese" to use it later
     //  also we could just pass the "this" to keep the instanciation of the Client if
     // we can't access to in the worker
-    const handleRefreshTrigger = () => this.handleRefresh()
-    this.worker.postMessage({
+    console.debug('recurringRefreshToken')
+    console.debug(refreshTokenWrapper)
+    const handleRefreshTrigger = () => this.handleRefreshTokens()
+    console.debug(handleRefreshTrigger)
+    this.worker?.postMessage({
       refreshTokenParameters: refreshTokenWrapper,
       refreshTrigger: handleRefreshTrigger,
     })
