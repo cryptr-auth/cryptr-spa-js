@@ -404,7 +404,7 @@ class Client {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
   }
 
-  async canHandleInvitation(searchParams = locationSearch()) {
+  canHandleInvitation(searchParams = locationSearch()) {
     return !this.currentAccessTokenPresent() && this.hasInvitationParams(searchParams)
   }
 
