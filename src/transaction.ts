@@ -270,7 +270,7 @@ const Transaction: any = {
         .then((response: any) => {
           // this.handleRefreshTokens(response))
           // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
-          refreshResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
+          return parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
         })
         .catch((error) => {
           let response = error.response
