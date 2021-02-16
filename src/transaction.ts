@@ -270,7 +270,7 @@ const Transaction: any = {
         .then((response: any) => {
           // this.handleRefreshTokens(response))
           // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
-          return parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
+          refreshResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
         })
         .catch((error) => {
           let response = error.response
@@ -283,13 +283,15 @@ const Transaction: any = {
             valid: false,
             errors: error,
           }
-          return refreshResult
         })
         .finally(() => {
           // delete temp cookie
           // @thib there is no PKCE in a REFRESH GRANT normally
           Storage.deleteCookie(transactionKey(transaction.pkce.state))
+          return refreshResult
         })
+    } else {
+      return refreshResult
     }
   },
   getRefreshParameters: getRefreshParameters,

@@ -195,14 +195,14 @@ describe('valid client', () => {
 
 describe('handlerefresh token', () => {
   let client = new Client(validConfig)
-  let response = {
-    data: {
-      refresh_token: 'eab12-ered-123',
-      refresh_token_expires_at: '01 Jan 2022 00:00:00 GMT',
-      access_token: '1',
-    },
-    data_refresh: '1',
-  }
+  // let response = {
+  //   data: {
+  //     refresh_token: 'eab12-ered-123',
+  //     refresh_token_expires_at: '01 Jan 2022 00:00:00 GMT',
+  //     access_token: '1',
+  //   },
+  //   data_refresh: '1',
+  // }
 
   //   it('should create cookie', () => {
   //     const createCookieFn = jest.spyOn(Storage, 'createCookie')
@@ -219,7 +219,7 @@ describe('handlerefresh token', () => {
 
   it('should set accesstoken', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
-    client.handleRefreshTokens(response)
+    client.handleRefreshTokens()
     expect(setAccessTokenFn).toHaveBeenCalledWith('1')
     setAccessTokenFn.mockRestore()
   })
