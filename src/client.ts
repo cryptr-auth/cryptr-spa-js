@@ -63,11 +63,11 @@ class Client {
 
     if ('serviceWorker' in navigator) {
       this.worker = new TokenWorker()
-      // this.worker?.addEventListener('message', (event: MessageEvent) => {
-      //   if (event.data == 'rotate') {
-      //     this.refreshTokens()
-      //   }
-      // })
+      this.worker?.addEventListener('message', (event: MessageEvent) => {
+        if (event.data == 'rotate') {
+          this.handleRefreshTokens()
+        }
+      })
     }
   }
 
