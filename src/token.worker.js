@@ -1,10 +1,12 @@
 // import InMemory from './memory'
 
 self.addEventListener('install', function (_event) {
+  console.log('listener install')
   // Perform some task
 })
 
 self.addEventListener('activate', function (_event) {
+  console.log('listener activate')
   // Perform some task
 })
 
@@ -28,7 +30,7 @@ self.addEventListener('activate', function (_event) {
 
 self.addEventListener('message', (event) => {
   let data = event.data
-  let { refreshTrigger } = data
+  let { refreshTokenParameters } = data
 
   const WAIT_SECONDS = 10
 
