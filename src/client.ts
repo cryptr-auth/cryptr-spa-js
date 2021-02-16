@@ -348,7 +348,7 @@ class Client {
     // refreshTokenWrapper
 
     // @thib then if it works , we can handle  leeway too
-    if (refreshStore.access_token_expiration_date < now) {
+    if (!this.currentAccessTokenPresent() || refreshStore.access_token_expiration_date < now) {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
 
