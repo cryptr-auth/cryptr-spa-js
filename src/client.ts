@@ -20,7 +20,6 @@ import { Integrations } from '@sentry/tracing'
 // @ts-ignore
 import TokenWorker from './token.worker.js'
 
-
 const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
     return window.location.search
@@ -64,14 +63,14 @@ class Client {
       )
     }
     this.config = config
+
     if ('serviceWorker' in navigator) {
-      this.worker = new TokenWorker();
+      this.worker = new TokenWorker()
       this.worker?.addEventListener('message', (event: MessageEvent) => {
         if (event.data == 'rotate') {
           this.refreshTokens()
         }
       })
-
     }
   }
 
@@ -121,99 +120,102 @@ class Client {
     return this.currentAccessTokenPresent()
   }
 
-  handleRefreshTokens(response: any) {
-    if (response['data'] !== undefined) {
-      let data = response['data']
-      console.log('data')
-      console.log(data)
+  // @thib DEPRECATED in favor of handleRefresh (will be rename in handleRefreshTokens when ready)
+  // handleRefreshTokens(response: any) {
+  //   if (response['data'] !== undefined) {
+  //     let data = response['data']
+  //     console.log('data')
+  //     console.log(data)
 
-      let access_token_expiration_date = Date.parse(data['expires_at'])
-      let refresh_token = data['refresh_token']
-      let refresh_leeway = data['refresh_leeway']
-      let refresh_retry = data['refresh_retry']
-      let refresh_expiration_date = Date.parse(data['refresh_token_expires_at'])
+  //     let access_token_expiration_date = Date.parse(data['expires_at'])
+  //     let refresh_token = data['refresh_token']
+  //     let refresh_leeway = data['refresh_leeway']
+  //     let refresh_retry = data['refresh_retry']
+  //     let refresh_expiration_date = Date.parse(data['refresh_token_expires_at'])
 
-      if (refresh_token !== undefined) {
-        let refreshObj = {
-          refresh_expiration_date: refresh_expiration_date,
-          refresh_token: refresh_token,
-          refresh_leeway: refresh_leeway,
-          refresh_retry: refresh_retry,
-          access_token_expiration_date: access_token_expiration_date,
-        }
-        Storage.createCookie(refreshKey(), refreshObj)
+  //     if (refresh_token !== undefined) {
+  //       let refreshObj = {
+  //         refresh_expiration_date: refresh_expiration_date,
+  //         refresh_token: refresh_token,
+  //         refresh_leeway: refresh_leeway,
+  //         refresh_retry: refresh_retry,
+  //         access_token_expiration_date: access_token_expiration_date,
+  //       }
+  //       Storage.createCookie(refreshKey(), refreshObj)
 
-        let accessToken = data['access_token']
-        this.memory.setAccessToken(accessToken)
+  //       let accessToken = data['access_token']
+  //       this.memory.setAccessToken(accessToken)
 
-        let idToken = data['id_token']
-        this.memory.setIdToken(idToken)
-        // @ts-ignore
-        refreshObj['access_token'] = accessToken
-        // this.worker.postMessage(refreshObj)
-        this.postponeRefresh(refreshObj)
-      }
-    }
-  }
+  //       let idToken = data['id_token']
+  //       this.memory.setIdToken(idToken)
+  //       // @ts-ignore
+  //       refreshObj['access_token'] = accessToken
+  //       // this.worker.postMessage(refreshObj)
+  //       this.postponeRefresh(refreshObj)
+  //     }
+  //   }
+  // }
 
-  private postponeRefresh(refresObj: any) {
-    let {
-      access_token_expiration_date,
-      refresh_expiration_date,
-      refresh_leeway,
-      refresh_retry,
-    } = refresObj
-    console.log('refresObj')
-    console.log(refresObj)
-    let tryToRefreshDateStart = new Date(access_token_expiration_date)
+  // @thib DEPRECATED
+  // private postponeRefresh(refresObj: any) {
+  //   let {
+  //     access_token_expiration_date,
+  //     refresh_expiration_date,
+  //     refresh_leeway,
+  //     refresh_retry,
+  //   } = refresObj
+  //   console.log('refresObj')
+  //   console.log(refresObj)
+  //   let tryToRefreshDateStart = new Date(access_token_expiration_date)
 
-    const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
-    const retry = refresh_retry || DEFAULT_REFRESH_RETRY
+  //   const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
+  //   const retry = refresh_retry || DEFAULT_REFRESH_RETRY
 
-    // tryToRefreshDateStart with
-    tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
+  //   // tryToRefreshDateStart with
+  //   tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
 
-    //  INFINITE LOOP IN N LEEWAY SECONDS
-    // Should be in service worker js (soon)
-    // for (;;) {
-    setTimeout(() => {
-      if (refresh_expiration_date < new Date()) {
-        console.error('refresh is no more valid')
-        window.dispatchEvent(new Event(EventTypes.REFRESH_EXPIRED))
-        return
-      } else if (tryToRefreshDateStart < new Date()) {
-        console.log('time to refresh')
-        this.refreshTokens()
-        return
-      }
-      console.log('Not time to refresh')
-      return
-    }, DEFAULT_LEEWAY_IN_SECONDS)
-  }
+  //   //  INFINITE LOOP IN N LEEWAY SECONDS
+  //   // Should be in service worker js (soon)
+  //   // for (;;) {
+  //   setTimeout(() => {
+  //     if (refresh_expiration_date < new Date()) {
+  //       console.error('refresh is no more valid')
+  //       window.dispatchEvent(new Event(EventTypes.REFRESH_EXPIRED))
+  //       return
+  //     } else if (tryToRefreshDateStart < new Date()) {
+  //       console.log('time to refresh')
+  //       this.refreshTokens()
+  //       return
+  //     }
+  //     console.log('Not time to refresh')
+  //     return
+  //   }, DEFAULT_LEEWAY_IN_SECONDS)
+  // }
 
-  async refreshTokens() {
-    console.debug('refreshTokens')
-    let refreshTokenData = Storage.getCookie(refreshKey())
-    // @ts-ignore
-    if (refreshTokenData.hasOwnProperty('refresh_token') && refreshTokenData.refresh_token) {
-      // @ts-ignore
-      let refreshToken = refreshTokenData.refresh_token
-      const transaction = await Transaction.create(Sign.Refresh, '')
+  //  @thib SHOULD be in transaction with after getTokens
+  // async refreshTokens() {
+  //   console.debug('refreshTokens')
+  //   let refreshTokenData = Storage.getCookie(refreshKey())
+  //   // @ts-ignore
+  //   if (refreshTokenData.hasOwnProperty('refresh_token') && refreshTokenData.refresh_token) {
+  //     // @ts-ignore
+  //     let refreshToken = refreshTokenData.refresh_token
+  //     const transaction = await Transaction.create(Sign.Refresh, '')
 
-      await Request.refreshTokens(this.config, transaction, refreshToken)
-        .then((response: any) => this.handleRefreshTokens(response))
-        .catch((error) => {
-          let response = error.response
-          if (response && response.status === 400 && response.data.error === 'invalid_grant') {
-            window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-          }
-        })
-        .finally(() => {
-          // delete temp cookie
-          Storage.deleteCookie(transactionKey(transaction.pkce.state))
-        })
-    }
-  }
+  //     await Request.refreshTokens(this.config, transaction, refreshToken)
+  //       .then((response: any) => this.handleRefreshTokens(response))
+  //       .catch((error) => {
+  //         let response = error.response
+  //         if (response && response.status === 400 && response.data.error === 'invalid_grant') {
+  //           window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+  //         }
+  //       })
+  //       .finally(() => {
+  //         // delete temp cookie
+  //         Storage.deleteCookie(transactionKey(transaction.pkce.state))
+  //       })
+  //   }
+  // }
 
   finalScope(scope?: string): string {
     if (!scope || scope === DEFAULT_SCOPE) {
@@ -318,7 +320,60 @@ class Client {
     )
     this.memory.setAccessToken(tokens.accessToken)
     this.memory.setIdToken(tokens.idToken)
+
+    // @thib storing data should be here not in getter (easier to write test)
+
+    // @thib, here when will be ready to use as option
+    // if (config.useRefreshToken && tokens.valid)
+    if (tokens.valid) {
+      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
+      const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
+      Storage.createCookie(refreshKey(), refreshTokenWrapper)
+
+      recurringRefreshToken(refreshTokenWrapper)
+    }
+
     return tokens
+  }
+
+  // @thib, we just need to call handleRefresh before the call of handleRedirectCallback
+  handleRefreshTokens() {
+    const refreshStore = Storage.getCookie(refreshKey())
+    if (!refreshStore?.refresh_token) {
+      return false
+    }
+
+    const now = new Date()
+    // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
+    // refreshTokenWrapper
+
+    // @thib then if it works , we can handle  leeway too
+    if (refreshStore.access_token_expiration_date < now) {
+      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
+      const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
+
+      this.memory.setAccessToken(tokens.accessToken)
+      this.memory.setIdToken(tokens.idToken)
+      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
+      const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
+      Storage.createCookie(refreshKey(), Transaction.getRefreshParameters(tokens))
+
+      // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
+      recurringRefreshToken(refreshTokenWrapper)
+    }
+    return true
+  }
+
+  recurringRefreshToken(refreshTokenWrapper) {
+    // @thib instianciation of the function signature in a ready,
+    //  we can store JS function without "parenthese" to use it later
+    //  also we could just pass the "this" to keep the instanciation of the Client if
+    // we can't access to in the worker
+    const handleRefreshTrigger = () => this.handleRefresh()
+    this.worker.postMessage({
+      refreshTokenParameters: refreshTokenWrapper,
+      refreshTrigger: handleRefreshTrigger,
+    })
   }
 
   getUser() {

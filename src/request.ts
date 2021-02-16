@@ -24,7 +24,8 @@ export const refreshTokensParams = (
 ) => ({
   client_id: config.client_id,
   // code: authorization.code,
-  code_verifier: transaction.pkce.code_verifier,
+  // @thib there is no PKCE in a REFRESH GRANT
+  // code_verifier: transaction.pkce.code_verifier,
   grant_type: 'refresh_token',
   nonce: transaction.nonce,
   refresh_token: refresh_token,

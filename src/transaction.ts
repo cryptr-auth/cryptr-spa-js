@@ -15,6 +15,7 @@ import Request from './request'
 import Storage from './storage'
 import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
+import EventTypes from './event_types'
 
 const newTransaction = (
   signType: Sign,
@@ -73,26 +74,80 @@ const setTransactionKey = (transaction: I.Transaction): string =>
 
 export const refreshKey = (): string => `${STORAGE_KEY_PREFIX}.refresh`
 
-const formatAuthorizationResponse = (config: I.Config, accessToken?: string, idToken?: string, refreshToken?: string) => {
+// @thib this not a function to parse (anyway it does), this is a validation function
+const validateAndFormatAuthResp = (
+  config: I.Config,
+  accessToken?: string,
+  idToken?: string,
+  refreshToken?: string,
+) => {
   let valid = true
   let errors: I.AuthResponseError[] = []
+
   const validIdToken = Jwt.validatesIdToken(idToken || '', config)
   const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config)
+
   if (!validAccessToken) {
     valid = false
     errors = [{ field: 'idToken', message: 'Not retrieve' }]
   }
   if (!idToken || !validIdToken) {
     valid = false
-    errors = validIdToken ? errors : errors.concat([{ field: 'idToken', message: 'Can’t process request' }])
+    errors = validIdToken
+      ? errors
+      : errors.concat([{ field: 'idToken', message: 'Can’t process request' }])
     errors = idToken ? errors : errors.concat([{ field: 'idToken', message: 'Not retrieve' }])
   }
+
   return {
     valid: valid,
     accessToken: accessToken || '',
     idToken: idToken || '',
     refreshToken: refreshToken || '',
     errors: [{}],
+  }
+}
+
+const getRefreshParameters = (resp: any) => {
+  try {
+    return {
+      access_token_expiration_date: Date.parse(resp.expires_at),
+      refresh_token: resp.refresh_token,
+      refresh_leeway: resp.refresh_leeway,
+      refresh_retry: resp.refresh_retry,
+      refresh_expiration_date: Date.parse(resp.refresh_token_expires_at),
+    }
+  } catch {
+    return {}
+  }
+}
+
+const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any, opts: any) => {
+  const accessToken: string = response['data']['access_token']
+  const idToken: any = response['data']['id_token']
+  const refreshToken: any = response['data']['refresh_token']
+
+  if (Jwt.validatesAccessToken(accessToken, config)) {
+    if (refreshToken) {
+      // @thib this is not the good place to store (dont merge getter & setter to make easy to test code)
+      Storage.createCookie(refreshKey(), {
+        refresh_token: refreshToken,
+        // @thib DEPRECATED
+        rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
+        // @thib DEPRECATED
+        expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
+        // @thib new parameters :
+        ...getRefreshParameters(response),
+      })
+    }
+    if (opts.withPKCE) {
+      Storage.deleteCookie(transactionKey(transaction.pkce.state))
+    }
+  }
+
+  return {
+    ...validateAndFormatAuthResp(config, accessToken, idToken, refreshToken),
+    ...getRefreshParameters(response),
   }
 }
 
@@ -137,6 +192,18 @@ const Transaction: any = {
     return tr
   },
 
+  /*
+  Get initial tokens from config & new transaction
+
+  * config of client
+
+  * transaction current state of the Authorization Code Transaction with PKCE
+
+  * transaction has authorization code
+
+  returns tokens + parameters
+
+  */
   getTokens: async (
     config: I.Config,
     authorization: I.Authorization,
@@ -152,67 +219,8 @@ const Transaction: any = {
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
         validatesNonce(transaction, response['data']['nonce'])
-        const accessToken: string = response['data']['access_token']
-        const idToken: any = response['data']['id_token']
-        const refreshToken: any = response['data']['refresh_token']
 
-        if (Jwt.validatesAccessToken(accessToken, config)) {
-          if (refreshToken) {
-            Storage.createCookie(refreshKey(), {
-              refresh_token: refreshToken,
-              rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-              expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
-            })
-          }
-          Storage.deleteCookie(transactionKey(transaction.pkce.state))
-        }
-
-        formatAuthorizationResponse(config, accessToken, idToken, refreshToken)
-        // if (Jwt.validatesAccessToken(accessToken, config)) {
-        //   // store the refresh token
-        //   if (refreshToken) {
-        //     Storage.createCookie(refreshKey(), {
-        //       refresh_token: refreshToken,
-        //       rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-        //       expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
-        //     })
-        //   }
-        //   Storage.deleteCookie(transactionKey(transaction.pkce.state))
-        //   if (idToken) {
-        //     if (Jwt.validatesIdToken(idToken, config)) {
-        //       accessResult = {
-        //         ...accessResult,
-        //         valid: true,
-        //         accessToken: accessToken,
-        //         idToken: idToken,
-        //         refreshToken: refreshToken,
-        //         errors: [],
-        //       }
-        //     } else {
-        //       accessResult = {
-        //         ...accessResult,
-        //         valid: false,
-        //         accessToken: accessToken,
-        //         refreshToken: refreshToken,
-        //         errors: accessResult.errors.concat([
-        //           { field: 'idToken', message: 'Can’t process request' },
-        //         ]),
-        //       }
-        //     }
-        //   } else {
-        //     accessResult = {
-        //       ...accessResult,
-        //       valid: false,
-        //       errors: accessResult.errors.concat([{ field: 'idToken', message: 'Not retrieve' }]),
-        //     }
-        //   }
-        // } else {
-        //   accessResult = {
-        //     ...accessResult,
-        //     valid: false,
-        //     errors: [{ field: 'accessToken', message: 'Invalid access token' }],
-        //   }
-        // }
+        accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
         const errors = [{ field: '', message: error.message }]
@@ -233,6 +241,57 @@ const Transaction: any = {
       })
     return accessResult
   },
+
+  /*
+  Refresh tokens from previous transaction
+
+  * config of client
+
+  returns tokens + parameters
+
+  */
+  //  @thib we could rename refreshTokens by getTokensByRefresh
+  getTokensByRefresh: async (config: I.Config, refresh_token: string) => {
+    let refreshResult = {
+      valid: false,
+      accessToken: '',
+      idToken: '',
+      refreshToken: '',
+      errors: [{}],
+    }
+
+    console.debug('refreshTokens')
+    // @ts-ignore
+    if (refreshTokenData?.refresh_token) {
+      const transaction = Transaction.create(Sign.Refresh, '')
+
+      // @ts-ignore
+      await Request.refreshTokens(config, transaction, refresh_token)
+        .then((response: any) => {
+          // this.handleRefreshTokens(response))
+          // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
+          return parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
+        })
+        .catch((error) => {
+          let response = error.response
+          if (response && response.status === 400 && response.data.error === 'invalid_grant') {
+            // @thib dispatch event SHOULD NOT be in a "getter function"
+            window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+          }
+          refreshResult = {
+            ...refreshResult,
+            valid: false,
+            errors: error,
+          }
+        })
+        .finally(() => {
+          // delete temp cookie
+          // @thib there is no PKCE in a REFRESH GRANT normally
+          Storage.deleteCookie(transactionKey(transaction.pkce.state))
+        })
+    }
+  },
+  getRefreshParameters: getRefreshParameters,
   signUrl: (config: I.Config, transaction: I.Transaction): URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
     url.pathname = signPath(config, transaction)
