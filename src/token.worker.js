@@ -33,9 +33,8 @@ self.addEventListener('message', (event) => {
   const WAIT_SECONDS = 10
 
   setTimeout(() => {
-    console.log('refreshTrigger from worker')
-    refreshTrigger()
-  }, WAIT_SECONDS)
+    self.postMessage('rotate')
+  }, WAIT_SECONDS * 1000)
 })
 
 // @thib brainstorming
