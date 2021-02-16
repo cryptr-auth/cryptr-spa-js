@@ -261,38 +261,37 @@ const Transaction: any = {
       errors: [{}],
     }
 
-    // @ts-ignore
-    if (refresh_token) {
-      const transaction = Transaction.create(Sign.Refresh, '')
-
-      // @ts-ignore
-      return await Request.refreshTokens(config, transaction, refresh_token)
-        .then((response: any) => {
-          // this.handleRefreshTokens(response))
-          // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
-          return parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
-        })
-        .catch((error) => {
-          let response = error.response
-          if (response && response.status === 400 && response.data.error === 'invalid_grant') {
-            // @thib dispatch event SHOULD NOT be in a "getter function"
-            window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-          }
-          refreshResult = {
-            ...refreshResult,
-            valid: false,
-            errors: error,
-          }
-        })
-        .finally(() => {
-          // delete temp cookie
-          // @thib there is no PKCE in a REFRESH GRANT normally
-          Storage.deleteCookie(transactionKey(transaction.pkce.state))
-          return refreshResult
-        })
-    } else {
+    if (!refresh_token) {
       return refreshResult
     }
+
+    const transaction = Transaction.create(Sign.Refresh, '')
+
+    // @ts-ignore
+    await Request.refreshTokens(config, transaction, refresh_token)
+      .then((response: any) => {
+        // this.handleRefreshTokens(response))
+        // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
+        refreshResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
+      })
+      .catch((error) => {
+        let response = error.response
+        if (response && response.status === 400 && response.data.error === 'invalid_grant') {
+          // @thib dispatch event SHOULD NOT be in a "getter function"
+          window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+        }
+        refreshResult = {
+          ...refreshResult,
+          valid: false,
+          errors: error,
+        }
+      })
+      .finally(() => {
+        // delete temp cookie
+        // @thib there is no PKCE in a REFRESH GRANT normally
+        Storage.deleteCookie(transactionKey(transaction.pkce.state))
+      })
+    return refreshResult
   },
   getRefreshParameters: getRefreshParameters,
   signUrl: (config: I.Config, transaction: I.Transaction): URL => {
