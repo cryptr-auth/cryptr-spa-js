@@ -336,15 +336,6 @@ class Client {
     // @thib, here when will be ready to use as option
     // if (config.useRefreshToken && tokens.valid)
     this.handleNewTokens(this.getRefreshStore(), tokens)
-    if (tokens && tokens.valid) {
-      this.memory.setAccessToken(tokens.accessToken)
-      this.memory.setIdToken(tokens.idToken)
-      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
-      const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
-      Storage.createCookie(refreshKey(), refreshTokenWrapper)
-
-      this.recurringRefreshToken(refreshTokenWrapper)
-    }
 
     return tokens
   }
