@@ -266,7 +266,7 @@ const Transaction: any = {
       const transaction = Transaction.create(Sign.Refresh, '')
 
       // @ts-ignore
-      await Request.refreshTokens(config, transaction, refresh_token)
+      return await Request.refreshTokens(config, transaction, refresh_token)
         .then((response: any) => {
           // this.handleRefreshTokens(response))
           // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
@@ -283,6 +283,7 @@ const Transaction: any = {
             valid: false,
             errors: error,
           }
+          return refreshResult
         })
         .finally(() => {
           // delete temp cookie
