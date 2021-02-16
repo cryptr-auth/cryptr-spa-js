@@ -307,6 +307,21 @@ class Client {
     window.location.assign(url.href)
   }
 
+  handleNewTokens(refreshStore: Interface.RefreshStore, tokens?: any) {
+    if (tokens && tokens.valid) {
+      this.memory.setAccessToken(tokens.accessToken)
+      this.memory.setIdToken(tokens.idToken)
+      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
+      const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
+      Storage.createCookie(refreshKey(), refreshTokenWrapper)
+
+      // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
+      this.recurringRefreshToken(refreshTokenWrapper)
+    } else {
+      this.recurringRefreshToken(refreshStore)
+    }
+  }
+
   async handleRedirectCallback() {
     const redirectParams = parseRedirectParams()
     const transaction = await Transaction.get(redirectParams.state)
@@ -320,6 +335,7 @@ class Client {
 
     // @thib, here when will be ready to use as option
     // if (config.useRefreshToken && tokens.valid)
+    this.handleNewTokens(this.getRefreshStore(), tokens)
     if (tokens && tokens.valid) {
       this.memory.setAccessToken(tokens.accessToken)
       this.memory.setIdToken(tokens.idToken)
@@ -355,18 +371,7 @@ class Client {
     if (this.canRefresh(refreshStore)) {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
-      if (tokens && tokens.valid) {
-        this.memory.setAccessToken(tokens.accessToken)
-        this.memory.setIdToken(tokens.idToken)
-        // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
-        const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
-        Storage.createCookie(refreshKey(), refreshTokenWrapper)
-
-        // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
-        this.recurringRefreshToken(refreshTokenWrapper)
-      } else {
-        this.recurringRefreshToken(refreshStore)
-      }
+      this.handleNewTokens(refreshStore, tokens)
     } else {
       this.recurringRefreshToken(refreshStore)
     }
