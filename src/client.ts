@@ -315,7 +315,6 @@ class Client {
       redirectParams.authorization,
       transaction,
     )
-    console.log('store tokens in memory')
     this.memory.setAccessToken(tokens.accessToken)
     this.memory.setIdToken(tokens.idToken)
 
@@ -325,11 +324,7 @@ class Client {
     // if (config.useRefreshToken && tokens.valid)
     if (tokens.valid) {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
-      console.log('tokens')
-      console.debug(tokens)
       const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
-      console.debug('refreshTokenWrapper')
-      console.debug(refreshTokenWrapper)
       Storage.createCookie(refreshKey(), refreshTokenWrapper)
 
       this.recurringRefreshToken(refreshTokenWrapper)
@@ -350,8 +345,6 @@ class Client {
   // @thib, we just need to call handleRefresh before the call of handleRedirectCallback
   async handleRefreshTokens() {
     const refreshStore = this.getRefreshStore()
-    console.debug(refreshStore)
-    console.debug(refreshStore?.refresh_token)
     if (!refreshStore?.refresh_token) {
       return false
     }
@@ -362,12 +355,10 @@ class Client {
     if (this.canRefresh(refreshStore)) {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
-
       this.memory.setAccessToken(tokens.accessToken)
       this.memory.setIdToken(tokens.idToken)
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
-      console.log('create cookie')
       Storage.createCookie(refreshKey(), refreshTokenWrapper)
 
       // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
@@ -383,18 +374,9 @@ class Client {
     //  we can store JS function without "parenthese" to use it later
     //  also we could just pass the "this" to keep the instanciation of the Client if
     // we can't access to in the worker
-    console.debug('recurringRefreshToken')
-    console.debug(refreshTokenWrapper)
-    const handleRefreshTrigger = () => this.handleRefreshTokens()
-    console.debug(handleRefreshTrigger)
-    console.debug(this.worker)
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
-      // refreshTrigger: handleRefreshTrigger,
     }
-    console.debug('eventData')
-    console.debug(eventData)
-    this.worker?.postMessage("toto")
     this.worker?.postMessage(eventData)
   }
 
