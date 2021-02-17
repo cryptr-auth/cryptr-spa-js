@@ -40,5 +40,8 @@ export interface AuthResponseError {
 
 export interface RefreshStore {
   refresh_token: string
-  access_token_expiration_date: Date
+  access_token_expiration_date: number
+  refresh_expiration_date: number
+  refresh_leeway: number
+  refresh_retry: number
 }
