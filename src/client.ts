@@ -4,6 +4,8 @@ import axios from 'axios'
 import {
   ALLOWED_LOCALES,
   cryptrBaseUrl,
+  DEFAULT_LEEWAY_IN_SECONDS,
+  DEFAULT_REFRESH_RETRY,
   DEFAULT_SCOPE,
 } from './constants'
 import { Sign } from './types'
@@ -342,8 +344,20 @@ class Client {
   }
 
   canRefresh(refreshStore: Interface.RefreshStore): boolean {
+    let {
+      access_token_expiration_date,
+      refresh_leeway,
+      refresh_retry,
+      refresh_token
+    } = refreshStore
+    let tryToRefreshDateStart = new Date(access_token_expiration_date)
+    const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
+    const retry = refresh_retry || DEFAULT_REFRESH_RETRY
+    tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
+
     const now = new Date()
-    return !this.currentAccessTokenPresent() || refreshStore.access_token_expiration_date < now
+    console.log(this.currentAccessTokenPresent())
+    return (typeof refresh_token === 'string') && (!this.currentAccessTokenPresent() || tryToRefreshDateStart < now)
   }
 
   getRefreshStore(): Interface.RefreshStore {
@@ -353,9 +367,6 @@ class Client {
   // @thib, we just need to call handleRefresh before the call of handleRedirectCallback
   async handleRefreshTokens() {
     const refreshStore = this.getRefreshStore()
-    if (!refreshStore?.refresh_token) {
-      return false
-    }
     // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
     // refreshTokenWrapper
 
