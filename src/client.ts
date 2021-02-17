@@ -27,7 +27,8 @@ const locationSearch = (): string => {
 }
 
 const canHandleWorker = (navigator: Navigator) => {
-  return 'serviceWorker' in navigator
+  return false
+  // return 'serviceWorker' in navigator
 }
 
 const parseRedirectParams = (): { state: string; authorization: Interface.Authorization } => {
@@ -68,6 +69,7 @@ class Client {
 
     if (!canHandleWorker(navigator)) {
       // @docJerem may we do like postpone here ?
+      this.handleRefreshTokens()
       return;
     }
     this.worker = new TokenWorker()
@@ -384,7 +386,17 @@ class Client {
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
-    this.worker?.postMessage(eventData)
+    if (canHandleWorker(navigator)) {
+      this.worker?.postMessage(eventData)
+    }
+  }
+
+  rotateWithoutWorker(eventData: any) {
+    console.debug('rotateWithoutWorker')
+    console.debug(eventData)
+    setTimeout(() => {
+      this.handleRefreshTokens()
+    }, 10_000);
   }
 
   getUser() {
