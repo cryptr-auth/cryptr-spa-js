@@ -109,13 +109,18 @@ const validateAndFormatAuthResp = (
 }
 
 const getRefreshParameters = (resp: any) => {
+  let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
+  let accessExpiration = typeof accessExpInputValue === 'string' ? Date.parse(accessExpInputValue) : new Date(accessExpInputValue)
+
+  let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
+  let refreshExpiration = typeof refreshExpInputValue === 'string' ? Date.parse(refreshExpInputValue) : new Date(refreshExpInputValue)
   try {
     return {
-      access_token_expiration_date: Date.parse(resp.expires_at),
+      access_token_expiration_date: accessExpiration,
       refresh_token: resp.refresh_token,
       refresh_leeway: resp.refresh_leeway,
       refresh_retry: resp.refresh_retry,
-      refresh_expiration_date: Date.parse(resp.refresh_token_expires_at),
+      refresh_expiration_date: refreshExpiration,
     }
   } catch (err) {
     return {}
