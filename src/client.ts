@@ -27,8 +27,7 @@ const locationSearch = (): string => {
 }
 
 const canHandleWorker = (navigator: Navigator) => {
-  return false
-  // return 'serviceWorker' in navigator
+  return ('serviceWorker' in navigator)
 }
 
 const parseRedirectParams = (): { state: string; authorization: Interface.Authorization } => {
