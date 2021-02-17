@@ -110,10 +110,10 @@ const validateAndFormatAuthResp = (
 
 const getRefreshParameters = (resp: any) => {
   let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
-  let accessExpiration = typeof accessExpInputValue === 'string' ? Date.parse(accessExpInputValue) : new Date(accessExpInputValue)
+  let accessExpiration = typeof accessExpInputValue === 'string' ? Date.parse(accessExpInputValue) : new Date(accessExpInputValue).getTime()
 
   let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
-  let refreshExpiration = typeof refreshExpInputValue === 'string' ? Date.parse(refreshExpInputValue) : new Date(refreshExpInputValue)
+  let refreshExpiration = typeof refreshExpInputValue === 'string' ? Date.parse(refreshExpInputValue) : new Date(refreshExpInputValue).getTime()
   try {
     return {
       access_token_expiration_date: accessExpiration,
