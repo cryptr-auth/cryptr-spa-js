@@ -110,10 +110,16 @@ const validateAndFormatAuthResp = (
 
 const getRefreshParameters = (resp: any) => {
   let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
-  let accessExpiration = typeof accessExpInputValue === 'string' ? Date.parse(accessExpInputValue) : new Date(accessExpInputValue).getTime()
+  let accessExpiration =
+    typeof accessExpInputValue === 'string'
+      ? Date.parse(accessExpInputValue)
+      : new Date(accessExpInputValue).getTime()
 
   let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
-  let refreshExpiration = typeof refreshExpInputValue === 'string' ? Date.parse(refreshExpInputValue) : new Date(refreshExpInputValue).getTime()
+  let refreshExpiration =
+    typeof refreshExpInputValue === 'string'
+      ? Date.parse(refreshExpInputValue)
+      : new Date(refreshExpInputValue).getTime()
   try {
     return {
       access_token_expiration_date: accessExpiration,
@@ -139,7 +145,6 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
   const idToken: any = responseData['id_token']
   const refreshToken: any = responseData['refresh_token']
 
-
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
       // @thib this is not the good place to store (dont merge getter & setter to make easy to test code)
@@ -151,16 +156,18 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
       } else {
         cookieExpirationDate.setDate(cookieExpirationDate.getDate() + 1)
       }
-      Storage.createCookie(refreshKey(), {
-        refresh_token: refreshToken,
-        // @thib DEPRECATED
-        rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-        // @thib DEPRECATED
-        expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
-        // @thib new parameters :
-        ...getRefreshParameters(responseData),
-      },
-        cookieExpirationDate
+      Storage.createCookie(
+        refreshKey(),
+        {
+          refresh_token: refreshToken,
+          // @thib DEPRECATED
+          rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
+          // @thib DEPRECATED
+          expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
+          // @thib new parameters :
+          ...getRefreshParameters(responseData),
+        },
+        cookieExpirationDate,
       )
     }
     if (opts.withPKCE) {
@@ -294,7 +301,9 @@ const Transaction: any = {
       .then((response: any) => {
         // this.handleRefreshTokens(response))
         // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
-        refreshResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: false })
+        refreshResult = parseTokensAndStoreRefresh(config, response, transaction, {
+          withPKCE: false,
+        })
       })
       .catch((error) => {
         let response = error.response

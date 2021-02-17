@@ -254,7 +254,7 @@ class Client {
       access_token_expiration_date,
       refresh_leeway,
       refresh_retry,
-      refresh_token
+      refresh_token,
     } = refreshStore
     let tryToRefreshDateStart = new Date(access_token_expiration_date)
     const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
@@ -262,7 +262,10 @@ class Client {
     tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
 
     const now = new Date()
-    return (typeof refresh_token === 'string') && (!this.currentAccessTokenPresent() || tryToRefreshDateStart < now)
+    return (
+      typeof refresh_token === 'string' &&
+      (!this.currentAccessTokenPresent() || tryToRefreshDateStart < now)
+    )
   }
 
   getRefreshStore(): Interface.RefreshStore {
@@ -284,7 +287,7 @@ class Client {
       console.log('should log out')
       setTimeout(() => {
         window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-      }, 1000);
+      }, 1000)
     } else {
       this.recurringRefreshToken(refreshStore)
     }

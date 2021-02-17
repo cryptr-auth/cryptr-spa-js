@@ -6,7 +6,8 @@ import Transaction, { tomorrowDate } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import {
-  cryptrBaseUrl, DEFAULT_SCOPE,
+  cryptrBaseUrl,
+  DEFAULT_SCOPE,
   //   DEFAULT_REFRESH_ROTATION_DURATION,
   // DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE
 } from './constants'

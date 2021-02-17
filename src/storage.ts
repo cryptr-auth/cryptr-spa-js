@@ -1,5 +1,5 @@
 import * as Cookies from 'es-cookie'
-import { EXPIRATION_DAYS, STORAGE_KEY_PREFIX } from './constants'
+import { STORAGE_KEY_PREFIX } from './constants'
 
 export interface Entry {
   key: string
@@ -16,7 +16,7 @@ const Storage = {
     }
 
     let cookieAttributes: Cookies.CookieAttributes = {
-      expires: expires
+      expires: expires,
     }
     // Handle dev/test VS production
     if (
