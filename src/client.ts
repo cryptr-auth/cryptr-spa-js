@@ -389,7 +389,7 @@ class Client {
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
-    if (canHandleWorker(navigator)) {
+    if ('serviceWorker' in navigator) {
       this.worker?.postMessage(eventData)
     } else {
       // TODO handle old browser rotation
