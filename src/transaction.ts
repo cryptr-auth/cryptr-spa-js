@@ -127,15 +127,30 @@ const getRefreshParameters = (resp: any) => {
   }
 }
 
+export const tomorrowDate = (): Date => {
+  let now = new Date()
+  now.setDate(now.getDate() + 1)
+  return now
+}
+
 const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any, opts: any) => {
   const responseData = response['data']
   const accessToken: string = responseData['access_token']
   const idToken: any = responseData['id_token']
   const refreshToken: any = responseData['refresh_token']
 
+
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
       // @thib this is not the good place to store (dont merge getter & setter to make easy to test code)
+
+      const refreshTokenWrapper = getRefreshParameters(responseData)
+      let cookieExpirationDate = new Date()
+      if (refreshTokenWrapper.refresh_expiration_date) {
+        cookieExpirationDate = tomorrowDate()
+      } else {
+        cookieExpirationDate.setDate(cookieExpirationDate.getDate() + 1)
+      }
       Storage.createCookie(refreshKey(), {
         refresh_token: refreshToken,
         // @thib DEPRECATED
@@ -144,7 +159,9 @@ const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any
         expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
         // @thib new parameters :
         ...getRefreshParameters(responseData),
-      })
+      },
+        cookieExpirationDate
+      )
     }
     if (opts.withPKCE) {
       Storage.deleteCookie(transactionKey(transaction.pkce.state))
@@ -170,7 +187,7 @@ const Transaction: any = {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransaction(signType, scope, redirect_uri, locale)
-    Storage.createCookie(setTransactionKey(transaction), transaction)
+    Storage.createCookie(setTransactionKey(transaction), transaction, tomorrowDate())
     return transaction
   },
 
@@ -188,7 +205,7 @@ const Transaction: any = {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
-    Storage.createCookie(transactionKey(state), transaction)
+    Storage.createCookie(transactionKey(state), transaction, tomorrowDate())
     return transaction
   },
 

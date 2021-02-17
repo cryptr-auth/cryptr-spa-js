@@ -1,4 +1,5 @@
 import Storage from './storage'
+import { tomorrowDate } from './transaction'
 jest.mock('es-cookie')
 
 describe('Storage.createCookie(clientId, value)', () => {
@@ -20,11 +21,11 @@ describe('Storage.createCookie(clientId, value)', () => {
   })
 
   it('returns the stored object when it creates new cookie', () => {
-    expect(Storage.createCookie(CLIENT_ID, TOKENS)).toMatchSnapshot()
+    expect(Storage.createCookie(CLIENT_ID, TOKENS, tomorrowDate())).toMatchSnapshot()
   })
 
   it('create a cookie based on the ket & value', () => {
-    Storage.createCookie(CLIENT_ID, TOKENS)
+    Storage.createCookie(CLIENT_ID, TOKENS, tomorrowDate())
 
     expect(require('es-cookie').set).toHaveBeenCalledWith(
       `$cryptr-spa-js$.store.${CLIENT_ID}`,

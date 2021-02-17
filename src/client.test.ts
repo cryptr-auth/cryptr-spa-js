@@ -2,7 +2,7 @@ import Client from './client'
 // import InMemory from './memory'
 import Request from './request'
 import Storage from './storage'
-import Transaction from './transaction'
+import Transaction, { tomorrowDate } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import {
@@ -175,7 +175,7 @@ describe('refreshTokens()', () => {
     refresh_token: 'azerty-951-mlkj',
   }
   beforeEach(() => {
-    Storage.createCookie(refreshKey(), cookieRefreshBody)
+    Storage.createCookie(refreshKey(), cookieRefreshBody, tomorrowDate())
   })
 
   it('should create Transaction', async () => {

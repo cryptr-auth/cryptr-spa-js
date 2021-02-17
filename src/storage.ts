@@ -9,13 +9,15 @@ export interface Entry {
 const storageKey = (client_id: string): string => `${STORAGE_KEY_PREFIX}.store.${client_id}`
 
 const Storage = {
-  createCookie: (clientId: string, value: any): Entry => {
+  createCookie: (clientId: string, value: any, expires: Date): Entry => {
     const entry: Entry = {
       key: storageKey(clientId),
       body: JSON.stringify(value),
     }
 
-    let cookieAttributes: Cookies.CookieAttributes = {}
+    let cookieAttributes: Cookies.CookieAttributes = {
+      expires: expires
+    }
     // Handle dev/test VS production
     if (
       window !== undefined &&
@@ -27,7 +29,7 @@ const Storage = {
         sameSite: 'none',
       }
     }
-    cookieAttributes.expires = EXPIRATION_DAYS
+
     if (typeof document !== 'undefined') {
       Cookies.set(entry.key, entry.body, cookieAttributes)
     }

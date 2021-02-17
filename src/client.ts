@@ -221,7 +221,8 @@ class Client {
       this.memory.setIdToken(tokens.idToken)
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
-      Storage.createCookie(refreshKey(), refreshTokenWrapper)
+      const cookieExpirationDate = new Date(refreshTokenWrapper.refresh_expiration_date)
+      Storage.createCookie(refreshKey(), refreshTokenWrapper, cookieExpirationDate)
 
       // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
       this.recurringRefreshToken(refreshTokenWrapper)
@@ -273,10 +274,6 @@ class Client {
     const refreshStore = this.getRefreshStore()
     // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
     // refreshTokenWrapper
-    if (refreshStore.refresh_expiration_date && new Date().getTime() < refreshStore.refresh_expiration_date) {
-      window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-      return;
-    }
 
     // @thib then if it works , we can handle  leeway too
     if (this.canRefresh(refreshStore)) {
