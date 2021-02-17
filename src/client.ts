@@ -26,10 +26,6 @@ const locationSearch = (): string => {
   }
 }
 
-const canHandleWorker = (navigator: Navigator) => {
-  return ('serviceWorker' in navigator)
-}
-
 const parseRedirectParams = (): { state: string; authorization: Interface.Authorization } => {
   const urlParams = new URLSearchParams(locationSearch())
 
@@ -66,17 +62,14 @@ class Client {
     }
     this.config = config
 
-    if (!canHandleWorker(navigator)) {
-      // @docJerem may we do like postpone here ?
-      this.handleRefreshTokens()
-      return;
+    if ('serviceWorker' in navigator) {
+      this.worker = new TokenWorker()
+      this.worker?.addEventListener('message', (event: MessageEvent) => {
+        if (event.data == 'rotate') {
+          this.handleRefreshTokens()
+        }
+      })
     }
-    this.worker = new TokenWorker()
-    this.worker?.addEventListener('message', (event: MessageEvent) => {
-      if (event.data == 'rotate') {
-        this.handleRefreshTokens()
-      }
-    })
   }
 
   private configureSentry(config: Interface.Config) {
@@ -387,15 +380,9 @@ class Client {
     }
     if (canHandleWorker(navigator)) {
       this.worker?.postMessage(eventData)
+    } else {
+      // TODO handle old browser rotation
     }
-  }
-
-  rotateWithoutWorker(eventData: any) {
-    console.debug('rotateWithoutWorker')
-    console.debug(eventData)
-    setTimeout(() => {
-      this.handleRefreshTokens()
-    }, 10_000);
   }
 
   getUser() {
