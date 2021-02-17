@@ -31,7 +31,8 @@ self.addEventListener('activate', function (_event) {
 self.addEventListener('message', (event) => {
   let data = event.data
   let { refreshTokenParameters } = data
-
+  console.log('data received by worker')
+  console.log(refreshTokenParameters)
   const WAIT_SECONDS = 10
 
   setTimeout(() => {

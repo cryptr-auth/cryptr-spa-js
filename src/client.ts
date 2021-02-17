@@ -67,6 +67,7 @@ class Client {
     if ('serviceWorker' in navigator) {
       this.worker = new TokenWorker()
       this.worker?.addEventListener('message', (event: MessageEvent) => {
+        console.log(event.data)
         if (event.data == 'rotate') {
           this.handleRefreshTokens()
         }
@@ -259,7 +260,6 @@ class Client {
     tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
 
     const now = new Date()
-    console.log(this.currentAccessTokenPresent())
     return (typeof refresh_token === 'string') && (!this.currentAccessTokenPresent() || tryToRefreshDateStart < now)
   }
 
