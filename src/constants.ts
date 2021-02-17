@@ -21,7 +21,7 @@ export const DEFAULT_REFRESH_EXPIRATION: number = 2_592_000
 
 export const DEFAULT_ISSUER: string = 'cryptr'
 
-export const DEFAULT_SCOPE: string = 'openid email'
+export const DEFAULT_SCOPE: string = 'openid email profile'
 
 export const GRANT_TYPE: string = 'authorization_code'
 
