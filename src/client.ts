@@ -280,6 +280,11 @@ class Client {
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
       this.handleNewTokens(refreshStore, tokens)
+    } else if (Object.keys(refreshStore).length === 0) {
+      console.log('should log out')
+      setTimeout(() => {
+        window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+      }, 1000);
     } else {
       this.recurringRefreshToken(refreshStore)
     }
