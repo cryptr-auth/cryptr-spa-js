@@ -18,6 +18,7 @@ import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr
 import { Integrations } from '@sentry/tracing'
 // @ts-ignore
 import TokenWorker from './token.worker.js'
+import EventTypes from './event_types'
 
 const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
@@ -272,6 +273,10 @@ class Client {
     const refreshStore = this.getRefreshStore()
     // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
     // refreshTokenWrapper
+    if (refreshStore.refresh_expiration_date && new Date().getTime() < refreshStore.refresh_expiration_date) {
+      window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+      return;
+    }
 
     // @thib then if it works , we can handle  leeway too
     if (this.canRefresh(refreshStore)) {
