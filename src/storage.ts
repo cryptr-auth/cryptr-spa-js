@@ -12,7 +12,7 @@ const Storage = {
   createCookie: (clientId: string, value: any, expires: Date): Entry => {
     if (expires < new Date()) {
       console.error(`cookie expires value: ${expires}`)
-      throw new Error("cannot create cookie in past");
+      throw new Error('cannot create cookie in past')
     }
     const entry: Entry = {
       key: storageKey(clientId),

@@ -223,7 +223,7 @@ class Client {
     if (invalidGrantError) {
       console.error('should log out')
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-      return true;
+      return true
     }
     return false
   }
@@ -241,7 +241,7 @@ class Client {
       this.recurringRefreshToken(refreshTokenWrapper)
     } else {
       if (this.handleTokensErrors(tokens.errors)) {
-        return;
+        return
       }
       this.recurringRefreshToken(refreshStore)
     }
