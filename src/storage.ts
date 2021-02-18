@@ -10,6 +10,7 @@ const storageKey = (client_id: string): string => `${STORAGE_KEY_PREFIX}.store.$
 
 const Storage = {
   createCookie: (clientId: string, value: any, expires: Date): Entry => {
+    console.log(`creates cookie with date ${expires}`)
     if (expires < new Date()) {
       console.error(`cookie expires value: ${expires}`)
       throw new Error('cannot create cookie in past')
