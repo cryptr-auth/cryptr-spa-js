@@ -216,15 +216,16 @@ class Client {
     window.location.assign(url.href)
   }
 
-  handleTokensErrors(errors: TokenError[]) {
+  handleTokensErrors(errors: TokenError[]): boolean {
     console.log('errors')
     console.debug(errors)
     const invalidGrantError = errors.find((e: TokenError) => e.error === 'invalid_grant')
     if (invalidGrantError) {
       console.error('should log out')
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-      return;
+      return true;
     }
+    return false
   }
 
   handleNewTokens(refreshStore: Interface.RefreshStore, tokens?: any) {
@@ -239,7 +240,9 @@ class Client {
       // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
       this.recurringRefreshToken(refreshTokenWrapper)
     } else {
-      this.handleTokensErrors(tokens.errors)
+      if (this.handleTokensErrors(tokens.errors)) {
+        return;
+      }
       this.recurringRefreshToken(refreshStore)
     }
   }
