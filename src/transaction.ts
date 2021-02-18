@@ -144,7 +144,7 @@ export const tomorrowDate = (): Date => {
   return now
 }
 
-const parseErrors = (response: any): I.TokenError => {
+export const parseErrors = (response: any): I.TokenError => {
   if (response) {
     return { http_response: response, ...response.data }
   }
@@ -173,9 +173,9 @@ const parseTokensAndStoreRefresh = (
       const refreshTokenWrapper = getRefreshParameters(responseData)
       let cookieExpirationDate = new Date()
       if (refreshTokenWrapper.refresh_expiration_date) {
-        cookieExpirationDate = tomorrowDate()
+        cookieExpirationDate = new Date(refreshTokenWrapper.refresh_expiration_date)
       } else {
-        cookieExpirationDate.setDate(cookieExpirationDate.getDate() + 1)
+        cookieExpirationDate = tomorrowDate()
       }
       Storage.createCookie(
         refreshKey(),
