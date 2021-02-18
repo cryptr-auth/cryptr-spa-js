@@ -217,11 +217,9 @@ class Client {
   }
 
   handleTokensErrors(errors: TokenError[]): boolean {
-    console.log('errors')
-    console.debug(errors)
     const invalidGrantError = errors.find((e: TokenError) => e.error === 'invalid_grant')
     if (invalidGrantError) {
-      console.error('should log out')
+      console.error('invalid grant detected')
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
       return true
     }
