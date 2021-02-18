@@ -307,14 +307,10 @@ const Transaction: any = {
       })
       .catch((error) => {
         let response = error.response
-        if (response && response.status === 400 && response.data.error === 'invalid_grant') {
-          // @thib dispatch event SHOULD NOT be in a "getter function"
-          window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-        }
         refreshResult = {
           ...refreshResult,
           valid: false,
-          errors: error,
+          errors: [{ http_response: response, ...response.data }],
         }
       })
       .finally(() => {

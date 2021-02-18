@@ -19,6 +19,7 @@ import { Integrations } from '@sentry/tracing'
 // @ts-ignore
 import TokenWorker from './token.worker.js'
 import EventTypes from './event_types'
+import { TokenError } from './interfaces'
 
 const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
@@ -215,6 +216,17 @@ class Client {
     window.location.assign(url.href)
   }
 
+  handleTokensErrors(errors: TokenError[]) {
+    console.log('errors')
+    console.debug(errors)
+    const invalidGrantError = errors.find((e: TokenError) => e.error === 'invalid_grant')
+    if (invalidGrantError) {
+      console.error('should log out')
+      window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+      return;
+    }
+  }
+
   handleNewTokens(refreshStore: Interface.RefreshStore, tokens?: any) {
     if (tokens && tokens.valid) {
       this.memory.setAccessToken(tokens.accessToken)
@@ -227,6 +239,7 @@ class Client {
       // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
       this.recurringRefreshToken(refreshTokenWrapper)
     } else {
+      this.handleTokensErrors(tokens.errors)
       this.recurringRefreshToken(refreshStore)
     }
   }
