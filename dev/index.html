@@ -171,6 +171,11 @@
       // Create a new instance of the SDK client using members of the given config object
       this.cryptrClient = await CryptrSpa.createClient(config);
 
+      window.addEventListener(CryptrSpa.events.REFRESH_INVALID_GRANT, (RigError) => {
+        console.error(RigError);
+        this.logOut();
+      });
+
       try {
         // If the user is returning to the app after authentication..
         const canAuthenticate = await this.cryptrClient.canHandleAuthentication()
@@ -197,11 +202,6 @@
         }else {
           this.user = {}
         }
-        window.addEventListener(CryptrSpa.events.REFRESH_INVALID_GRANT, (RigError) => {
-          console.error(RigError)
-          alert('REFRESH_INVALID_GRANT')
-          // this.logOut(null);
-        });
         this.loading = false;
       }
     }
