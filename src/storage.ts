@@ -35,6 +35,9 @@ const Storage = {
       }
     }
 
+    console.log('cookieAttributes')
+    console.log(cookieAttributes)
+
     if (typeof document !== 'undefined') {
       Cookies.set(entry.key, entry.body, cookieAttributes)
     }
