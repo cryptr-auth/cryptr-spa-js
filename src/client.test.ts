@@ -266,7 +266,7 @@ describe('signin process', () => {
     await client.signInWithoutRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'signin',
-      'openid email',
+      'openid email profile',
       undefined,
       validConfig.default_redirect_uri,
     )
@@ -278,7 +278,7 @@ describe('signin process', () => {
     await client.signUpWithoutRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'signup',
-      'openid email',
+      'openid email profile',
       undefined,
       validConfig.default_redirect_uri,
     )
@@ -290,7 +290,7 @@ describe('signin process', () => {
     await client.inviteWithoutRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'invite',
-      'openid email',
+      'openid email profile',
       undefined,
       validConfig.default_redirect_uri,
     )
@@ -302,7 +302,7 @@ describe('signin process', () => {
     await client.signInWithRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'signin',
-      'openid email',
+      'openid email profile',
       undefined,
       validConfig.default_redirect_uri,
     )
@@ -314,7 +314,7 @@ describe('signin process', () => {
     await client.signUpWithRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'signup',
-      'openid email',
+      'openid email profile',
       undefined,
       validConfig.default_redirect_uri,
     )
@@ -326,7 +326,7 @@ describe('signin process', () => {
     await client.inviteWithRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'invite',
-      'openid email',
+      'openid email profile',
       undefined,
       validConfig.default_redirect_uri,
     )
@@ -359,16 +359,16 @@ describe('finalScope', () => {
     expect(client.finalScope(DEFAULT_SCOPE)).toEqual(DEFAULT_SCOPE)
   })
   it('returns DEFAULT_SCOPE appendend to scope if one provided', async () => {
-    expect(client.finalScope(newScope)).toEqual('openid email read:invoices delete:tutu')
+    expect(client.finalScope(newScope)).toEqual('openid email profile read:invoices delete:tutu')
   })
 
   it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
-    expect(client.finalScope(duplicatedScope)).toEqual('openid email read:invoices delete:tutu')
+    expect(client.finalScope(duplicatedScope)).toEqual('openid email profile read:invoices delete:tutu')
   })
 
   it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
     expect(client.finalScope(scopeWithPartDefault)).toEqual(
-      'openid email read:invoices delete:tutu',
+      'openid email profile read:invoices delete:tutu',
     )
   })
 })
