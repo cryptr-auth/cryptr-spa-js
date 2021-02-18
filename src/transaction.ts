@@ -15,7 +15,6 @@ import Request from './request'
 import Storage from './storage'
 import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
-import EventTypes from './event_types'
 
 const newTransaction = (
   signType: Sign,
@@ -82,21 +81,21 @@ const validateAndFormatAuthResp = (
   refreshToken?: string,
 ) => {
   let valid = true
-  let errors: I.AuthResponseError[] = []
+  let errors: I.TokenError[] = []
 
   const validIdToken = Jwt.validatesIdToken(idToken || '', config)
   const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config)
 
   if (!validAccessToken) {
     valid = false
-    errors = [{ field: 'idToken', message: 'Not retrieve' }]
+    errors = [{ error: 'idToken', error_description: 'Not retrieve', http_response: null }]
   }
   if (!idToken || !validIdToken) {
     valid = false
     errors = validIdToken
       ? errors
-      : errors.concat([{ field: 'idToken', message: 'Can’t process request' }])
-    errors = idToken ? errors : errors.concat([{ field: 'idToken', message: 'Not retrieve' }])
+      : errors.concat([{ error: 'idToken', error_description: 'Can’t process request', http_response: null }])
+    errors = idToken ? errors : errors.concat([{ error: 'idToken', error_description: 'Not retrieve', http_response: null }])
   }
 
   return {
@@ -104,11 +103,11 @@ const validateAndFormatAuthResp = (
     accessToken: accessToken || '',
     idToken: idToken || '',
     refreshToken: refreshToken || '',
-    errors: [{}],
+    errors: errors,
   }
 }
 
-const getRefreshParameters = (resp: any) => {
+const getRefreshParameters = (resp: any): I.RefreshParameters => {
   let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
   let accessExpiration =
     typeof accessExpInputValue === 'string'
@@ -139,11 +138,11 @@ export const tomorrowDate = (): Date => {
   return now
 }
 
-const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any, opts: any) => {
+const parseTokensAndStoreRefresh = (config: any, response: any, transaction: any, opts: any): I.TokenResult => {
   const responseData = response['data']
   const accessToken: string = responseData['access_token']
-  const idToken: any = responseData['id_token']
-  const refreshToken: any = responseData['refresh_token']
+  const idToken: string = responseData['id_token']
+  const refreshToken: string = responseData['refresh_token']
 
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
@@ -238,13 +237,14 @@ const Transaction: any = {
     config: I.Config,
     authorization: I.Authorization,
     transaction: I.Transaction,
-  ) => {
-    let accessResult = {
+  ): Promise<I.TokenResult> => {
+    const errors: I.TokenError[] = []
+    let accessResult: I.TokenResult = {
       valid: false,
       accessToken: '',
       idToken: '',
       refreshToken: '',
-      errors: [{}],
+      errors: errors,
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
@@ -253,13 +253,13 @@ const Transaction: any = {
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
-        const errors = [{ field: '', message: error.message }]
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
           Sentry.captureMessage(transactionConfigNullMsg)
           errors.push({
-            field: 'transaction',
-            message: transactionConfigNullMsg,
+            error: 'transaction',
+            error_description: transactionConfigNullMsg,
+            http_response: error.response
           })
         }
         accessResult = {
@@ -281,13 +281,14 @@ const Transaction: any = {
 
   */
   //  @thib we could rename refreshTokens by getTokensByRefresh
-  getTokensByRefresh: async (config: I.Config, refresh_token: string) => {
-    let refreshResult = {
+  getTokensByRefresh: async (config: I.Config, refresh_token: string): Promise<I.TokenResult> => {
+    const errors: I.TokenError[] = []
+    let refreshResult: I.TokenResult = {
       valid: false,
       accessToken: '',
       idToken: '',
       refreshToken: '',
-      errors: [{}],
+      errors: errors,
     }
 
     if (!refresh_token) {
