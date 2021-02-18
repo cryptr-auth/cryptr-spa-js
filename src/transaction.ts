@@ -95,13 +95,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -142,6 +142,17 @@ export const tomorrowDate = (): Date => {
   let now = new Date()
   now.setDate(now.getDate() + 1)
   return now
+}
+
+const parseErrors = (response: any): I.TokenError => {
+  if (response) {
+    return { http_response: response, ...response.data }
+  }
+  return {
+    error: 'error',
+    error_description: 'response is undefined',
+    http_response: null
+  }
 }
 
 const parseTokensAndStoreRefresh = (
@@ -322,7 +333,7 @@ const Transaction: any = {
         refreshResult = {
           ...refreshResult,
           valid: false,
-          errors: [{ http_response: response, ...response.data }],
+          errors: [parseErrors(response)],
         }
       })
       .finally(() => {
