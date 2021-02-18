@@ -227,7 +227,7 @@ class Client {
   }
 
   handleNewTokens(refreshStore: Interface.RefreshStore, tokens?: any) {
-    if (tokens && tokens.valid) {
+    if (tokens?.valid) {
       this.memory.setAccessToken(tokens.accessToken)
       this.memory.setIdToken(tokens.idToken)
       // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
