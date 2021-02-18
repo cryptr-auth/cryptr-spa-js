@@ -33,15 +33,37 @@ export interface Transaction {
   nonce?: string
 }
 
-export interface AuthResponseError {
-  field: string
-  message: string
-}
-
 export interface RefreshStore {
   refresh_token: string
   access_token_expiration_date: number
   refresh_expiration_date: number
   refresh_leeway: number
   refresh_retry: number
+}
+
+export interface RefreshParameters {
+  access_token_expiration_date?: number
+  refresh_token?: string
+  refresh_leeway?: number
+  refresh_retry?: number
+  refresh_expiration_date?: number
+}
+
+export interface TokenResult {
+  valid: boolean
+  accessToken: string
+  idToken: string
+  refreshToken: string
+  errors?: TokenError[]
+  access_token_expiration_date?: number
+  refresh_token?: string
+  refresh_leeway?: number
+  refresh_retry?: number
+  refresh_expiration_date?: number
+}
+
+export interface TokenError {
+  http_response: any
+  error: string
+  error_description: string
 }
