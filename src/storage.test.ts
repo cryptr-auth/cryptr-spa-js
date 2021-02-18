@@ -16,7 +16,6 @@ describe('Storage.createCookie(clientId, value)', () => {
     refreshToken: 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
   }
 
-
   beforeEach(() => {
     jest.resetAllMocks()
   })

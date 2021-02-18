@@ -2,7 +2,7 @@
 // import { rest } from 'msw'
 // import { setupServer } from 'msw/node'
 
-import Transaction from './transaction'
+import Transaction, { parseErrors } from './transaction'
 import { Sign } from './types'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 // import { tokenUrl } from './request'
@@ -181,5 +181,13 @@ describe('Transaction', () => {
     const newUrl = Transaction.signUrl(config, transaction)
     // expect(newUrl.href).toMatch('https://cryptr-test.onrender.com/t/shark-academy/en/')
     expect(newUrl.href).toMatch('http://localhost:4000/t/shark-academy/en/')
+  })
+
+  it('should return default token error if no response provided', () => {
+    expect(parseErrors(null)).toEqual({
+      error: 'error',
+      error_description: 'response is undefined',
+      http_response: null,
+    })
   })
 })

@@ -363,7 +363,9 @@ describe('finalScope', () => {
   })
 
   it('returns DEFAULT_SCOPE appendend to scope if duplicated provided', async () => {
-    expect(client.finalScope(duplicatedScope)).toEqual('openid email profile read:invoices delete:tutu')
+    expect(client.finalScope(duplicatedScope)).toEqual(
+      'openid email profile read:invoices delete:tutu',
+    )
   })
 
   it('returns DEFAULT_SCOPE appendend to scope if one provided with partial DEFAULT', async () => {
