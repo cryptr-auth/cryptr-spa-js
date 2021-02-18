@@ -197,6 +197,9 @@
         }else {
           this.user = {}
         }
+        window.addEventListener(CryptrSpa.events.REFRESH_INVALID_GRANT, (RigError) => {
+          this.logOut(null);
+        });
         this.loading = false;
       }
     }
