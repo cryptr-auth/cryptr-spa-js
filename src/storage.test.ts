@@ -4,7 +4,7 @@ jest.mock('es-cookie')
 
 describe('Storage.createCookie(clientId, value)', () => {
   const CLIENT_ID = 'adefe2f4-fe71-4187-809f-c39f20d8f792'
-  const EXPIRATION = 30
+  const EXPIRATION = tomorrowDate()
   const TOKENS = {
     id: '5c20cccd-55d0-4c11-8c4a-bf4c38fa8588',
     client_id: CLIENT_ID,
@@ -16,16 +16,17 @@ describe('Storage.createCookie(clientId, value)', () => {
     refreshToken: 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
   }
 
+
   beforeEach(() => {
     jest.resetAllMocks()
   })
 
   it('returns the stored object when it creates new cookie', () => {
-    expect(Storage.createCookie(CLIENT_ID, TOKENS, tomorrowDate())).toMatchSnapshot()
+    expect(Storage.createCookie(CLIENT_ID, TOKENS, EXPIRATION)).toMatchSnapshot()
   })
 
   it('create a cookie based on the ket & value', () => {
-    Storage.createCookie(CLIENT_ID, TOKENS, tomorrowDate())
+    Storage.createCookie(CLIENT_ID, TOKENS, EXPIRATION)
 
     expect(require('es-cookie').set).toHaveBeenCalledWith(
       `$cryptr-spa-js$.store.${CLIENT_ID}`,
