@@ -73,7 +73,6 @@ const setTransactionKey = (transaction: I.Transaction): string =>
 
 export const refreshKey = (): string => `${STORAGE_KEY_PREFIX}.refresh`
 
-// @thib this not a function to parse (anyway it does), this is a validation function
 const validateAndFormatAuthResp = (
   config: I.Config,
   accessToken?: string,
@@ -168,8 +167,6 @@ const parseTokensAndStoreRefresh = (
 
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
-      // @thib this is not the good place to store (dont merge getter & setter to make easy to test code)
-
       const refreshTokenWrapper = getRefreshParameters(responseData)
       let cookieExpirationDate = new Date()
       if (refreshTokenWrapper.refresh_expiration_date) {
@@ -181,11 +178,8 @@ const parseTokensAndStoreRefresh = (
         refreshKey(),
         {
           refresh_token: refreshToken,
-          // @thib DEPRECATED
           rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-          // @thib DEPRECATED
           expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
-          // @thib new parameters :
           ...getRefreshParameters(responseData),
         },
         cookieExpirationDate,
@@ -302,7 +296,6 @@ const Transaction: any = {
   returns tokens + parameters
 
   */
-  //  @thib we could rename refreshTokens by getTokensByRefresh
   getTokensByRefresh: async (config: I.Config, refresh_token: string): Promise<I.TokenResult> => {
     const errors: I.TokenError[] = []
     let refreshResult: I.TokenResult = {
@@ -322,8 +315,6 @@ const Transaction: any = {
     // @ts-ignore
     await Request.refreshTokens(config, transaction, refresh_token)
       .then((response: any) => {
-        // this.handleRefreshTokens(response))
-        // return validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
         refreshResult = parseTokensAndStoreRefresh(config, response, transaction, {
           withPKCE: false,
         })
@@ -338,7 +329,6 @@ const Transaction: any = {
       })
       .finally(() => {
         // delete temp cookie
-        // @thib there is no PKCE in a REFRESH GRANT normally
         Storage.deleteCookie(transactionKey(transaction.pkce.state))
       })
     return refreshResult

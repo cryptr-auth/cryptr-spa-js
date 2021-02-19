@@ -69,7 +69,6 @@ class Client {
     if ('serviceWorker' in navigator) {
       this.worker = new TokenWorker()
       this.worker?.addEventListener('message', (event: MessageEvent) => {
-        console.log(event.data)
         if (event.data == 'rotate') {
           this.handleRefreshTokens()
         }
@@ -84,9 +83,6 @@ class Client {
     Sentry.init({
       dsn: 'https://4fa5d7f40b554570b64af9c4326b0efb@o468922.ingest.sentry.io/5497495',
       integrations: [new Integrations.BrowserTracing()],
-
-      // We recommend adjusting this value in production, or using tracesSampler
-      // for finer control
       tracesSampleRate: 1.0,
     })
     Sentry.setContext('app', {
@@ -110,16 +106,6 @@ class Client {
   }
 
   async isAuthenticated() {
-    // if (!this.currentAccessTokenPresent()) {
-    //   let canAUthenticate = this.hasAuthenticationParams()
-    //   let canInvite = this.hasInvitationParams()
-
-    //   if (!canInvite && !canAUthenticate) {
-    //     await this.handleRefreshTokens()
-
-    //     return this.currentAccessTokenPresent()
-    //   }
-    // }
     return this.currentAccessTokenPresent()
   }
 
@@ -230,12 +216,10 @@ class Client {
     if (tokens?.valid) {
       this.memory.setAccessToken(tokens.accessToken)
       this.memory.setIdToken(tokens.idToken)
-      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
       const cookieExpirationDate = new Date(refreshTokenWrapper.refresh_expiration_date)
       Storage.createCookie(refreshKey(), refreshTokenWrapper, cookieExpirationDate)
 
-      // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
       this.recurringRefreshToken(refreshTokenWrapper)
     } else {
       if (this.handleTokensErrors(tokens.errors)) {
@@ -254,10 +238,6 @@ class Client {
       transaction,
     )
 
-    // @thib storing data should be here not in getter (easier to write test)
-
-    // @thib, here when will be ready to use as option
-    // if (config.useRefreshToken && tokens.valid)
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
     return tokens
@@ -286,15 +266,10 @@ class Client {
     return Storage.getCookie(refreshKey()) as Interface.RefreshStore
   }
 
-  // @thib, we just need to call handleRefresh before the call of handleRedirectCallback
   async handleRefreshTokens() {
     const refreshStore = this.getRefreshStore()
-    // @thib with refreshTokenWrapper we can take advantage of dateTime parameters
-    // refreshTokenWrapper
 
-    // @thib then if it works , we can handle  leeway too
     if (this.canRefresh(refreshStore)) {
-      // @thib refresh parameters transaction is the whole refreshToken + parameters of roatation
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
       this.handleNewTokens(refreshStore, tokens)
     } else if (Object.keys(refreshStore).length === 0) {
@@ -309,10 +284,6 @@ class Client {
   }
 
   recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
-    // @thib instanciation of the function signature in a ready,
-    //  we can store JS function without "parenthese" to use it later
-    //  also we could just pass the "this" to keep the instanciation of the Client if
-    // we can't access to in the worker
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
