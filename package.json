@@ -1,7 +1,7 @@
 {
   "name": "@cryptr/cryptr-spa-js",
   "description": "Cryptr SDK for Single Page Applications using passwordless authentication",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "dist/cryptr-spa-js.cjs.js",
   "module": "dist/cryptr-spa-js.esm.js",
   "browser": "dist/cryptr-spa-js.umd.js",
@@ -48,25 +48,25 @@
   "scripts": {
     "prepare": "yarn build",
     "type-check": "tsc --noEmit",
-    "type-check:watch": "npm run type-check -- --watch",
+    "type-check:watch": "yarn type-check -- --watch",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "rollup -c",
     "build": "rm -rf dist && yarn build:types && yarn build:js",
     "build:watch": "rollup -c -w",
     "make-badges": "istanbul-badges-readme",
     "watch": "concurrently 'yarn build:watch' 'yarn serve -l tcp://localhost'",
-    "test": "jest && npm run make-badges && yarn build",
+    "test": "jest && yarn make-badges && yarn build",
     "coverage": "jest --env=jsdom --watchAll=false --coverage",
     "test:watch": "jest --env=jsdom --watchAll --coverage",
-    "test:with-badges": "npm run coverage && npm run make-badges",
+    "test:with-badges": "yarn coverage && yarn make-badges",
     "format": "prettier --write '**/*.{js,ts,json,md}'",
-    "dev:playground": "yarn run light-server -s ./dev/ -p 8000",
-    "dev:library": "yarn run light-server -s ./dist/ -p 7000",
+    "dev:playground": "yarn light-server -s ./dev/ -p 8000",
+    "dev:library": "yarn light-server -s ./dist/ -p 7000",
     "dev": "concurrently 'yarn build:watch' 'yarn dev:playground' 'yarn dev:library' 'sleep 1 && open http://localhost:8000'",
     "download-extension": "ced gleekbfjekiniecknbkamfmkohkpodhe extensions/ignore-x-frame-headers",
-    "unpublish:lib": "npm unpublish ${npm_package_name}@${npm_package_version} --force",
-    "publish-force": "npm run test && npm run unpublish:lib && npm run build && ls && npm run publish:lib",
-    "publish:lib": "npm run test && npm run build && ls && npm publish"
+    "unpublish:lib": "yarn unpublish ${npm_package_name}@${npm_package_version} --force",
+    "publish-force": "yarn test && yarn unpublish:lib && yarn build && ls && yarn publish:lib",
+    "publish:lib": "yarn test && yarn prepare && ls && yarn publish"
   },
   "renovate": {
     "extends": [
