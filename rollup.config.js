@@ -4,7 +4,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import pkg from './package.json'
 import babel from 'rollup-plugin-babel'
 import uglify from '@lopatnov/rollup-plugin-uglify'
-
+import webWorkerLoader from 'rollup-plugin-web-worker-loader'
 const extensions = ['.js', '.jsx', '.ts', '.tsx']
 
 const firstMatch = (baseFileName) =>
@@ -20,6 +20,8 @@ const input = firstMatch('src/main')
 // TBD: use pkg.name => camel-case ?
 const name = 'CryptrSpa'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export default {
   input,
 
@@ -31,6 +33,12 @@ export default {
   plugins: [
     // Allows node_modules resolution
     // resolve({ extensions }),
+    webWorkerLoader({
+      targetPlatform: 'browser',
+      sourceMap: !isProduction,
+      preserveSource: !isProduction,
+      pattern: /^(?!(?:[a-zA-Z]:)|\/).+\.worker\.js$/,
+    }),
     resolve({
       extensions: extensions,
       preferBuiltins: true,

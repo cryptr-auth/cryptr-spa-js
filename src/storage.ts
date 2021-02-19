@@ -1,5 +1,5 @@
 import * as Cookies from 'es-cookie'
-import { EXPIRATION_DAYS, STORAGE_KEY_PREFIX } from './constants'
+import { STORAGE_KEY_PREFIX } from './constants'
 
 export interface Entry {
   key: string
@@ -9,14 +9,17 @@ export interface Entry {
 const storageKey = (client_id: string): string => `${STORAGE_KEY_PREFIX}.store.${client_id}`
 
 const Storage = {
-  createCookie: (clientId: string, value: any): Entry => {
+  createCookie: (clientId: string, value: any, expires: Date): Entry => {
+    if (expires < new Date()) {
+      console.error(`cookie expires value in past: ${expires}`)
+      throw new Error('cannot create cookie in past')
+    }
     const entry: Entry = {
       key: storageKey(clientId),
       body: JSON.stringify(value),
     }
 
     let cookieAttributes: Cookies.CookieAttributes = {}
-    // Handle dev/test VS production
     if (
       window !== undefined &&
       window.location !== undefined &&
@@ -27,7 +30,9 @@ const Storage = {
         sameSite: 'none',
       }
     }
-    cookieAttributes.expires = EXPIRATION_DAYS
+
+    cookieAttributes.expires = expires
+
     if (typeof document !== 'undefined') {
       Cookies.set(entry.key, entry.body, cookieAttributes)
     }

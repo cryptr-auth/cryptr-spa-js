@@ -1,21 +1,31 @@
 import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
 import axios from 'axios'
-import { ALLOWED_LOCALES, cryptrBaseUrl, DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE } from './constants'
+import {
+  ALLOWED_LOCALES,
+  cryptrBaseUrl,
+  DEFAULT_LEEWAY_IN_SECONDS,
+  DEFAULT_REFRESH_RETRY,
+  DEFAULT_SCOPE,
+} from './constants'
 import { Sign } from './types'
 import Request from './request'
 import Storage from './storage'
-import Transaction, { refreshKey, transactionKey } from './transaction'
+import Transaction, { refreshKey } from './transaction'
 import Jwt from './jwt'
 import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
-import EventTypes from './event_types'
 import { Integrations } from '@sentry/tracing'
+// @ts-ignore
+import TokenWorker from './token.worker.js'
+import EventTypes from './event_types'
+import { TokenError } from './interfaces'
 
 const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
     return window.location.search
   } else {
+    /* istanbul ignore next */
     return ''
   }
 }
@@ -42,7 +52,7 @@ const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
   config: Interface.Config
   private memory: InMemory = new InMemory()
-  // worker: Worker
+  private worker?: Worker
 
   constructor(config: Interface.Config) {
     this.configureSentry(config)
@@ -55,23 +65,20 @@ class Client {
       )
     }
     this.config = config
-    // this.worker = new Worker('/src/token.worker.js')
-    // if ('serviceWorker' in navigator) {
-    //   navigator.serviceWorker
-    //     .register('/src/token.worker.js')
-    //     .then(function (registration) {
-    //       console.log('Registration successful, scope is:', registration.scope)
-    //     })
-    //     .catch(function (error) {
-    //       console.log(error)
-    //       console.log('Service worker registration failed, error:', error)
-    //     })
-    // }
-    // this.worker.addEventListener('message', (event) => {
-    //   if (event.data == 'rotate') {
-    //     this.refreshTokens()
-    //   }
-    // })
+
+    try {
+      if ('serviceWorker' in navigator) {
+        this.worker = new TokenWorker()
+        this.worker?.addEventListener('message', (event: MessageEvent) => {
+          if (event.data == 'rotate') {
+            this.handleRefreshTokens()
+          }
+        })
+      }
+    } catch (error) {
+      console.error('error while initializing worker')
+      console.error(error)
+    }
   }
 
   private configureSentry(config: Interface.Config) {
@@ -81,9 +88,6 @@ class Client {
     Sentry.init({
       dsn: 'https://4fa5d7f40b554570b64af9c4326b0efb@o468922.ingest.sentry.io/5497495',
       integrations: [new Integrations.BrowserTracing()],
-
-      // We recommend adjusting this value in production, or using tracesSampler
-      // for finer control
       tracesSampleRate: 1.0,
     })
     Sentry.setContext('app', {
@@ -107,78 +111,7 @@ class Client {
   }
 
   async isAuthenticated() {
-    if (!this.currentAccessTokenPresent()) {
-      let canAuthentify = this.hasAuthenticationParams()
-      let canInvite = this.hasInvitationParams()
-
-      if (!canInvite && !canAuthentify) {
-        await this.refreshTokens()
-
-        return this.currentAccessTokenPresent()
-      }
-    }
     return this.currentAccessTokenPresent()
-  }
-
-  handleRefreshTokens(response: any) {
-    if (response['data'] !== undefined) {
-      let data = response['data']
-      let refresh_token = data['refresh_token']
-      let expiration_date = Date.parse(data['refresh_token_expires_at'])
-      if (refresh_token !== undefined) {
-        let refreshObj = {
-          refresh_token: refresh_token,
-          rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-          expiration_date: expiration_date,
-        }
-        Storage.createCookie(refreshKey(), refreshObj)
-
-        let accessToken = data['access_token']
-        this.memory.setAccessToken(accessToken)
-
-        let idToken = data['id_token']
-        this.memory.setIdToken(idToken)
-        // @ts-ignore
-        refreshObj['access_token'] = accessToken
-        // this.worker.postMessage(refreshObj)
-        this.postponeRefresh(refreshObj)
-      }
-    }
-  }
-
-  private postponeRefresh(refresObj: any) {
-    let { rotation_duration, expiration_date } = refresObj
-    if (new Date().getTime() <= expiration_date) {
-      setTimeout(() => {
-        this.refreshTokens()
-      }, rotation_duration)
-    } else {
-      console.error('refresh is no more valid')
-      window.dispatchEvent(new Event(EventTypes.REFRESH_EXPIRED))
-    }
-  }
-
-  async refreshTokens() {
-    let refreshTokenData = Storage.getCookie(refreshKey())
-    // @ts-ignore
-    if (refreshTokenData.hasOwnProperty('refresh_token') && refreshTokenData.refresh_token) {
-      // @ts-ignore
-      let refreshToken = refreshTokenData.refresh_token
-      const transaction = await Transaction.create(Sign.Refresh, '')
-
-      await Request.refreshTokens(this.config, transaction, refreshToken)
-        .then((response: any) => this.handleRefreshTokens(response))
-        .catch((error) => {
-          let response = error.response
-          if (response && response.status === 400 && response.data.error === 'invalid_grant') {
-            window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
-          }
-        })
-        .finally(() => {
-          // delete temp cookie
-          Storage.deleteCookie(transactionKey(transaction.pkce.state))
-        })
-    }
   }
 
   finalScope(scope?: string): string {
@@ -274,6 +207,33 @@ class Client {
     window.location.assign(url.href)
   }
 
+  handleTokensErrors(errors: TokenError[]): boolean {
+    const invalidGrantError = errors.find((e: TokenError) => e.error === 'invalid_grant')
+    if (invalidGrantError) {
+      console.error('invalid grant detected')
+      window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+      return true
+    }
+    return false
+  }
+
+  handleNewTokens(refreshStore: Interface.RefreshStore, tokens?: any) {
+    if (tokens?.valid) {
+      this.memory.setAccessToken(tokens.accessToken)
+      this.memory.setIdToken(tokens.idToken)
+      const refreshTokenWrapper = Transaction.getRefreshParameters(tokens)
+      const cookieExpirationDate = new Date(refreshTokenWrapper.refresh_expiration_date)
+      Storage.createCookie(refreshKey(), refreshTokenWrapper, cookieExpirationDate)
+
+      this.recurringRefreshToken(refreshTokenWrapper)
+    } else {
+      if (this.handleTokensErrors(tokens.errors)) {
+        return
+      }
+      this.recurringRefreshToken(refreshStore)
+    }
+  }
+
   async handleRedirectCallback() {
     const redirectParams = parseRedirectParams()
     const transaction = await Transaction.get(redirectParams.state)
@@ -282,9 +242,61 @@ class Client {
       redirectParams.authorization,
       transaction,
     )
-    this.memory.setAccessToken(tokens.accessToken)
-    this.memory.setIdToken(tokens.idToken)
+
+    this.handleNewTokens(this.getRefreshStore(), tokens)
+
     return tokens
+  }
+
+  canRefresh(refreshStore: Interface.RefreshStore): boolean {
+    let {
+      access_token_expiration_date,
+      refresh_leeway,
+      refresh_retry,
+      refresh_token,
+    } = refreshStore
+    let tryToRefreshDateStart = new Date(access_token_expiration_date)
+    const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
+    const retry = refresh_retry || DEFAULT_REFRESH_RETRY
+    tryToRefreshDateStart.setSeconds(tryToRefreshDateStart.getSeconds() - leeway * retry)
+
+    const now = new Date()
+    return (
+      typeof refresh_token === 'string' &&
+      (!this.currentAccessTokenPresent() || tryToRefreshDateStart < now)
+    )
+  }
+
+  getRefreshStore(): Interface.RefreshStore {
+    return Storage.getCookie(refreshKey()) as Interface.RefreshStore
+  }
+
+  async handleRefreshTokens() {
+    const refreshStore = this.getRefreshStore()
+
+    if (this.canRefresh(refreshStore)) {
+      const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
+      this.handleNewTokens(refreshStore, tokens)
+    } else if (Object.keys(refreshStore).length === 0) {
+      console.log('should log out')
+      setTimeout(() => {
+        window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
+      }, 1000)
+    } else {
+      this.recurringRefreshToken(refreshStore)
+    }
+    return true
+  }
+
+  recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
+    const eventData = {
+      refreshTokenParameters: refreshTokenWrapper,
+    }
+    if ('serviceWorker' in navigator) {
+      this.worker?.postMessage(eventData)
+    } else {
+      // TODO handle old browser rotation
+    }
   }
 
   getUser() {
@@ -311,7 +323,7 @@ class Client {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
   }
 
-  async canHandleInvitation(searchParams = locationSearch()) {
+  canHandleInvitation(searchParams = locationSearch()) {
     return !this.currentAccessTokenPresent() && this.hasInvitationParams(searchParams)
   }
 

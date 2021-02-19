@@ -1,5 +1,3 @@
-// import sha256 from 'crypto-js/sha256'
-// import Base64 from 'crypto-js/enc-base64'
 import Crypto from './crypto'
 
 import { v4 as uuid } from 'uuid'

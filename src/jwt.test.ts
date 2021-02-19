@@ -58,7 +58,7 @@ describe('Jwt.validatesIdToken(accessToken)', () => {
 })
 
 describe('validatesAudience(tokenBody, config)', () => {
-  const VALID_AUD_BODY = { aud: 'https://encheres.misapret.com' }
+  const VALID_AUD_BODY = { aud: 'http://localhost/' }
   const INVALID_AUD_BODY = { aud: 'https:/www.google.com' }
 
   it('returns true if valid', () => {
@@ -68,7 +68,7 @@ describe('validatesAudience(tokenBody, config)', () => {
     expect(() => {
       validatesAudience(INVALID_AUD_BODY, ConfigFixture.valid())
     }).toThrow(
-      'Audience (aud) https:/www.google.com claim does not compliant with https://encheres.misapret.com from config',
+      'Audience (aud) https:/www.google.com claim does not compliant with http://localhost/ from config',
     )
 
     // }).toThrow('Expiration (exp) is invalid, it (1595849567172) must be in the future')
@@ -76,7 +76,7 @@ describe('validatesAudience(tokenBody, config)', () => {
 })
 
 describe('validatesIssuer(tokenBody, config)', () => {
-  const VALID_ISS_BODY = { iss: 'http://localhost:4000/t/misapret' }
+  const VALID_ISS_BODY = { iss: 'http://localhost:4000/t/cryptr' }
   const INVALID_ISS_BODY = { iss: 'http://localhost:4000/t/trade-in' }
 
   it('returns true if valid', () => {
@@ -86,7 +86,7 @@ describe('validatesIssuer(tokenBody, config)', () => {
     expect(() => {
       validatesIssuer(INVALID_ISS_BODY, ConfigFixture.valid())
     }).toThrow(
-      'Issuer (iss) http://localhost:4000/t/trade-in of this token claim does not compliant http://localhost:4000/t/misapret',
+      'Issuer (iss) http://localhost:4000/t/trade-in of this token claim does not compliant http://localhost:4000/t/cryptr',
     )
   })
 })
