@@ -20,9 +20,7 @@ const Storage = {
       body: JSON.stringify(value),
     }
 
-    let cookieAttributes: Cookies.CookieAttributes = {
-      expires: expires,
-    }
+    let cookieAttributes: Cookies.CookieAttributes = {}
     // Handle dev/test VS production
     if (
       window !== undefined &&
@@ -34,6 +32,8 @@ const Storage = {
         sameSite: 'none',
       }
     }
+
+    cookieAttributes.expires = expires
 
     console.log('cookieAttributes')
     console.log(cookieAttributes)
