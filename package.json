@@ -66,7 +66,7 @@
     "download-extension": "ced gleekbfjekiniecknbkamfmkohkpodhe extensions/ignore-x-frame-headers",
     "unpublish:lib": "yarn unpublish ${npm_package_name}@${npm_package_version} --force",
     "publish-force": "yarn test && yarn unpublish:lib && yarn build && ls && yarn publish:lib",
-    "publish:lib": "yarn test && yarn build && ls && yarn publish"
+    "publish:lib": "yarn test && yarn prepare && ls && yarn publish"
   },
   "renovate": {
     "extends": [
