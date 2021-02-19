@@ -68,7 +68,7 @@ describe('request generics', () => {
     expect(
       tokenUrl(ConfigFixture.valid(), AuthorizationFixture.valid(), TransactionFixure.valid()),
     ).toEqual(
-      'http://localhost:4000/api/v1/tenants/misapret/42bdb919-b4a4-4816-82c4-9b21ff546876/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/signin/client/bc3c507d-7ede-412e-b9be-dcc7d2cad1b4/token',
+      'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/signin/client/bc3c507d-7ede-412e-b9be-dcc7d2cad1b4/token',
     )
   })
 })
@@ -105,7 +105,7 @@ describe('revoke tokens', () => {
 
   it('returns the authorization code path', () => {
     expect(revokeTokenUrl(ConfigFixture.valid())).toEqual(
-      'http://localhost:4000/api/v1/tenants/misapret/42bdb919-b4a4-4816-82c4-9b21ff546876/oauth/token/revoke',
+      'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/oauth/token/revoke',
     )
   })
 })
