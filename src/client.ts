@@ -66,13 +66,18 @@ class Client {
     }
     this.config = config
 
-    if ('serviceWorker' in navigator) {
-      this.worker = new TokenWorker()
-      this.worker?.addEventListener('message', (event: MessageEvent) => {
-        if (event.data == 'rotate') {
-          this.handleRefreshTokens()
-        }
-      })
+    try {
+      if ('serviceWorker' in navigator) {
+        this.worker = new TokenWorker()
+        this.worker?.addEventListener('message', (event: MessageEvent) => {
+          if (event.data == 'rotate') {
+            this.handleRefreshTokens()
+          }
+        })
+      }
+    } catch (error) {
+      console.error('error while initializing worker')
+      console.error(error)
     }
   }
 
