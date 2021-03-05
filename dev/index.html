@@ -55,7 +55,10 @@
           <div class="card-body">
             <ul class="list-unstyled mt-3 mb-4">
               <li>
-                tenantd domain : <span id="tenant-domain"></span>
+                tenant domain : <span id="tenant-domain"></span>
+              </li>
+              <li>
+                database : <span id="database"></span>
               </li>
               <li>
                 client id : <span id="client-id"></span>
@@ -115,8 +118,9 @@
 
   var config = {
     tenant_domain: 'cryptr',
-    client_id: '1c2417e6-757d-47fe-b564-57b7c6f39b1b',
+    client_id: 'f4dca7be-68ba-45fc-a293-fce6ba9c3ef0',
     audience: 'http://localhost:8000',
+    database: "sandbox",
     default_redirect_uri: 'http://localhost:8000',
     cryptr_base_url: 'http://localhost:4000',
     default_locale: 'en',
@@ -128,6 +132,7 @@
   document.getElementById("audience").innerText = config.audience;
   document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
+  document.getElementById("database").innerText = config.database || '?';
   var scopes = 'openid email';
 
   var app = new Vue({
