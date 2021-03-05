@@ -29,24 +29,42 @@ export const refreshTokensParams = (
 })
 
 export const revokeTokenUrl = (config: Config) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/oauth/token/revoke`
+  let url = new URL(cryptrBaseUrl(config))
+  url.pathname = `/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id}/oauth/token/revoke`
+  const configDatabase = config.database
+  if (configDatabase) {
+    url.searchParams.append('database', configDatabase)
+  }
+
+  return url.toString()
 }
 
 export const tokenUrl = (
   config: Config,
   authorization: Authorization,
   transaction: TransactionInterface,
-) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
+) => {
+  let url = new URL(cryptrBaseUrl(config))
+  url.pathname = `/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
+  const configDatabase = config.database
+  if (configDatabase) {
+    url.searchParams.append('database', configDatabase)
+  }
 
-export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/${transaction.pkce.state}/oauth/client/token`
+  return url.toString()
+}
+
+export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) => {
+  let url = new URL(cryptrBaseUrl(config))
+  url.pathname = `/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
+    }/${transaction.pkce.state}/oauth/client/token`
+  const configDatabase = config.database
+  if (configDatabase) {
+    url.searchParams.append('database', configDatabase)
+  }
+
+  return url.toString()
+}
 
 const Request = {
   // POST /t/:tenant_domain/oauth/token

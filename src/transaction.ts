@@ -94,13 +94,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -343,6 +343,10 @@ const Transaction: any = {
     url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
     url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
     url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
+    const configDatabase = config.database
+    if (configDatabase) {
+      url.searchParams.append('database', configDatabase)
+    }
 
     return url
   },
