@@ -10,6 +10,7 @@ export interface Config {
   client_id: string
   audience: string
   default_redirect_uri: string
+  database?: string
   default_locale?: string
   region?: string
   cryptr_base_url?: string
