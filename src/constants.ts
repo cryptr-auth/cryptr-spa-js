@@ -6,6 +6,8 @@ export const CACHE_LOCATION_LOCAL_STORAGE: string = 'localstorage'
 
 export const CODE_GRANT: string = 'code'
 
+export const DEFAULT_DATABASE = 'default'
+
 export const DEFAULT_EXPIRY_ADJUSTMENT_SECONDS: number = 0
 
 export const EXPIRATION_DAYS: number = 30
