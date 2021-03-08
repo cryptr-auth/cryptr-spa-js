@@ -92,15 +92,16 @@ describe('validatesIssuer(tokenBody, config)', () => {
 })
 
 describe('validatesExpiration(tokenBody)', () => {
-  const VALID_EXP_BODY = { exp: 2226569567172 }
-  const INVALID_EXP_BODY = { exp: 1595849567172 }
+  const VALID_EXP_BODY = { exp: 2226569567 }
+  const INVALID_EXP_BODY = { exp: 1595849567 }
 
   it('returns true if valid', () => {
     expect(validatesExpiration(VALID_EXP_BODY)).toBeTruthy()
   })
+
   it('throws errors if ', () => {
     expect(() => {
       validatesExpiration(INVALID_EXP_BODY)
-    }).toThrow('Expiration (exp) is invalid, it (1595849567172) must be in the future')
+    }).toThrow('Expiration (exp) is invalid, it (1595849567000) must be in the future')
   })
 })
