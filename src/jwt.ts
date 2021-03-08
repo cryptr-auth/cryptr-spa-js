@@ -122,7 +122,8 @@ export const validatesIssuer = (tokenBody: any, config: Config): void | true => 
 
 export const validatesExpiration = (tokenBody: any): void | true => {
   const now = new Date(Date.now())
-  const expiration = new Date(tokenBody.exp)
+  // exp is in Seconds
+  const expiration = new Date(tokenBody.exp * 1000)
 
   if (now.getTime() > expiration.getTime()) {
     throw new Error(
