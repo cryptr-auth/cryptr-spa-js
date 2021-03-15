@@ -1,14 +1,4 @@
-self.addEventListener('install', function (_event) {
-  console.log('listener install')
-  // Perform some task
-})
-
-self.addEventListener('activate', function (_event) {
-  console.log('listener activate')
-  // Perform some task
-})
-
-self.addEventListener('message', (event) => {
+addEventListener('message', (event) => {
   console.log('addEventListener triggered')
   let data = event.data
   let { refreshTokenParameters } = data
