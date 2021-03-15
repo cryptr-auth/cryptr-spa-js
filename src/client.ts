@@ -70,7 +70,9 @@ class Client {
       if ('serviceWorker' in navigator) {
         this.worker = new TokenWorker()
         this.worker?.addEventListener('message', (event: MessageEvent) => {
+          console.debug(`received worker message ${event.data}`)
           if (event.data == 'rotate') {
+            console.debug('dandling refresh tokens')
             this.handleRefreshTokens()
           }
         })
