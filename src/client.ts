@@ -70,7 +70,13 @@ class Client {
     try {
       console.log('serviceWorker' in navigator)
       if ('serviceWorker' in navigator) {
-        this.worker = new TokenWorker()
+        console.log(TokenWorker)
+        try {
+          this.worker = new TokenWorker()
+        } catch (error) {
+          console.error("error while creating worker")
+          console.error(error)
+        }
         console.log(this.worker)
         this.worker?.addEventListener('message', (event: MessageEvent) => {
           console.log(`received worker message ${event.data}`)

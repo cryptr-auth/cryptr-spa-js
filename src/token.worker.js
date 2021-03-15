@@ -9,6 +9,7 @@ self.addEventListener('activate', function (_event) {
 })
 
 self.addEventListener('message', (event) => {
+  console.log('addEventListener triggered')
   let data = event.data
   let { refreshTokenParameters } = data
   const WAIT_SECONDS = 10
