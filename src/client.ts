@@ -307,6 +307,8 @@ class Client {
     if ('serviceWorker' in navigator) {
       console.log('post message to worker')
       console.log(eventData)
+      console.log('worker')
+      console.log(this.worker)
       this.worker?.postMessage(eventData)
     } else {
       // TODO handle old browser rotation
