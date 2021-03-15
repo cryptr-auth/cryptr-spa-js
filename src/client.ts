@@ -66,15 +66,16 @@ class Client {
     }
     this.config = config
 
+    console.log("before worker try catch")
     try {
-      console.debug('serviceWorker' in navigator)
+      console.log('serviceWorker' in navigator)
       if ('serviceWorker' in navigator) {
         this.worker = new TokenWorker()
-        console.debug(this.worker)
+        console.log(this.worker)
         this.worker?.addEventListener('message', (event: MessageEvent) => {
-          console.debug(`received worker message ${event.data}`)
+          console.log(`received worker message ${event.data}`)
           if (event.data == 'rotate') {
-            console.debug('dandling refresh tokens')
+            console.log('dandling refresh tokens')
             this.handleRefreshTokens()
           }
         })
@@ -293,17 +294,17 @@ class Client {
   }
 
   recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
-    console.debug("recurringRefreshToken")
+    console.log("recurringRefreshToken")
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
     if ('serviceWorker' in navigator) {
-      console.debug('post message to worker')
-      console.debug(eventData)
+      console.log('post message to worker')
+      console.log(eventData)
       this.worker?.postMessage(eventData)
     } else {
       // TODO handle old browser rotation
-      console.debug('seems to not have serviceWorker')
+      console.log('seems to not have serviceWorker')
     }
   }
 
