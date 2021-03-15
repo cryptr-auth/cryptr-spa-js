@@ -67,8 +67,10 @@ class Client {
     this.config = config
 
     try {
+      console.debug('serviceWorker' in navigator)
       if ('serviceWorker' in navigator) {
         this.worker = new TokenWorker()
+        console.debug(this.worker)
         this.worker?.addEventListener('message', (event: MessageEvent) => {
           console.debug(`received worker message ${event.data}`)
           if (event.data == 'rotate') {
@@ -291,13 +293,17 @@ class Client {
   }
 
   recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
+    console.debug("recurringRefreshToken")
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
     if ('serviceWorker' in navigator) {
+      console.debug('post message to worker')
+      console.debug(eventData)
       this.worker?.postMessage(eventData)
     } else {
       // TODO handle old browser rotation
+      console.debug('seems to not have serviceWorker')
     }
   }
 
