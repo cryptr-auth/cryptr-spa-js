@@ -17,7 +17,7 @@ import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
 import { Integrations } from '@sentry/tracing'
 // @ts-ignore
-import TokenWorker from 'web-worker:./token.worker.js'
+import TokenWorker from './token.worker.js'
 import EventTypes from './event_types'
 import { TokenError } from './interfaces'
 
