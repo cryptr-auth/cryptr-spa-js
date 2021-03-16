@@ -34,7 +34,7 @@ export default {
     // Allows node_modules resolution
     // resolve({ extensions }),
     webWorkerLoader({
-      targetPlatform: 'base64',
+      targetPlatform: 'auto',
       sourceMap: !isProduction,
       preserveSource: !isProduction,
       pattern: /^(?!(?:[a-zA-Z]:)|\/).+\.worker\.js$/,
