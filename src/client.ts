@@ -87,21 +87,31 @@ class Client {
     this.config = config
 
     try {
-      let worker = new Worker(URL.createObjectURL(new Blob(['(' + this.workerFn.toString() + ')()'])));
-      let worker2 = new Worker('token.worker.js');
-      console.log(worker2);
-      worker.onmessage = (evt) => {
-        console.debug("worker on message")
-        console.debug(evt)
-        if (evt.data == 'rotate') {
-          console.log('handling refresh tokens')
-          this.handleRefreshTokens()
-        }
+      // let worker = new Worker(URL.createObjectURL(new Blob(['(' + this.workerFn.toString() + ')()'])));
+      // let worker2 = new Worker('token.worker.js');
+      // console.log(worker2);
+      // worker.onmessage = (evt) => {
+      //   console.debug("worker on message")
+      //   console.debug(evt)
+      //   if (evt.data == 'rotate') {
+      //     console.log('handling refresh tokens')
+      //     this.handleRefreshTokens()
+      //   }
+      // }
+      // console.log('trigger worker')
+      // worker.postMessage('rotate')
+      // console.log('trigger worker2')
+      // worker2.postMessage('rotate')
+      const blob = new Blob(["onmessage = function (oEvent) {console.log('onmessage');console.log(oEvent);postMessage('rotate');};"], {})
+      const token3 = new Worker(URL.createObjectURL(blob))
+      console.log('token3')
+      console.log(token3)
+      token3.postMessage('rotate')
+      token3.onmessage = (rEvent) => {
+        console.log('receivd event')
+        console.log(rEvent)
+        this.handleRefreshTokens()
       }
-      console.log('trigger worker')
-      worker.postMessage('rotate')
-      console.log('trigger worker2')
-      worker2.postMessage('rotate')
     } catch (error) {
       console.error("error with worker blob")
       console.error(error)
