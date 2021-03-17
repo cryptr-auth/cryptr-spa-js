@@ -1,4 +1,4 @@
-addEventListener('message', (event) => {
+self.addEventListener('message', (event) => {
   console.log('addEventListener triggered')
   let data = event.data
   let { refreshTokenParameters } = data
