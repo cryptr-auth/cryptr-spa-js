@@ -46,26 +46,6 @@ const parseRedirectParams = (): { state: string; authorization: Interface.Author
   }
 }
 
-function workerFn() {
-  self.addEventListener('message', (event) => {
-    console.log("blob event listener");
-    let data = event.data
-    console.log('event')
-    console.log(event)
-    console.log('data')
-    console.log(data)
-    console.log(new Date())
-    const WAIT_SECONDS = 10
-
-    setTimeout(() => {
-      console.log('rotate')
-      console.log(new Date())
-      console.log(self)
-      self.postMessage('rotate', 'http://localhost:8000')
-    }, WAIT_SECONDS * 1000)
-  });
-}
-
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
 const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
@@ -73,6 +53,26 @@ class Client {
   config: Interface.Config
   private memory: InMemory = new InMemory()
   private worker?: Worker
+
+  workerFn() {
+    self.addEventListener('message', (event) => {
+      console.log("blob event listener");
+      let data = event.data
+      console.log('event')
+      console.log(event)
+      console.log('data')
+      console.log(data)
+      console.log(new Date())
+      const WAIT_SECONDS = 10
+
+      setTimeout(() => {
+        console.log('rotate')
+        console.log(new Date())
+        console.log(self)
+        self.postMessage('rotate', 'http://localhost:8000')
+      }, WAIT_SECONDS * 1000)
+    });
+  }
 
   constructor(config: Interface.Config) {
     this.configureSentry(config)
@@ -87,7 +87,7 @@ class Client {
     this.config = config
 
     try {
-      let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
+      let worker = new Worker(URL.createObjectURL(new Blob(['(' + this.workerFn.toString() + ')()'])));
       worker.onmessage = (evt) => {
         console.debug("worker on message")
         console.debug(evt)
@@ -96,28 +96,27 @@ class Client {
           this.handleRefreshTokens()
         }
       }
-      console.log('blob worker')
-      console.log(worker)
+      console.log('trigger worker')
       worker.postMessage('rotate')
     } catch (error) {
       console.error("error with worker blob")
       console.error(error)
     }
 
-    // console.log("before worker try catch")
-    // try {
-    //   if ('serviceWorker' in navigator) {
-    //     this.worker = new TokenWorker()
-    //     this.worker?.addEventListener('message', (event: MessageEvent) => {
-    //       if (event.data == 'rotate') {
-    //         this.handleRefreshTokens()
-    //       }
-    //     })
-    //   }
-    // } catch (error) {
-    //   console.error('error while initializing web worker loader')
-    //   console.error(error)
-    // }
+    console.log("before worker try catch")
+    try {
+      if ('serviceWorker' in navigator) {
+        this.worker = new TokenWorker()
+        this.worker?.addEventListener('message', (event: MessageEvent) => {
+          if (event.data == 'rotate') {
+            this.handleRefreshTokens()
+          }
+        })
+      }
+    } catch (error) {
+      console.error('error while initializing web worker loader')
+      console.error(error)
+    }
   }
 
   private configureSentry(config: Interface.Config) {
