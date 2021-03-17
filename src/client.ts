@@ -309,7 +309,13 @@ class Client {
       console.log(eventData)
       console.log('worker')
       console.log(this.worker)
-      this.worker?.postMessage(eventData)
+      try {
+        this.worker?.postMessage(eventData)
+        console.log("success worker post message")
+      } catch (error) {
+        console.error("error worker post message")
+        console.error(error)
+      }
     } else {
       // TODO handle old browser rotation
       console.log('seems to not have serviceWorker')
