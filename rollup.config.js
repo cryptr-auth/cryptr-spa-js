@@ -61,10 +61,10 @@ export default {
   ],
 
   output: [
-    // {
-    //   file: pkg.module,
-    //   format: 'esm',
-    // },
+    {
+      file: pkg.module,
+      format: 'esm',
+    },
     {
       file: pkg.browser,
       format: 'umd',
