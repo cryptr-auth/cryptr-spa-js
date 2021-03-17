@@ -46,6 +46,25 @@ const parseRedirectParams = (): { state: string; authorization: Interface.Author
   }
 }
 
+function workerFn() {
+  self.addEventListener('message', (event) => {
+    console.log("blob event listener");
+    let data = event.data
+    console.log('event')
+    console.log(event)
+    console.log('data')
+    console.log(data)
+    console.log(new Date())
+    const WAIT_SECONDS = 10
+
+    setTimeout(() => {
+      console.log('rotate')
+      console.log(new Date())
+      self.postMessage('rotate')
+    }, WAIT_SECONDS * 1000)
+  });
+}
+
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
 const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
@@ -66,63 +85,36 @@ class Client {
     }
     this.config = config
 
+    try {
+      let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
+      worker.onmessage = (evt) => {
+        console.debug("worker on message")
+        console.debug(evt)
+        if (evt.data == 'rotate') {
+          console.log('handling refresh tokens')
+          this.handleRefreshTokens()
+        }
+      }
+      console.log('blob worker')
+      console.log(worker)
+      worker.postMessage('rotate')
+    } catch (error) {
+      console.error("error with worker blob")
+      console.error(error)
+    }
+
     console.log("before worker try catch")
     try {
-      console.log('serviceWorker' in navigator)
       if ('serviceWorker' in navigator) {
-        console.log('TokenWorker')
-        console.log(TokenWorker)
-        try {
-          this.worker = new TokenWorker()
-        } catch (error) {
-          console.error("error while creating worker")
-          console.error(error)
-        }
-        try {
-          function workerFn() {
-            self.addEventListener('message', (event) => {
-              console.log("blob event listener");
-              let data = event.data
-              console.log(data)
-              let { refreshTokenParameters } = data
-              console.log(refreshTokenParameters)
-              const WAIT_SECONDS = 10
-
-              setTimeout(() => {
-                console.log('rotate')
-                // try {
-                //   callback()
-                // } catch (error) {
-                //   console.log("error with callback")
-                //   console.error(error)
-                // }
-              }, WAIT_SECONDS * 1000)
-            });
-          }
-          // let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')(' + this.handleRefreshTokens.toString + ')'])));
-          let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
-          console.log('blob worker')
-          console.log(worker)
-          worker.postMessage('rotate')
-          let worker2 = new Worker('./token.worker.ts');
-          console.log('file worker')
-          console.log(worker2)
-          worker2.postMessage('rotate')
-        } catch (error) {
-          console.error("error with worker blob")
-          console.error(error)
-        }
-        // console.log(this.worker)
+        this.worker = new TokenWorker()
         this.worker?.addEventListener('message', (event: MessageEvent) => {
-          // console.log(`received worker message ${event.data}`)
           if (event.data == 'rotate') {
-            // console.log('dandling refresh tokens')
             this.handleRefreshTokens()
           }
         })
       }
     } catch (error) {
-      console.error('error while initializing worker')
+      console.error('error while initializing web worker loader')
       console.error(error)
     }
   }
