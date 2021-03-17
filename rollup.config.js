@@ -38,6 +38,7 @@ export default {
       sourceMap: !isProduction,
       preserveSource: !isProduction,
       pattern: /^(?!(?:[a-zA-Z]:)|\/).+\.worker\.js$/,
+      inline: false,
     }),
     resolve({
       extensions: extensions,
