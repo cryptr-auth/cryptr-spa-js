@@ -104,6 +104,10 @@ class Client {
           console.log('blob worker')
           console.log(worker)
           worker.postMessage('rotate')
+          let worker2 = new Worker('./token.worker.ts');
+          console.log('file worker')
+          console.log(worker2)
+          worker2.postMessage('rotate')
         } catch (error) {
           console.error("error with worker blob")
           console.error(error)
