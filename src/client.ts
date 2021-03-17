@@ -79,7 +79,7 @@ class Client {
           console.error(error)
         }
         try {
-          function workerFn() { console.log("azerty") }
+          function workerFn() { addEventListener('message', (event) => { console.log("blob event listener"); console.log(event) }) }
           let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
           console.log('blob worker')
           console.log(worker)
