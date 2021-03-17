@@ -103,11 +103,8 @@ class Client {
       // console.log('trigger worker2')
       // worker2.postMessage('rotate')
       const blob = new Blob(["onmessage = function (oEvent) {console.log('onmessage');console.log(oEvent);postMessage('rotate');};"], {})
-      const token3 = new Worker(URL.createObjectURL(blob))
-      console.log('token3')
-      console.log(token3)
-      token3.postMessage('rotate')
-      token3.onmessage = (rEvent) => {
+      this.worker = new Worker(URL.createObjectURL(blob))
+      this.worker.onmessage = (rEvent) => {
         console.log('receivd event')
         console.log(rEvent)
         this.handleRefreshTokens()
