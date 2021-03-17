@@ -104,20 +104,20 @@ class Client {
       console.error(error)
     }
 
-    console.log("before worker try catch")
-    try {
-      if ('serviceWorker' in navigator) {
-        this.worker = new TokenWorker()
-        this.worker?.addEventListener('message', (event: MessageEvent) => {
-          if (event.data == 'rotate') {
-            this.handleRefreshTokens()
-          }
-        })
-      }
-    } catch (error) {
-      console.error('error while initializing web worker loader')
-      console.error(error)
-    }
+    // console.log("before worker try catch")
+    // try {
+    //   if ('serviceWorker' in navigator) {
+    //     this.worker = new TokenWorker()
+    //     this.worker?.addEventListener('message', (event: MessageEvent) => {
+    //       if (event.data == 'rotate') {
+    //         this.handleRefreshTokens()
+    //       }
+    //     })
+    //   }
+    // } catch (error) {
+    //   console.error('error while initializing web worker loader')
+    //   console.error(error)
+    // }
   }
 
   private configureSentry(config: Interface.Config) {
