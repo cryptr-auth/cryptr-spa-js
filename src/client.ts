@@ -79,7 +79,20 @@ class Client {
           console.error(error)
         }
         try {
-          function workerFn() { addEventListener('message', (event) => { console.log("blob event listener"); console.log(event) }) }
+          function workerFn() {
+            self.addEventListener('message', (event) => {
+              console.log("blob event listener");
+              let data = event.data
+              console.log(data)
+              let { refreshTokenParameters } = data
+              console.log(refreshTokenParameters)
+              const WAIT_SECONDS = 10
+
+              setTimeout(() => {
+                console.log('rotate')
+              }, WAIT_SECONDS * 1000)
+            });
+          }
           let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
           console.log('blob worker')
           console.log(worker)
