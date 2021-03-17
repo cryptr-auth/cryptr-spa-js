@@ -60,7 +60,8 @@ function workerFn() {
     setTimeout(() => {
       console.log('rotate')
       console.log(new Date())
-      self.postMessage('rotate')
+      console.log(self)
+      self.postMessage('rotate', 'http://localhost:8000')
     }, WAIT_SECONDS * 1000)
   });
 }
