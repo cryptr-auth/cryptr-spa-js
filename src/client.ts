@@ -56,7 +56,7 @@ class Client {
 
   workerFn() {
     self.addEventListener('message', (event) => {
-      console.log("blob event listener");
+      console.log('blob event listener')
       let data = event.data
       console.log('event')
       console.log(event)
@@ -71,7 +71,7 @@ class Client {
         console.log(self)
         self.postMessage('rotate', 'http://localhost:8000')
       }, WAIT_SECONDS * 1000)
-    });
+    })
   }
 
   constructor(config: Interface.Config) {
@@ -87,30 +87,18 @@ class Client {
     this.config = config
 
     try {
-      // let worker = new Worker(URL.createObjectURL(new Blob(['(' + this.workerFn.toString() + ')()'])));
-      // let worker2 = new Worker('token.worker.js');
-      // console.log(worker2);
-      // worker.onmessage = (evt) => {
-      //   console.debug("worker on message")
-      //   console.debug(evt)
-      //   if (evt.data == 'rotate') {
-      //     console.log('handling refresh tokens')
-      //     this.handleRefreshTokens()
-      //   }
-      // }
-      // console.log('trigger worker')
-      // worker.postMessage('rotate')
-      // console.log('trigger worker2')
-      // worker2.postMessage('rotate')
-      const blob = new Blob(["onmessage = function (oEvent) {console.log('onmessage');console.log(oEvent);postMessage('rotate');};"], {})
+      const workerString =
+        "onmessage = function (oEvent) {console.log('>>>>>>>>>>>>>> onmessage !!!');console.log(oEvent);setTimeout(() => {postMessage('rotate');}, 10000)};"
+      console.log(workerString)
+      const blob = new Blob([workerString], {})
       this.worker = new Worker(URL.createObjectURL(blob))
       this.worker.onmessage = (rEvent) => {
-        console.log('receivd event')
+        console.log('✅ received event')
         console.log(rEvent)
         this.handleRefreshTokens()
       }
     } catch (error) {
-      console.error("error with worker blob")
+      console.error('error with worker blob')
       console.error(error)
     }
 
@@ -338,7 +326,7 @@ class Client {
   }
 
   recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
-    console.log("recurringRefreshToken")
+    console.log('recurringRefreshToken')
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
@@ -349,9 +337,9 @@ class Client {
       console.log(this.worker)
       try {
         this.worker?.postMessage(eventData)
-        console.log("success worker post message")
+        console.log('success worker post message')
       } catch (error) {
-        console.error("error worker post message")
+        console.error('error worker post message')
         console.error(error)
       }
     } else {
