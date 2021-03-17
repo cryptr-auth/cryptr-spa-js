@@ -54,26 +54,6 @@ class Client {
   private memory: InMemory = new InMemory()
   private worker?: Worker
 
-  workerFn() {
-    self.addEventListener('message', (event) => {
-      console.log('blob event listener')
-      let data = event.data
-      console.log('event')
-      console.log(event)
-      console.log('data')
-      console.log(data)
-      console.log(new Date())
-      const WAIT_SECONDS = 10
-
-      setTimeout(() => {
-        console.log('rotate')
-        console.log(new Date())
-        console.log(self)
-        self.postMessage('rotate', 'http://localhost:8000')
-      }, WAIT_SECONDS * 1000)
-    })
-  }
-
   constructor(config: Interface.Config) {
     this.configureSentry(config)
     validAppBaseUrl(cryptrBaseUrl(config))
@@ -88,34 +68,16 @@ class Client {
 
     try {
       const workerString =
-        "onmessage = function (oEvent) {console.log('>>>>>>>>>>>>>> onmessage !!!');console.log(oEvent);setTimeout(() => {postMessage('rotate');}, 10000)};"
-      console.log(workerString)
+        "onmessage = function (oEvent) {setTimeout(() => {postMessage('rotate');}, 10000)};"
       const blob = new Blob([workerString], {})
       this.worker = new Worker(URL.createObjectURL(blob))
       this.worker.onmessage = (rEvent) => {
-        console.log('✅ received event')
-        console.log(rEvent)
         this.handleRefreshTokens()
       }
     } catch (error) {
-      console.error('error with worker blob')
+      console.error('error with worker')
       console.error(error)
     }
-
-    // console.log("before worker try catch")
-    // try {
-    //   if ('serviceWorker' in navigator) {
-    //     this.worker = new TokenWorker()
-    //     this.worker?.addEventListener('message', (event: MessageEvent) => {
-    //       if (event.data == 'rotate') {
-    //         this.handleRefreshTokens()
-    //       }
-    //     })
-    //   }
-    // } catch (error) {
-    //   console.error('error while initializing web worker loader')
-    //   console.error(error)
-    // }
   }
 
   private configureSentry(config: Interface.Config) {
@@ -326,26 +288,20 @@ class Client {
   }
 
   recurringRefreshToken(refreshTokenWrapper: Interface.RefreshStore) {
-    console.log('recurringRefreshToken')
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
-    if ('serviceWorker' in navigator) {
-      console.log('post message to worker')
-      console.log(eventData)
-      console.log('worker')
-      console.log(this.worker)
-      try {
-        this.worker?.postMessage(eventData)
-        console.log('success worker post message')
-      } catch (error) {
-        console.error('error worker post message')
-        console.error(error)
-      }
-    } else {
-      // TODO handle old browser rotation
-      console.log('seems to not have serviceWorker')
+    // if ('serviceWorker' in navigator) {
+    try {
+      this.worker?.postMessage(eventData)
+    } catch (error) {
+      console.error('error worker post message')
+      console.error(error)
     }
+    // } else {
+    //   // TODO handle old browser rotation
+    //   console.log('seems to not have serviceWorker')
+    // }
   }
 
   getUser() {
