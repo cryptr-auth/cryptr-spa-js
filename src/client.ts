@@ -79,7 +79,7 @@ class Client {
           console.error(error)
         }
         try {
-          function workerFn(callback: () => void) {
+          function workerFn() {
             self.addEventListener('message', (event) => {
               console.log("blob event listener");
               let data = event.data
@@ -90,16 +90,17 @@ class Client {
 
               setTimeout(() => {
                 console.log('rotate')
-                try {
-                  callback()
-                } catch (error) {
-                  console.log("error with callback")
-                  console.error(error)
-                }
+                // try {
+                //   callback()
+                // } catch (error) {
+                //   console.log("error with callback")
+                //   console.error(error)
+                // }
               }, WAIT_SECONDS * 1000)
             });
           }
-          let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')(' + this.handleRefreshTokens.toString + ')'])));
+          // let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')(' + this.handleRefreshTokens.toString + ')'])));
+          let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
           console.log('blob worker')
           console.log(worker)
           worker.postMessage('rotate')
