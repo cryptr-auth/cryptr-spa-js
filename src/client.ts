@@ -94,7 +94,7 @@ class Client {
                   callback()
                 } catch (error) {
                   console.log("error with callback")
-                  console.error("error with callback")
+                  console.error(error)
                 }
               }, WAIT_SECONDS * 1000)
             });
