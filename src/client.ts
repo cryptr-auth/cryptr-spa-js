@@ -79,7 +79,7 @@ class Client {
           console.error(error)
         }
         try {
-          function workerFn() {
+          function workerFn(callback: () => void) {
             self.addEventListener('message', (event) => {
               console.log("blob event listener");
               let data = event.data
@@ -90,10 +90,16 @@ class Client {
 
               setTimeout(() => {
                 console.log('rotate')
+                try {
+                  callback()
+                } catch (error) {
+                  console.log("error with callback")
+                  console.error("error with callback")
+                }
               }, WAIT_SECONDS * 1000)
             });
           }
-          let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
+          let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')(' + this.handleRefreshTokens.toString + ')'])));
           console.log('blob worker')
           console.log(worker)
           worker.postMessage('rotate')
@@ -101,11 +107,11 @@ class Client {
           console.error("error with worker blob")
           console.error(error)
         }
-        console.log(this.worker)
+        // console.log(this.worker)
         this.worker?.addEventListener('message', (event: MessageEvent) => {
-          console.log(`received worker message ${event.data}`)
+          // console.log(`received worker message ${event.data}`)
           if (event.data == 'rotate') {
-            console.log('dandling refresh tokens')
+            // console.log('dandling refresh tokens')
             this.handleRefreshTokens()
           }
         })
