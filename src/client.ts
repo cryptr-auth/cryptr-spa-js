@@ -70,11 +70,22 @@ class Client {
     try {
       console.log('serviceWorker' in navigator)
       if ('serviceWorker' in navigator) {
+        console.log('TokenWorker')
         console.log(TokenWorker)
         try {
           this.worker = new TokenWorker()
         } catch (error) {
           console.error("error while creating worker")
+          console.error(error)
+        }
+        try {
+          function workerFn() { console.log("azerty") }
+          let worker = new Worker(URL.createObjectURL(new Blob(['(' + workerFn.toString() + ')()'])));
+          console.log('blob worker')
+          console.log(worker)
+          worker.postMessage('rotate')
+        } catch (error) {
+          console.error("error with worker blob")
           console.error(error)
         }
         console.log(this.worker)
