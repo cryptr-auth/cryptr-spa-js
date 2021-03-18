@@ -72,7 +72,9 @@ class Client {
       const blob = new Blob([workerString], {})
       this.worker = new Worker(URL.createObjectURL(blob))
       this.worker.onmessage = (rEvent) => {
-        this.handleRefreshTokens()
+        if (rEvent.data == 'rotate') {
+          this.handleRefreshTokens()
+        }
       }
     } catch (error) {
       console.error('error with worker')
