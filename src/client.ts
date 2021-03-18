@@ -17,7 +17,6 @@ import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
 import { Integrations } from '@sentry/tracing'
 // @ts-ignore
-import TokenWorker from './token.worker.js'
 import EventTypes from './event_types'
 import { TokenError } from './interfaces'
 
@@ -66,7 +65,8 @@ class Client {
     }
     this.config = config
     try {
-      const workerString = "onmessage = function(oEvt) {setTimeout(() => {postMessage('rotate');}, 10000)};"
+      const workerString =
+        "onmessage = function(oEvt) {setTimeout(() => {postMessage('rotate');}, 10000)};"
       const blob = new Blob([workerString], {})
       this.worker = new Worker(URL.createObjectURL(blob))
       this.worker.onmessage = (rEvt) => {
@@ -75,7 +75,7 @@ class Client {
         }
       }
     } catch (error) {
-      console.log("simple worker error")
+      console.log('simple worker error')
       console.error(error)
     }
   }
@@ -294,7 +294,7 @@ class Client {
     try {
       this.worker?.postMessage(eventData)
     } catch (error) {
-      console.error("error while reccurring refresh token")
+      console.error('error while reccurring refresh token')
       console.error(error)
     }
   }
