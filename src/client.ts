@@ -65,18 +65,17 @@ class Client {
       )
     }
     this.config = config
-
     try {
-      if ('serviceWorker' in navigator) {
-        this.worker = new TokenWorker()
-        this.worker?.addEventListener('message', (event: MessageEvent) => {
-          if (event.data == 'rotate') {
-            this.handleRefreshTokens()
-          }
-        })
+      const workerString = "onmessage = function(oEvt) {setTimeout(() => {postMessage('rotate');}, 10000)};"
+      const blob = new Blob([workerString], {})
+      this.worker = new Worker(URL.createObjectURL(blob))
+      this.worker.onmessage = (rEvt) => {
+        if (rEvt.data == 'rotate') {
+          this.handleRefreshTokens()
+        }
       }
     } catch (error) {
-      console.error('error while initializing worker')
+      console.log("simple worker error")
       console.error(error)
     }
   }
@@ -292,10 +291,11 @@ class Client {
     const eventData = {
       refreshTokenParameters: refreshTokenWrapper,
     }
-    if ('serviceWorker' in navigator) {
+    try {
       this.worker?.postMessage(eventData)
-    } else {
-      // TODO handle old browser rotation
+    } catch (error) {
+      console.error("error while reccurring refresh token")
+      console.error(error)
     }
   }
 
