@@ -111,8 +111,16 @@ export const validatesAudience = (tokenBody: any, config: Config): void | true =
 }
 
 export const validatesIssuer = (tokenBody: any, config: Config): void | true => {
-  const issuer = `${cryptrBaseUrl(config)}/t/${config.tenant_domain}`
-  if (issuer !== tokenBody.iss) {
+  const cryptrBUrl = cryptrBaseUrl(config)
+  const issuer = `${cryptrBUrl}/t/${config.tenant_domain}`
+  if (cryptrBUrl.includes('backoffice')) {
+    if (cryptrBUrl.replace("/backoffice", `/t/${config.tenant_domain}`) !== tokenBody.iss) {
+      throw new Error(
+        `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${issuer}`,
+      )
+    }
+    return true
+  } else if (issuer !== tokenBody.iss) {
     throw new Error(
       `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${issuer}`,
     )
