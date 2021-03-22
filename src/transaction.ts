@@ -94,13 +94,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -264,11 +264,13 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
-        validatesNonce(transaction, response['data']['nonce'])
+        console.debug(response)
+        console.debug(validatesNonce(transaction, response['data']['nonce']))
 
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
+        console.error(error)
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
           Sentry.captureMessage(transactionConfigNullMsg)
@@ -336,14 +338,13 @@ const Transaction: any = {
   getRefreshParameters: getRefreshParameters,
   signUrl: (config: I.Config, transaction: I.Transaction): URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
-    url.pathname = signPath(config, transaction)
+    url.pathname = url.pathname.concat(signPath(config, transaction)).replace("//", "/")
 
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
     url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
     url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
     url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
-
     return url
   },
 }
