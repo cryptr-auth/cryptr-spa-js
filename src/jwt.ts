@@ -113,6 +113,7 @@ export const validatesAudience = (tokenBody: any, config: Config): void | true =
 export const validatesIssuer = (tokenBody: any, config: Config): void | true => {
   const cryptrBUrl = cryptrBaseUrl(config)
   const issuer = `${cryptrBUrl}/t/${config.tenant_domain}`
+  console.debug(issuer)
   if (cryptrBUrl.includes('backoffice')) {
     if (cryptrBUrl.replace("/backoffice", `/t/${config.tenant_domain}`) !== tokenBody.iss) {
       throw new Error(
