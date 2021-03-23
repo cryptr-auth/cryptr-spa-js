@@ -269,7 +269,6 @@ const Transaction: any = {
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
-        console.error(error)
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
           Sentry.captureMessage(transactionConfigNullMsg)
