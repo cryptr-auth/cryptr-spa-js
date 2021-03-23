@@ -94,13 +94,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
@@ -336,7 +336,7 @@ const Transaction: any = {
   getRefreshParameters: getRefreshParameters,
   signUrl: (config: I.Config, transaction: I.Transaction): URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
-    url.pathname = url.pathname.concat(signPath(config, transaction)).replace("//", "/")
+    url.pathname = url.pathname.concat(signPath(config, transaction)).replace('//', '/')
 
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
