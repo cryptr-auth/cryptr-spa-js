@@ -8,7 +8,7 @@ let getRandomBytes = (
   (typeof window !== 'undefined' && window.crypto)
     ? function () { // Browsers
       var crypto = (window.crypto), QUOTA = 65536;
-      return function (n) {
+      return function (n: number) {
         var a = new Uint8Array(n);
         for (var i = 0; i < n; i += QUOTA) {
           crypto.getRandomValues(a.subarray(i, i + Math.min(n - i, QUOTA)));
