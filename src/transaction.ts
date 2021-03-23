@@ -94,13 +94,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -165,6 +165,8 @@ const parseTokensAndStoreRefresh = (
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
 
+  console.debug(config)
+  console.debug(Jwt.validatesAccessToken(accessToken, config))
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
       const refreshTokenWrapper = getRefreshParameters(responseData)
@@ -264,8 +266,10 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
+        console.log("getTokens")
+        console.debug(response)
         validatesNonce(transaction, response['data']['nonce'])
-
+        console.debug("before parseToken")
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
