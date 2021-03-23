@@ -311,7 +311,6 @@ const Transaction: any = {
 
     const transaction = Transaction.create(Sign.Refresh, '')
 
-    console.log("request refreshTokens")
     // @ts-ignore
     await Request.refreshTokens(config, transaction, refresh_token)
       .then((response: any) => {

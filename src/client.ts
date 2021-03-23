@@ -272,8 +272,6 @@ class Client {
   async handleRefreshTokens() {
     const refreshStore = this.getRefreshStore()
 
-    console.debug(refreshStore)
-    console.debug(this.canRefresh(refreshStore))
     if (this.canRefresh(refreshStore)) {
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
       this.handleNewTokens(refreshStore, tokens)

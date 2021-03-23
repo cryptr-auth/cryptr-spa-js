@@ -77,7 +77,6 @@ const Request = {
     refresh_token: string,
   ) => {
     let url = refreshTokensUrl(config, transaction)
-    console.debug(url)
     return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
   },
 
