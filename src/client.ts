@@ -235,7 +235,6 @@ class Client {
   async handleRedirectCallback() {
     const redirectParams = parseRedirectParams()
     const transaction = await Transaction.get(redirectParams.state)
-    console.log("handleRedirect")
     const tokens = await Transaction.getTokens(
       this.config,
       redirectParams.authorization,
@@ -273,6 +272,8 @@ class Client {
   async handleRefreshTokens() {
     const refreshStore = this.getRefreshStore()
 
+    console.debug(refreshStore)
+    console.debug(this.canRefresh(refreshStore))
     if (this.canRefresh(refreshStore)) {
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
       this.handleNewTokens(refreshStore, tokens)

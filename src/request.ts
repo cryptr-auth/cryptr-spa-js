@@ -29,9 +29,8 @@ export const refreshTokensParams = (
 })
 
 export const revokeTokenUrl = (config: Config) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/oauth/token/revoke`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
+    }/oauth/token/revoke`
 }
 
 export const tokenUrl = (
@@ -39,13 +38,11 @@ export const tokenUrl = (
   authorization: Authorization,
   transaction: TransactionInterface,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
   }/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
 
 export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
   }/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
@@ -80,6 +77,7 @@ const Request = {
     refresh_token: string,
   ) => {
     let url = refreshTokensUrl(config, transaction)
+    console.debug(url)
     return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
   },
 

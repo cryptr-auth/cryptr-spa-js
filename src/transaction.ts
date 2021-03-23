@@ -165,8 +165,6 @@ const parseTokensAndStoreRefresh = (
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
 
-  console.debug(config)
-  console.debug(Jwt.validatesAccessToken(accessToken, config))
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
       const refreshTokenWrapper = getRefreshParameters(responseData)
@@ -266,10 +264,7 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
-        console.log("getTokens")
-        console.debug(response)
         validatesNonce(transaction, response['data']['nonce'])
-        console.debug("before parseToken")
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
@@ -316,6 +311,7 @@ const Transaction: any = {
 
     const transaction = Transaction.create(Sign.Refresh, '')
 
+    console.log("request refreshTokens")
     // @ts-ignore
     await Request.refreshTokens(config, transaction, refresh_token)
       .then((response: any) => {
