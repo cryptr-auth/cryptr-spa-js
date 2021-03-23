@@ -235,6 +235,7 @@ class Client {
   async handleRedirectCallback() {
     const redirectParams = parseRedirectParams()
     const transaction = await Transaction.get(redirectParams.state)
+    console.log("handleRedirect")
     const tokens = await Transaction.getTokens(
       this.config,
       redirectParams.authorization,
