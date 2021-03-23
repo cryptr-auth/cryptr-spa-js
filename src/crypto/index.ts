@@ -2,6 +2,7 @@
 import { sha256 } from './sha256'
 // @ts-ignore
 import secureRandom from 'secure-random'
+import * as Sentry from '@sentry/browser'
 
 const Crypto = {
   random: (): string => {
