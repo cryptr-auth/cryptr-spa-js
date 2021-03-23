@@ -12,7 +12,8 @@ const codeChallenge = (codeVerifier: string): string => {
 const Pkce = {
   gen: (state = uuid()): ProofKeyChallengeExchange => {
     const codeVerifier = Crypto.random()
-
+    console.log('codeverifier')
+    console.log(codeVerifier)
     return {
       code_verifier: codeVerifier,
       code_challenge: codeChallenge(codeVerifier),
