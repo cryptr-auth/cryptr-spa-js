@@ -350,6 +350,9 @@ class Client {
     if (accessToken) {
       Request.revokeAccessToken(this.config, accessToken)
         .then(async (resp) => {
+          console.debug('logout resp')
+          console.debug(resp)
+          console.debug(callback)
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             await this.memory.clearTokens()
