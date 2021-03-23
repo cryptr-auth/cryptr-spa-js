@@ -367,6 +367,7 @@ class Client {
           }
         })
         .catch((error) => {
+          console.error('logout SPA error')
           if (this.config.telemetry == undefined || this.config.telemetry) {
             Sentry.captureException(error)
           }
