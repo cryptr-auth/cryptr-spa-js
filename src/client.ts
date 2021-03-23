@@ -355,7 +355,7 @@ class Client {
           console.debug(callback)
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
-            await this.memory.clearTokens()
+            this.memory.clearTokens()
             if (typeof callback === 'function' && callback !== null) {
               callback()
             } else {
