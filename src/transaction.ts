@@ -265,7 +265,6 @@ const Transaction: any = {
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
         validatesNonce(transaction, response['data']['nonce'])
-
         accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
       })
       .catch((error) => {
