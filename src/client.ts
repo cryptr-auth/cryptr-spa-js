@@ -353,21 +353,22 @@ class Client {
           console.debug('logout resp')
           console.debug(resp)
           console.debug(callback)
-          // if (resp.data.revoked_at !== undefined) {
-          await Storage.clearCookies(this.config.client_id)
-          this.memory.clearTokens()
-          if (typeof callback === 'function' && callback !== null) {
-            callback()
-          } else {
-            console.info('Default logOut callback : reload page')
-            // reload page if no callback defined
-            if (location !== undefined) {
-              location.replace(location.href.split('?')[0])
+          if (resp.data.revoked_at !== undefined) {
+            await Storage.clearCookies(this.config.client_id)
+            this.memory.clearTokens()
+            if (typeof callback === 'function' && callback !== null) {
+              callback()
+            } else {
+              console.info('Default logOut callback : reload page')
+              // reload page if no callback defined
+              if (location !== undefined) {
+                location.replace(location.href.split('?')[0])
+              }
             }
+          } else {
+            console.error('logout response not compliant')
+            console.error(resp.data)
           }
-          // } else {
-          //   console.error(resp.data)
-          // }
         })
         .catch((error) => {
           console.error('logout SPA error')
