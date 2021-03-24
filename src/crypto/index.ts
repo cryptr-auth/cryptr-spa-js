@@ -9,10 +9,6 @@ const RANDOM_LENGTH = 43
 const Crypto = {
   random: (): string => {
     try {
-      const random = secureRandom(RANDOM_LENGTH)
-      return btoa(random).substring(0, 128)
-    } catch (error) {
-      Sentry.captureException(error)
       const randomBytes = window.crypto.getRandomValues(new Uint8Array(RANDOM_LENGTH));
       // Make compliant the random for code_verifier of PKCE
       // abnf_unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
@@ -20,6 +16,10 @@ const Crypto = {
       let cryptoRandom = '';
       randomBytes.forEach(v => (cryptoRandom += ABNF[v % ABNF.length]));
       return cryptoRandom
+    } catch (error) {
+      Sentry.captureException(error)
+      const random = secureRandom(RANDOM_LENGTH)
+      return btoa(random).substring(0, 128)
     }
   },
   sha256: (message: string): string => sha256(message, 'base64') || '',
