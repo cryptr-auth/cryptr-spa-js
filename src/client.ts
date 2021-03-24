@@ -352,7 +352,7 @@ class Client {
         .then(async (resp) => {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
-            await this.memory.clearTokens()
+            this.memory.clearTokens()
             if (typeof callback === 'function' && callback !== null) {
               callback()
             } else {
@@ -363,10 +363,12 @@ class Client {
               }
             }
           } else {
+            console.error('logout response not compliant')
             console.error(resp.data)
           }
         })
         .catch((error) => {
+          console.error('logout SPA error')
           if (this.config.telemetry == undefined || this.config.telemetry) {
             Sentry.captureException(error)
           }
