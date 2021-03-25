@@ -272,9 +272,15 @@ const Transaction: any = {
         console.debug(response)
         const validNonce = validatesNonce(transaction, response['data']['nonce'])
         console.debug(validNonce)
-        accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
+        try {
+          accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
+        } catch (error) {
+          console.error("error while parseTokensAndstoreRefersh")
+          console.error(error)
+        }
       })
       .catch((error) => {
+        console.error("error in postAuth Catch")
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
           Sentry.captureMessage(transactionConfigNullMsg)
