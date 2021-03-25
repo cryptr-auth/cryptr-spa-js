@@ -94,13 +94,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -190,6 +190,8 @@ const parseTokensAndStoreRefresh = (
     if (opts.withPKCE) {
       Storage.deleteCookie(transactionKey(transaction.pkce.state))
     }
+  } else {
+    console.error('access token not validated')
   }
 
   return {
