@@ -164,9 +164,7 @@ const parseTokensAndStoreRefresh = (
   const accessToken: string = responseData['access_token']
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
-  console.log('parseTokensAndStoreRefresh')
-  console.debug(accessToken)
-  console.debug(config)
+
   if (Jwt.validatesAccessToken(accessToken, config)) {
     if (refreshToken) {
       const refreshTokenWrapper = getRefreshParameters(responseData)
@@ -266,17 +264,24 @@ const Transaction: any = {
       refreshToken: '',
       errors: errors,
     }
-    console.debug('getTokens')
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
-        console.debug(response)
-        const validNonce = validatesNonce(transaction, response['data']['nonce'])
-        console.debug(validNonce)
         try {
+          validatesNonce(transaction, response['data']['nonce'])
           accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
         } catch (error) {
           console.error("error while parseTokensAndstoreRefersh")
           console.error(error)
+          errors.push({
+            error: 'transaction parse tokens',
+            error_description: `${error}`,
+            http_response: error.response
+          })
+          accessResult = {
+            ...accessResult,
+            valid: false,
+            errors: errors
+          }
         }
       })
       .catch((error) => {
@@ -302,7 +307,6 @@ const Transaction: any = {
         }
         Sentry.captureException(error)
       })
-    console.debug('reach end of postAUthorizationCode')
     return accessResult
   },
 
