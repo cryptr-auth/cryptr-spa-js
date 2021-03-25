@@ -270,8 +270,7 @@ const Transaction: any = {
           validatesNonce(transaction, response['data']['nonce'])
           accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
         } catch (error) {
-          console.error("error while parseTokensAndstoreRefersh")
-          console.error(error)
+          Sentry.captureException(error)
           errors.push({
             error: 'transaction parse tokens',
             error_description: `${error}`,
