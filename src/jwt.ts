@@ -59,17 +59,25 @@ const ID_FIELDS = ['at_hash', 'c_hash', 'nonce'].concat(COMMON_FIELDS)
 
 export const validatesHeader = (token: any): void | true => {
   const header: { alg: string; typ: string } = jwtDecode(token, { header: true })
+  let msg = 'valid header'
   if (header.typ !== JWT) {
-    throw new Error('the token must be a JWT')
+    msg = 'the token must be a JWT'
+    console.error(msg)
+    throw new Error(msg)
   }
 
   if (header.alg !== RS256) {
-    throw new Error('the token must be signed in RSA 256')
+    msg = 'the token must be signed in RSA 256'
+    console.error(msg)
+    throw new Error(msg)
   }
 
   if (!header.hasOwnProperty('kid')) {
-    throw new Error('token needs a kid (key identifier) in header')
+    msg = 'token needs a kid (key identifier) in header'
+    console.error(msg)
+    throw new Error(msg)
   }
+  console.debug(msg)
   return true
 }
 
@@ -83,12 +91,18 @@ export const validatesFieldsExist = (jwtBody: any, fields: Array<string>): void 
 }
 
 const validatesTimestamps = (jwtBody: any): void | true => {
+  let msg = 'timestamps OK'
   if (!Number.isInteger(jwtBody.exp)) {
-    throw new Error('Expiration Time (exp) claim must be a number present')
+    msg = 'Expiration Time (exp) claim must be a number present'
+    console.error(msg)
+    throw new Error(msg)
   }
   if (!Number.isInteger(jwtBody.iat)) {
-    throw new Error('Issued At (iat) claim must be a number present')
+    msg = 'Issued At (iat) claim must be a number present'
+    console.error(msg)
+    throw new Error(msg)
   }
+  console.debug(msg)
   return true
 }
 
@@ -102,11 +116,13 @@ export const validatesClient = (tokenBody: any, config: Config): void | true => 
 }
 
 export const validatesAudience = (tokenBody: any, config: Config): void | true => {
+  let msg = 'audience validated'
   if (config.audience !== tokenBody.aud) {
-    throw new Error(
-      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${config.audience} from config`,
-    )
+    msg = `Audience (aud) ${tokenBody.aud} claim does not compliant with ${config.audience} from config`
+    console.error(msg)
+    throw new Error(msg)
   }
+  console.debug(msg)
   return true
 }
 
@@ -114,11 +130,13 @@ export const validatesIssuer = (tokenBody: any, config: Config): void | true => 
   const tmpCryptrUrl = cryptrBaseUrl(config)
   const cryptrUrl = tmpCryptrUrl.replace('/backoffice', '')
   const issuer = `${cryptrUrl}/t/${config.tenant_domain}`
+  let msg = 'issuer validated'
   if (issuer !== tokenBody.iss) {
-    throw new Error(
-      `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${issuer}`,
-    )
+    msg = `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${issuer}`
+    console.error(msg)
+    throw new Error(msg)
   }
+  console.debug(msg)
   return true
 }
 
@@ -127,11 +145,13 @@ export const validatesExpiration = (tokenBody: any): void | true => {
   // exp is in Seconds
   const expiration = new Date(tokenBody.exp * 1000)
 
+  let msg = 'expiration valid'
   if (now.getTime() > expiration.getTime()) {
-    throw new Error(
-      `Expiration (exp) is invalid, it (${expiration.getTime()}) must be in the future`,
-    )
+    msg = `Expiration (exp) is invalid, it (${expiration.getTime()}) must be in the future`
+    console.error(msg)
+    throw new Error(msg)
   }
+  console.log(msg)
   return true
 }
 
@@ -148,7 +168,10 @@ const Jwt = {
     return jwtDecode(token)
   },
   validatesAccessToken: (accessToken: string, config: Config): boolean => {
+    console.debug('validatesAccessToken')
     const jwtBody = Jwt.body(accessToken)
+    console.log('jwtBody')
+    console.debug(jwtBody)
 
     validatesHeader(accessToken)
     validatesJwtBody(jwtBody, config)
