@@ -212,7 +212,7 @@ class Client {
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
       return true
     } else {
-      // errors
+      console.debug(errors)
     }
     return false
   }
