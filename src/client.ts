@@ -212,7 +212,8 @@ class Client {
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
       return true
     } else {
-      console.debug(errors)
+      console.error("error(s) while handling tokens");
+      errors.forEach(error => console.error(error))
     }
     return false
   }
