@@ -211,6 +211,12 @@ class Client {
       console.error('invalid grant detected')
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
       return true
+    } else {
+      console.error("error(s) while handling tokens");
+      errors.forEach(error => {
+        console.error(error.error_description)
+        console.debug(error)
+      })
     }
     return false
   }

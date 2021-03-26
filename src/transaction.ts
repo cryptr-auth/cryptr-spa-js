@@ -188,6 +188,8 @@ const parseTokensAndStoreRefresh = (
     if (opts.withPKCE) {
       Storage.deleteCookie(transactionKey(transaction.pkce.state))
     }
+  } else {
+    console.error('access token not validated')
   }
 
   return {
@@ -264,10 +266,27 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction)
       .then((response: any) => {
-        validatesNonce(transaction, response['data']['nonce'])
-        accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
+        try {
+          validatesNonce(transaction, response['data']['nonce'])
+          accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
+            withPKCE: true,
+          })
+        } catch (error) {
+          Sentry.captureException(error)
+          errors.push({
+            error: 'transaction parse tokens',
+            error_description: `${error}`,
+            http_response: error.response,
+          })
+          accessResult = {
+            ...accessResult,
+            valid: false,
+            errors: errors,
+          }
+        }
       })
       .catch((error) => {
+        console.error('error in postAuth catch')
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
           Sentry.captureMessage(transactionConfigNullMsg)
@@ -277,6 +296,11 @@ const Transaction: any = {
             http_response: error.response,
           })
         }
+        errors.push({
+          error: 'getTokens Error',
+          error_description: `${error}`,
+          http_response: error.response,
+        })
         accessResult = {
           ...accessResult,
           valid: false,
