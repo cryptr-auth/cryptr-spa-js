@@ -104,7 +104,7 @@ export const validatesClient = (tokenBody: any, config: Config): void | true => 
 export const validatesAudience = (tokenBody: any, config: Config): void | true => {
   if (config.audience !== tokenBody.aud) {
     throw new Error(
-      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${config.audience} from config`
+      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${config.audience} from config`,
     )
   }
   return true
@@ -116,7 +116,7 @@ export const validatesIssuer = (tokenBody: any, config: Config): void | true => 
   const issuer = `${cryptrUrl}/t/${config.tenant_domain}`
   if (issuer !== tokenBody.iss) {
     throw new Error(
-      `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${issuer}`
+      `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${issuer}`,
     )
   }
   return true
@@ -129,7 +129,7 @@ export const validatesExpiration = (tokenBody: any): void | true => {
 
   if (now.getTime() > expiration.getTime()) {
     throw new Error(
-      `Expiration (exp) is invalid, it (${expiration.getTime()}) must be in the future`
+      `Expiration (exp) is invalid, it (${expiration.getTime()}) must be in the future`,
     )
   }
   return true

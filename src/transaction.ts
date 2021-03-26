@@ -94,13 +94,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
@@ -268,23 +268,25 @@ const Transaction: any = {
       .then((response: any) => {
         try {
           validatesNonce(transaction, response['data']['nonce'])
-          accessResult = parseTokensAndStoreRefresh(config, response, transaction, { withPKCE: true })
+          accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
+            withPKCE: true,
+          })
         } catch (error) {
           Sentry.captureException(error)
           errors.push({
             error: 'transaction parse tokens',
             error_description: `${error}`,
-            http_response: error.response
+            http_response: error.response,
           })
           accessResult = {
             ...accessResult,
             valid: false,
-            errors: errors
+            errors: errors,
           }
         }
       })
       .catch((error) => {
-        console.error("error in postAuth Catch")
+        console.error('error in postAuth catch')
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
           Sentry.captureMessage(transactionConfigNullMsg)

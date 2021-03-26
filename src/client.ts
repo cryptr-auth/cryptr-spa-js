@@ -211,6 +211,8 @@ class Client {
       console.error('invalid grant detected')
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
       return true
+    } else {
+      // errors
     }
     return false
   }
