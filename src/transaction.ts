@@ -64,7 +64,6 @@ export const validatesNonce = (transaction: I.Transaction, submittedNonce: strin
 
 const signPath = (config: I.Config, transaction: I.Transaction): string => {
   const locale = transaction.locale || config.default_locale || 'en'
-  console.log(transaction.sign_type)
   if (transaction.sign_type === "sso") {
     // return `/enterprise/${config.tenant_domain}/login`
     return `/enterprise/${'decathlon_UcKLUqdsvB6jBSWvC6WUZ4'}/login`
@@ -365,11 +364,7 @@ const Transaction: any = {
   getRefreshParameters: getRefreshParameters,
   signUrl: (config: I.Config, transaction: I.Transaction): URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
-    console.log(url.pathname)
-    console.log(transaction)
-    console.log(signPath(config, transaction))
     url.pathname = url.pathname.concat(signPath(config, transaction)).replace('//', '/')
-    console.log(url.pathname)
 
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
