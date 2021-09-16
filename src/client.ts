@@ -181,6 +181,14 @@ class Client {
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
+  async signInWithSSO(
+    scope = DEFAULT_SCOPE,
+    redirectUri = this.config.default_redirect_uri,
+    locale?: string,
+  ) {
+    this.signWithRedirect(Sign.Sso, scope, locale, redirectUri)
+  }
+
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
