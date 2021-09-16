@@ -181,6 +181,10 @@ class Client {
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
+  async signInWithSSO() {
+    this.signWithRedirect(Sign.Sso, DEFAULT_SCOPE, "fr", "https://samly.howto:4443/enterprise/decathlon_UcKLUqdsvB6jBSWvC6WUZ4/login")
+  }
+
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,

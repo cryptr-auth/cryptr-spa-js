@@ -3,4 +3,5 @@ export enum Sign {
   In = 'signin',
   Up = 'signup',
   Refresh = 'refresh',
+  Sso = 'sso'
 }

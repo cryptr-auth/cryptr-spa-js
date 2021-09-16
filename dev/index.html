@@ -44,6 +44,9 @@
     <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
       <h1 class="display-4">Development mode</h1>
       <p class="lead">This local static site use our cryptr API on our test environment.</p>
+      <a @click="signinWithSSO" href="#" class="btn btn-info">
+        Connect with SSO
+      </a>
     </div>
 
     <div class="container">
@@ -114,13 +117,13 @@
 <script>
 
   var config = {
-    tenant_domain: 'cryptr',
-    client_id: 'e5c50663-bbaa-4a28-b1d6-bf3ee1ad2ce7',
+    tenant_domain: 'shark-academy',
+    client_id: 'ff794d1f-d536-4c01-8842-3a25447613fc',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
-    cryptr_base_url: 'http://localhost:4000/backoffice',
+    cryptr_base_url: 'http://localhost:4000',
     default_locale: 'en',
-    telemetry: false
+    telemetry: true
   };
 
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
@@ -144,6 +147,12 @@
       }
     },
     methods: {
+
+      signinWithSSO() {
+        console.log("here");
+        console.log(this.cryptrClient);
+        return this.cryptrClient.signInWithSSO();
+      },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
         return this.cryptrClient.signInWithRedirect(scopes);
