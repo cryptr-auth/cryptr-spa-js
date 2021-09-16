@@ -44,6 +44,9 @@
     <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
       <h1 class="display-4">Development mode</h1>
       <p class="lead">This local static site use our cryptr API on our test environment.</p>
+      <a href="#" class="btn btn-secondary" @click="signinWithSSO">
+        Signin with SSO
+      </a>
     </div>
 
     <div class="container">
@@ -118,7 +121,7 @@
     client_id: 'ff794d1f-d536-4c01-8842-3a25447613fc',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
-    cryptr_base_url: 'http://localhost:4000',
+    cryptr_base_url: 'https://samly.howto:4443',
     default_locale: 'en',
     telemetry: true
   };
@@ -144,6 +147,10 @@
       }
     },
     methods: {
+      /** Authenticates the user using the redirect method */
+      signinWithSSO() {
+        return this.cryptrClient.signInWithSSO(scopes);
+      },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
         return this.cryptrClient.signInWithRedirect(scopes);
