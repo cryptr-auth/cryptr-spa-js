@@ -66,7 +66,7 @@ const signPath = (config: I.Config, transaction: I.Transaction): string => {
   const locale = transaction.locale || config.default_locale || 'en'
   if (transaction.sign_type === "sso") {
     // return `/enterprise/${config.tenant_domain}/login`
-    return `/enterprise/${'decathlon_UcKLUqdsvB6jBSWvC6WUZ4'}/login`
+    return `/enterprise/${'misapret_QtqpTS7itBLt4HdoCj5Qck'}/login`
   } else {
     return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
   }
