@@ -63,7 +63,6 @@ export const validatesNonce = (transaction: I.Transaction, submittedNonce: strin
 }
 
 const ssoSignPath = (idpId: string) => {
-  // `/enterprise/${'misapret_QtqpTS7itBLt4HdoCj5Qck'}/login`
   return `/enterprise/${idpId}/login`
 }
 
