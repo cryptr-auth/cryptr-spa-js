@@ -235,7 +235,6 @@ class Client {
       console.error('error(s) while handling tokens')
       errors.forEach((error) => {
         console.error(error.error_description)
-        console.debug(error)
       })
     }
     return false
