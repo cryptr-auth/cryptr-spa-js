@@ -136,7 +136,6 @@ export const validatesIssuer = (tokenBody: any, config: Config): void | true => 
 
   if (tokenBodyIss.includes('enterprise')) {
     if (!tokenBodyIss.startsWith(`${cryptrUrl}/enterprise`) || !tokenBodyIss.endsWith(`/login`)) {
-      console.debug(tokenBody)
       throw new Error(
         `Issuer (iss) ${tokenBody.iss} of this token claim does not compliant ${cryptrUrl}/enterprise/:idp_id/login`,
       )
