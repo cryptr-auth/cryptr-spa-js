@@ -187,9 +187,6 @@ class Client {
     redirectUri = this.config.default_redirect_uri,
     locale?: string,
   ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
     const transaction = await Transaction.create(
       Sign.Sso,
       this.finalScope(scope),
