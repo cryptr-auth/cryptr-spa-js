@@ -361,9 +361,15 @@ const Transaction: any = {
     return refreshResult
   },
   getRefreshParameters: getRefreshParameters,
-  signUrl: (config: I.Config, transaction: I.Transaction, idpId?: string): URL => {
+  signUrl: (config: I.Config, transaction: I.Transaction, idpId?: string): void | URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
-    const currentSignPath = (transaction.sign_type == Sign.Sso && idpId) ? ssoSignPath(idpId) : signPath(config, transaction)
+    if (transaction.sign_type == Sign.Sso && !idpId) {
+      throw new Error('Should provide idpId when SSO transaction')
+    }
+    const currentSignPath =
+      transaction.sign_type == Sign.Sso && idpId
+        ? ssoSignPath(idpId)
+        : signPath(config, transaction)
     url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
 
     if (transaction.sign_type == Sign.Sso) {
