@@ -182,11 +182,18 @@ class Client {
   }
 
   async signInWithSSO(
+    idpId: string,
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
     locale?: string,
   ) {
-    this.signWithRedirect(Sign.Sso, scope, locale, redirectUri)
+    if (redirectUri !== this.config.default_redirect_uri) {
+      validRedirectUri(redirectUri)
+    }
+    const transaction = await Transaction.create(Sign.Sso, this.finalScope(scope), locale, redirectUri)
+    const url = await Transaction.signUrl(this.config, transaction, idpId)
+
+    window.location.assign(url.href)
   }
 
   async signUpWithRedirect(

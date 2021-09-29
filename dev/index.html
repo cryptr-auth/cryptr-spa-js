@@ -118,12 +118,12 @@
 
   var config = {
     tenant_domain: 'shark-academy',
-    client_id: 'ff794d1f-d536-4c01-8842-3a25447613fc',
+    client_id: 'e36c84e5-38fe-42b8-927b-c75c778fc672',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
     cryptr_base_url: 'https://samly.howto:4443',
     default_locale: 'en',
-    telemetry: true
+    telemetry: false
   };
 
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
@@ -132,6 +132,7 @@
   document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
   var scopes = 'openid email';
+  const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck';
 
   var app = new Vue({
     el: '#app',
@@ -149,7 +150,7 @@
     methods: {
       /** Authenticates the user using the redirect method */
       signinWithSSO() {
-        return this.cryptrClient.signInWithSSO(scopes);
+        return this.cryptrClient.signInWithSSO(idpId);
       },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {

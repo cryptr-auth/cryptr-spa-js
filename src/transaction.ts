@@ -62,14 +62,14 @@ export const validatesNonce = (transaction: I.Transaction, submittedNonce: strin
   return true
 }
 
+const ssoSignPath = (idpId: string) => {
+  // `/enterprise/${'misapret_QtqpTS7itBLt4HdoCj5Qck'}/login`
+  return `/enterprise/${idpId}/login`
+}
+
 const signPath = (config: I.Config, transaction: I.Transaction): string => {
   const locale = transaction.locale || config.default_locale || 'en'
-  if (transaction.sign_type === "sso") {
-    // return `/enterprise/${config.tenant_domain}/login`
-    return `/enterprise/${'misapret_QtqpTS7itBLt4HdoCj5Qck'}/login`
-  } else {
-    return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
-  }
+  return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
 }
 
 export const transactionKey = (state: string) => `${STORAGE_KEY_PREFIX}.transaction.${state}`
@@ -362,9 +362,10 @@ const Transaction: any = {
     return refreshResult
   },
   getRefreshParameters: getRefreshParameters,
-  signUrl: (config: I.Config, transaction: I.Transaction): URL => {
+  signUrl: (config: I.Config, transaction: I.Transaction, idpId?: string): URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
-    url.pathname = url.pathname.concat(signPath(config, transaction)).replace('//', '/')
+    const currentSignPath = (transaction.sign_type == Sign.Sso && idpId) ? ssoSignPath(idpId) : signPath(config, transaction)
+    url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
 
     if (transaction.sign_type == Sign.Sso) {
       url.searchParams.append("state", transaction.pkce.state)
