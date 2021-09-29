@@ -366,6 +366,10 @@ const Transaction: any = {
     let url: URL = new URL(cryptrBaseUrl(config))
     url.pathname = url.pathname.concat(signPath(config, transaction)).replace('//', '/')
 
+    if (transaction.sign_type == Sign.Sso) {
+      url.searchParams.append("state", transaction.pkce.state)
+    }
+
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
     url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
