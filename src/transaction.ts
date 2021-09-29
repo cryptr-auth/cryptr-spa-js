@@ -62,6 +62,10 @@ export const validatesNonce = (transaction: I.Transaction, submittedNonce: strin
   return true
 }
 
+const ssoSignPath = (idpId: string) => {
+  return `/enterprise/${idpId}/login`
+}
+
 const signPath = (config: I.Config, transaction: I.Transaction): string => {
   const locale = transaction.locale || config.default_locale || 'en'
   return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
@@ -357,9 +361,20 @@ const Transaction: any = {
     return refreshResult
   },
   getRefreshParameters: getRefreshParameters,
-  signUrl: (config: I.Config, transaction: I.Transaction): URL => {
+  signUrl: (config: I.Config, transaction: I.Transaction, idpId?: string): void | URL => {
     let url: URL = new URL(cryptrBaseUrl(config))
-    url.pathname = url.pathname.concat(signPath(config, transaction)).replace('//', '/')
+    if (transaction.sign_type == Sign.Sso && !idpId) {
+      throw new Error('Should provide idpId when SSO transaction')
+    }
+    const currentSignPath =
+      transaction.sign_type == Sign.Sso && idpId
+        ? ssoSignPath(idpId)
+        : signPath(config, transaction)
+    url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
+
+    if (transaction.sign_type == Sign.Sso) {
+      url.searchParams.append('state', transaction.pkce.state)
+    }
 
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
