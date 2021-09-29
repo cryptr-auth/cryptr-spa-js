@@ -332,6 +332,27 @@ describe('signin process', () => {
     )
     transactionCreateFn.mockRestore()
   })
+
+  it('signWithSso creates a Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId)
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'sso',
+      'openid email profile',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
+
+  it('signWithSso call Transaction signUrl fn', async () => {
+    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId)
+    expect(transactionSignUrlFn).toHaveBeenCalled()
+    transactionSignUrlFn.mockRestore()
+  })
 })
 
 describe('userAccountAccess', () => {
