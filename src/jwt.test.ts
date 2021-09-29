@@ -78,6 +78,35 @@ describe('validatesAudience(tokenBody, config)', () => {
 describe('validatesIssuer(tokenBody, config)', () => {
   const VALID_ISS_BODY = { iss: 'http://localhost:4000/t/cryptr' }
   const INVALID_ISS_BODY = { iss: 'http://localhost:4000/t/trade-in' }
+  const VALID_SSO_ISS_BODY = {
+    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
+  }
+  const INVALID_SSO_ISS_BODY_START = {
+    iss: 'http://localhost:3000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
+  }
+  const INVALID_SSO_ISS_BODY_END = {
+    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/sso',
+  }
+
+  it('returns true if valid SSO', () => {
+    expect(validatesIssuer(VALID_SSO_ISS_BODY, ConfigFixture.valid())).toBeTruthy()
+  })
+
+  it('throws error if invalid ISS SSO start', () => {
+    expect(() => {
+      validatesIssuer(INVALID_SSO_ISS_BODY_START, ConfigFixture.valid())
+    }).toThrowError(
+      'Issuer (iss) http://localhost:3000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login of this token claim does not compliant http://localhost:4000/enterprise/:idp_id/login',
+    )
+  })
+
+  it('throws error if invalid ISS SSO end', () => {
+    expect(() => {
+      validatesIssuer(INVALID_SSO_ISS_BODY_END, ConfigFixture.valid())
+    }).toThrowError(
+      'Issuer (iss) http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/sso of this token claim does not compliant http://localhost:4000/enterprise/:idp_id/login',
+    )
+  })
 
   it('returns true if valid', () => {
     expect(validatesIssuer(VALID_ISS_BODY, ConfigFixture.valid())).toBeTruthy()
