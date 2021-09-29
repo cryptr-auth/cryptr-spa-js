@@ -90,6 +90,20 @@ describe('Transaction', () => {
     })
   })
 
+  it('creates proper SSO transaction', () => {
+    expect(Transaction.create(Sign.Sso, 'openid email', 'en')).toMatchObject({
+      ...TransactionFixure.valid(),
+      pkce: {
+        code_challenge: expect.any(String),
+        code_verifier: expect.any(String),
+        state: expect.any(String),
+      },
+      sign_type: Sign.Sso,
+      nonce: expect.any(String),
+      locale: 'en',
+    })
+  })
+
   it('creates proper transaction using createFromState function', () => {
     var state = '123-xeab'
     const transaction = Transaction.createFromState(state, Sign.In, 'openid email')
@@ -100,6 +114,21 @@ describe('Transaction', () => {
         code_verifier: expect.any(String),
         state: state,
       },
+      nonce: expect.any(String),
+    })
+  })
+
+  it('creates proper SSO transaction using createFromState function', () => {
+    var state = '123-xeab'
+    const transaction = Transaction.createFromState(state, Sign.Sso, 'openid email')
+    expect(transaction).toMatchObject({
+      ...TransactionFixure.valid(),
+      pkce: {
+        code_challenge: expect.any(String),
+        code_verifier: expect.any(String),
+        state: state,
+      },
+      sign_type: Sign.Sso,
       nonce: expect.any(String),
     })
   })
@@ -181,6 +210,24 @@ describe('Transaction', () => {
     const newUrl = Transaction.signUrl(config, transaction)
     // expect(newUrl.href).toMatch('https://cryptr-test.onrender.com/t/shark-academy/en/')
     expect(newUrl.href).toMatch('http://localhost:4000/t/shark-academy/en/')
+  })
+
+  it('should returns a proper SSO signUrl when SSO transaction and idpId provided', () => {
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    const url = Transaction.signUrl(
+      ConfigFixture.valid(),
+      TransactionFixure.validWithType(Sign.Sso),
+      idpId,
+    )
+    expect(url.href).toMatch(
+      'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login?state=da2379bc-46b2-4e9e-a7c4-62a891827944&scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
+    )
+  })
+
+  it('should throw an error SSO signUrl when SSO transaction without idpId provided', () => {
+    expect(() =>
+      Transaction.signUrl(ConfigFixture.valid(), TransactionFixure.validWithType(Sign.Sso)),
+    ).toThrowError('Should provide idpId when SSO transaction')
   })
 
   it('should return default token error if no response provided', () => {
