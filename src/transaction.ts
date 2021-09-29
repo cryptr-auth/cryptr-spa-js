@@ -98,13 +98,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
@@ -373,7 +373,7 @@ const Transaction: any = {
     url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
 
     if (transaction.sign_type == Sign.Sso) {
-      url.searchParams.append("state", transaction.pkce.state)
+      url.searchParams.append('state', transaction.pkce.state)
     }
 
     url.searchParams.append('scope', transaction.scope)

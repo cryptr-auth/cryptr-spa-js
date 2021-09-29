@@ -190,7 +190,12 @@ class Client {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    const transaction = await Transaction.create(Sign.Sso, this.finalScope(scope), locale, redirectUri)
+    const transaction = await Transaction.create(
+      Sign.Sso,
+      this.finalScope(scope),
+      locale,
+      redirectUri,
+    )
     const url = await Transaction.signUrl(this.config, transaction, idpId)
 
     window.location.assign(url.href)
@@ -227,8 +232,8 @@ class Client {
       window.dispatchEvent(new Event(EventTypes.REFRESH_INVALID_GRANT))
       return true
     } else {
-      console.error("error(s) while handling tokens");
-      errors.forEach(error => {
+      console.error('error(s) while handling tokens')
+      errors.forEach((error) => {
         console.error(error.error_description)
         console.debug(error)
       })
