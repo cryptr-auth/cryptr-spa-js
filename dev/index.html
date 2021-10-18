@@ -193,12 +193,20 @@
           // Notify subscribers that the redirect callback has happened, passing the appState
           // (useful for retrieving any pre-authentication state)
           // onRedirectCallback(tokens);
+          let params = (new URL(window.location)).searchParams;
+          let authParamsKeys = ['authorization_code', 'authorization_id', 'state', 'code']
+          for (const key of authParamsKeys) {
+            params.delete(key)
+          }
+          const endUrl = params.toString() == '' ? '' : '?' + params.toString()
+
           window.history.replaceState(
-              // empty state object to ensure clean history
-              {},
-              document.title,
-              // here the url without any params
-              window.location.origin + '/'
+            // empty state object to ensure clean history
+            {},
+            document.title,
+            // here the url without any params
+            // window.location.origin + '/'
+             window.location.pathname + endUrl
           )
           // window.location.replace(location.href.split('?')[0])
         } else {
