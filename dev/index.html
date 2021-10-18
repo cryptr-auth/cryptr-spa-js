@@ -47,6 +47,10 @@
       <a href="#" class="btn btn-secondary" @click="signinWithSSO">
         Signin with SSO
       </a>
+
+      <a href="#" class="btn btn-info" @click="secondSigninWithSSO">
+        Signin with same SSO (other app)
+      </a>
     </div>
 
     <div class="container">
@@ -117,14 +121,16 @@
 <script>
 
   var config = {
-    tenant_domain: 'shark-academy',
-    client_id: 'e36c84e5-38fe-42b8-927b-c75c778fc672',
+    // tenant_domain: 'many-sso-tenant',
+    tenant_domain: 'first-tenant',
+    // client_id: '20728997-9fee-4e66-8261-8d8095db2363',
+    client_id: 'a183dfdf-938e-4dc1-a5cf-16e0910d7f12',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
     cryptr_base_url: 'https://samly.howto:4443',
     default_locale: 'en',
     telemetry: false
-  };
+  }
 
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
   document.getElementById("client-id").innerText = config.client_id;
@@ -132,7 +138,10 @@
   document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
   var scopes = 'openid email';
-  const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck';
+  // const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck';
+  const idpId1 = 'first_tenant_dA6vwVmxMjPFpbjU552jgi';
+  // const idpId2 = 'second_tenant_5V8L2QucJyEiyrF86fo9cV';
+  const clientId2 = '9d187be3-ba46-4930-a728-672ae0c0d7f0'
 
   var app = new Vue({
     el: '#app',
@@ -150,7 +159,10 @@
     methods: {
       /** Authenticates the user using the redirect method */
       signinWithSSO() {
-        return this.cryptrClient.signInWithSSO(idpId);
+        return this.cryptrClient.signInWithSSO(idpId1);
+      },
+      secondSigninWithSSO() {
+        return this.cryptrClient.signInWithSSO(idpId1, clientId2);
       },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
