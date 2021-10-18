@@ -183,8 +183,9 @@ class Client {
 
   async signInWithSSO(
     idpId: string,
-    scope = DEFAULT_SCOPE,
+    clientId = this.config.client_id,
     redirectUri = this.config.default_redirect_uri,
+    scope = DEFAULT_SCOPE,
     locale?: string,
   ) {
     const transaction = await Transaction.create(
@@ -193,7 +194,9 @@ class Client {
       locale,
       redirectUri,
     )
-    const url = await Transaction.signUrl(this.config, transaction, idpId)
+    var transactionConfig = this.config
+    transactionConfig.client_id = clientId
+    const url = await Transaction.signUrl(transactionConfig, transaction, idpId)
 
     window.location.assign(url.href)
   }
