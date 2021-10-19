@@ -220,7 +220,7 @@ describe('Transaction', () => {
       idpId,
     )
     expect(url.href).toMatch(
-      'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login?state=da2379bc-46b2-4e9e-a7c4-62a891827944&scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
+      'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login?locale=en&state=da2379bc-46b2-4e9e-a7c4-62a891827944&scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
     )
   })
 

@@ -17,7 +17,7 @@ import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
 import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
-import { TokenError } from './interfaces'
+import { SignOptsAttrs, TokenError } from './interfaces'
 
 const locationSearch = (): string => {
   if (window != undefined && window.location !== undefined) {
@@ -181,17 +181,12 @@ class Client {
     this.signWithRedirect(Sign.In, scope, locale, redirectUri)
   }
 
-  async signInWithSSO(
-    idpId: string,
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
+  async signInWithSSO(idpId: string, options?: SignOptsAttrs) {
     const transaction = await Transaction.create(
       Sign.Sso,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
+      this.finalScope(options?.scope || DEFAULT_SCOPE),
+      options?.locale,
+      options?.redirectUri || this.config.default_redirect_uri,
     )
     const url = await Transaction.signUrl(this.config, transaction, idpId)
 
