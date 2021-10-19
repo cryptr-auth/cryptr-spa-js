@@ -349,7 +349,7 @@ describe('signin process', () => {
   it('signWithSso with minimal scope creates a proper scoped Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email')
+    await client.signInWithSSO(idpId, { scope: 'openid email' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
@@ -362,7 +362,7 @@ describe('signin process', () => {
   it('signWithSso with higher scope creates a proper scoped Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email profile admin')
+    await client.signInWithSSO(idpId, { scope: 'openid email profile admin' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile admin',
@@ -375,7 +375,7 @@ describe('signin process', () => {
   it('signWithSso creates a chosen redirection Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email profile', 'http://localhost:3000')
+    await client.signInWithSSO(idpId, { scope: 'openid email profile', redirectUri: 'http://localhost:3000' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
@@ -388,7 +388,7 @@ describe('signin process', () => {
   it('signWithSso creates a chosen locale Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email profile', 'http://localhost:3000', 'fr')
+    await client.signInWithSSO(idpId, { scope: 'openid email profile', redirectUri: 'http://localhost:3000', locale: 'fr' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
