@@ -405,11 +405,45 @@ describe('signin process', () => {
     transactionCreateFn.mockRestore()
   })
 
+  it('signWithSso with specific clientId creates standard Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      clientId: 'some-client-id',
+    })
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'sso',
+      'openid email profile',
+      undefined,
+      'http://localhost:1234',
+    )
+    transactionCreateFn.mockRestore()
+  })
+
+  it('signWithSso with specific clientId calls Transaction signUrl fn', async () => {
+    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      clientId: 'some-client-id',
+    })
+    expect(transactionSignUrlFn).toHaveBeenCalledWith(
+      { ...client.config, client_id: 'some-client-id' },
+      expect.anything(),
+      "misapret_QtqpTS7itBLt4HdoCj5Qck"
+    )
+    transactionSignUrlFn.mockRestore()
+
+  })
+
   it('signWithSso call Transaction signUrl fn', async () => {
     const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
     await client.signInWithSSO(idpId)
-    expect(transactionSignUrlFn).toHaveBeenCalled()
+    expect(transactionSignUrlFn).toHaveBeenCalledWith(
+      client.config,
+      expect.anything(),
+      "misapret_QtqpTS7itBLt4HdoCj5Qck"
+    )
     transactionSignUrlFn.mockRestore()
   })
 })
