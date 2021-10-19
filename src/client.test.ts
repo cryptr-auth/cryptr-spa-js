@@ -375,7 +375,10 @@ describe('signin process', () => {
   it('signWithSso creates a chosen redirection Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, { scope: 'openid email profile', redirectUri: 'http://localhost:3000' })
+    await client.signInWithSSO(idpId, {
+      scope: 'openid email profile',
+      redirectUri: 'http://localhost:3000',
+    })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
@@ -388,7 +391,11 @@ describe('signin process', () => {
   it('signWithSso creates a chosen locale Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, { scope: 'openid email profile', redirectUri: 'http://localhost:3000', locale: 'fr' })
+    await client.signInWithSSO(idpId, {
+      scope: 'openid email profile',
+      redirectUri: 'http://localhost:3000',
+      locale: 'fr',
+    })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
