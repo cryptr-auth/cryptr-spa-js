@@ -429,10 +429,9 @@ describe('signin process', () => {
     expect(transactionSignUrlFn).toHaveBeenCalledWith(
       { ...client.config, client_id: 'some-client-id' },
       expect.anything(),
-      "misapret_QtqpTS7itBLt4HdoCj5Qck"
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
     )
     transactionSignUrlFn.mockRestore()
-
   })
 
   it('signWithSso call Transaction signUrl fn', async () => {
@@ -442,7 +441,7 @@ describe('signin process', () => {
     expect(transactionSignUrlFn).toHaveBeenCalledWith(
       client.config,
       expect.anything(),
-      "misapret_QtqpTS7itBLt4HdoCj5Qck"
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
     )
     transactionSignUrlFn.mockRestore()
   })

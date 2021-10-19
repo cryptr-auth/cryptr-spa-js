@@ -188,7 +188,9 @@ class Client {
       options?.locale,
       options?.redirectUri || this.config.default_redirect_uri,
     )
-    var transactionConfig = options?.clientId ? { ...this.config, client_id: options.clientId } : this.config
+    var transactionConfig = options?.clientId
+      ? { ...this.config, client_id: options.clientId }
+      : this.config
     const url = await Transaction.signUrl(transactionConfig, transaction, idpId)
 
     window.location.assign(url.href)
