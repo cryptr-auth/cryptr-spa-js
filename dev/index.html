@@ -47,6 +47,9 @@
       <a href="#" class="btn btn-secondary" @click="signinWithSSO">
         Signin with SSO
       </a>
+      <a href="#" class="btn btn-secondary" @click="signinFrWithSSO">
+        Se connecter en SSO
+      </a>
     </div>
 
     <div class="container">
@@ -151,6 +154,9 @@
       /** Authenticates the user using the redirect method */
       signinWithSSO() {
         return this.cryptrClient.signInWithSSO(idpId);
+      },
+      signinFrWithSSO() {
+        return this.cryptrClient.signInWithSSO(idpId, {locale: 'fr'});
       },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
