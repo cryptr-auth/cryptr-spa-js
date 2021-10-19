@@ -373,6 +373,8 @@ const Transaction: any = {
     url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
 
     if (transaction.sign_type == Sign.Sso) {
+      const locale = transaction.locale || config.default_locale || 'en'
+      url.searchParams.append('locale', locale)
       url.searchParams.append('state', transaction.pkce.state)
     }
 
