@@ -1,7 +1,7 @@
 {
   "name": "@cryptr/cryptr-spa-js",
   "description": "Cryptr SDK for Single Page Applications using passwordless authentication",
-  "version": "0.1.10",
+  "version": "1.0.1-rc1",
   "main": "dist/cryptr-spa-js.cjs.js",
   "module": "dist/cryptr-spa-js.esm.js",
   "browser": "dist/cryptr-spa-js.umd.js",
@@ -108,7 +108,8 @@
     "oAuth",
     "client",
     "token",
-    "user-account"
+    "user-account",
+    "sso"
   ],
   "author": "Cryptr <jeremie@cryptr.co> (https://www.cryptr.co)",
   "repository": {
