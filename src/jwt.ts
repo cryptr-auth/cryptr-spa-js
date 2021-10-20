@@ -110,24 +110,6 @@ export const validatesAudience = (tokenBody: any, config: Config): void | true =
   return true
 }
 
-export const validatesSsoUserMetadata = (tokenBody: any): void | true => {
-  if (!tokenBody.iss.includes('enterprise')) {
-    return true
-  }
-  const userMetadata = tokenBody.resource_owner_metadata
-  const requiredMetadataKeys = ['email', 'uid', 'saml_subject']
-  if (userMetadata === null || userMetadata === undefined) {
-    throw new Error(`resource_owner_metadata must be present keys when SSO enterprise token`)
-  }
-  const receivedKeys = Object.keys(userMetadata)
-  if (receivedKeys.length == 0 || !requiredMetadataKeys.every((k) => receivedKeys.includes(k))) {
-    throw new Error(
-      `resource_owner_metadata must include ${requiredMetadataKeys} keys when SSO enterprise token, got '${receivedKeys}'`,
-    )
-  }
-  return true
-}
-
 export const validatesIssuer = (tokenBody: any, config: Config): void | true => {
   const tmpCryptrUrl = cryptrBaseUrl(config)
   const cryptrUrl = tmpCryptrUrl.replace('/backoffice', '')
@@ -159,7 +141,6 @@ export const validatesExpiration = (tokenBody: any): void | true => {
 const validatesJwtBody = (jwtBody: any, config: Config): void | true => {
   validatesTimestamps(jwtBody) &&
     validatesAudience(jwtBody, config) &&
-    validatesSsoUserMetadata(jwtBody) &&
     validatesIssuer(jwtBody, config) &&
     validatesExpiration(jwtBody)
 }
