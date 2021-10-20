@@ -67,3 +67,14 @@ export interface TokenError {
   error: string
   error_description: string
 }
+
+export interface SignOptsAttrs {
+  scope?: string
+  redirectUri?: string
+  locale?: string
+}
+
+export interface SsoSignOptsAttrs extends SignOptsAttrs {
+  clientId?: string
+  tenantDomain?: string
+}

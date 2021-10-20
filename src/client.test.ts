@@ -349,7 +349,7 @@ describe('signin process', () => {
   it('signWithSso with minimal scope creates a proper scoped Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email')
+    await client.signInWithSSO(idpId, { scope: 'openid email' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
@@ -362,7 +362,7 @@ describe('signin process', () => {
   it('signWithSso with higher scope creates a proper scoped Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email profile admin')
+    await client.signInWithSSO(idpId, { scope: 'openid email profile admin' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile admin',
@@ -375,7 +375,10 @@ describe('signin process', () => {
   it('signWithSso creates a chosen redirection Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email profile', 'http://localhost:3000')
+    await client.signInWithSSO(idpId, {
+      scope: 'openid email profile',
+      redirectUri: 'http://localhost:3000',
+    })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
@@ -388,7 +391,11 @@ describe('signin process', () => {
   it('signWithSso creates a chosen locale Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, 'openid email profile', 'http://localhost:3000', 'fr')
+    await client.signInWithSSO(idpId, {
+      scope: 'openid email profile',
+      redirectUri: 'http://localhost:3000',
+      locale: 'fr',
+    })
     expect(transactionCreateFn).toHaveBeenCalledWith(
       'sso',
       'openid email profile',
@@ -398,11 +405,73 @@ describe('signin process', () => {
     transactionCreateFn.mockRestore()
   })
 
+  it('signWithSso with specific clientId creates standard Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      clientId: 'some-client-id',
+    })
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'sso',
+      'openid email profile',
+      undefined,
+      'http://localhost:1234',
+    )
+    transactionCreateFn.mockRestore()
+  })
+
+  it('signWithSso with specific clientId calls Transaction signUrl fn', async () => {
+    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      clientId: 'some-client-id',
+    })
+    expect(transactionSignUrlFn).toHaveBeenCalledWith(
+      { ...client.config, client_id: 'some-client-id' },
+      expect.anything(),
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
+    )
+    transactionSignUrlFn.mockRestore()
+  })
+
+  it('signWithSso with specific tenantDomain creates standard Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      tenantDomain: 'some-tenant-domain',
+    })
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'sso',
+      'openid email profile',
+      undefined,
+      'http://localhost:1234',
+    )
+    transactionCreateFn.mockRestore()
+  })
+
+  it('signWithSso with specific tenantDomain calls Transaction signUrl fn', async () => {
+    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      tenantDomain: 'some-tenant-domain',
+    })
+    expect(transactionSignUrlFn).toHaveBeenCalledWith(
+      { ...client.config, tenant_domain: 'some-tenant-domain' },
+      expect.anything(),
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
+    )
+    transactionSignUrlFn.mockRestore()
+  })
+
   it('signWithSso call Transaction signUrl fn', async () => {
     const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
     await client.signInWithSSO(idpId)
-    expect(transactionSignUrlFn).toHaveBeenCalled()
+    expect(transactionSignUrlFn).toHaveBeenCalledWith(
+      client.config,
+      expect.anything(),
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
+    )
     transactionSignUrlFn.mockRestore()
   })
 })
