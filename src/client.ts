@@ -191,6 +191,9 @@ class Client {
     var transactionConfig = options?.clientId
       ? { ...this.config, client_id: options.clientId }
       : this.config
+    transactionConfig = options?.tenantDomain
+      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
+      : transactionConfig
     const url = await Transaction.signUrl(transactionConfig, transaction, idpId)
 
     window.location.assign(url.href)
