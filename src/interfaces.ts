@@ -76,4 +76,5 @@ export interface SignOptsAttrs {
 
 export interface SsoSignOptsAttrs extends SignOptsAttrs {
   clientId?: string
+  tenantDomain?: string
 }

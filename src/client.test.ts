@@ -434,6 +434,35 @@ describe('signin process', () => {
     transactionSignUrlFn.mockRestore()
   })
 
+  it('signWithSso with specific tenantDomain creates standard Transaction', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      tenantDomain: 'some-tenant-domain',
+    })
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'sso',
+      'openid email profile',
+      undefined,
+      'http://localhost:1234',
+    )
+    transactionCreateFn.mockRestore()
+  })
+
+  it('signWithSso with specific tenantDomain calls Transaction signUrl fn', async () => {
+    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSO(idpId, {
+      tenantDomain: 'some-tenant-domain',
+    })
+    expect(transactionSignUrlFn).toHaveBeenCalledWith(
+      { ...client.config, tenant_domain: 'some-tenant-domain' },
+      expect.anything(),
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
+    )
+    transactionSignUrlFn.mockRestore()
+  })
+
   it('signWithSso call Transaction signUrl fn', async () => {
     const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
