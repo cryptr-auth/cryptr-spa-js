@@ -73,3 +73,7 @@ export interface SignOptsAttrs {
   redirectUri?: string
   locale?: string
 }
+
+export interface SsoSignOptsAttrs extends SignOptsAttrs {
+  clientId?: string
+}

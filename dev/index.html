@@ -50,6 +50,9 @@
       <a href="#" class="btn btn-secondary" @click="signinFrWithSSO">
         Se connecter en SSO
       </a>
+      <a href="#" class="btn btn-info" @click="secondSigninWithSSO">
+        Signin with same SSO (other app)
+      </a>
     </div>
 
     <div class="container">
@@ -136,6 +139,7 @@
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
   var scopes = 'openid email';
   const idpId = 'first_tenant_dA6vwVmxMjPFpbjU552jgi';
+  const clientId2 = '9d187be3-ba46-4930-a728-672ae0c0d7f0'
 
   var app = new Vue({
     el: '#app',
@@ -157,6 +161,9 @@
       },
       signinFrWithSSO() {
         return this.cryptrClient.signInWithSSO(idpId, {locale: 'fr'});
+      },
+      secondSigninWithSSO() {
+        return this.cryptrClient.signInWithSSO(idpId, {clientId: clientId2});
       },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
