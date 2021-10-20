@@ -6,7 +6,6 @@ import Jwt, {
   validatesExpiration,
   validatesAudience,
   validatesIssuer,
-  validatesSsoUserMetadata,
 } from './jwt'
 import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
@@ -79,35 +78,6 @@ describe('validatesAudience(tokenBody, config)', () => {
 describe('validatesIssuer(tokenBody, config)', () => {
   const VALID_ISS_BODY = { iss: 'http://localhost:4000/t/cryptr' }
   const INVALID_ISS_BODY = { iss: 'http://localhost:4000/t/trade-in' }
-  const VALID_SSO_ISS_BODY = {
-    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
-  }
-  const INVALID_SSO_ISS_BODY_START = {
-    iss: 'http://localhost:3000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
-  }
-  const INVALID_SSO_ISS_BODY_END = {
-    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/sso',
-  }
-
-  it('returns true if valid SSO', () => {
-    expect(validatesIssuer(VALID_SSO_ISS_BODY, ConfigFixture.valid())).toBeTruthy()
-  })
-
-  it('throws error if invalid ISS SSO start', () => {
-    expect(() => {
-      validatesIssuer(INVALID_SSO_ISS_BODY_START, ConfigFixture.valid())
-    }).toThrowError(
-      'Issuer (iss) http://localhost:3000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login of this token claim does not compliant http://localhost:4000/enterprise/:idp_id/login',
-    )
-  })
-
-  it('throws error if invalid ISS SSO end', () => {
-    expect(() => {
-      validatesIssuer(INVALID_SSO_ISS_BODY_END, ConfigFixture.valid())
-    }).toThrowError(
-      'Issuer (iss) http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/sso of this token claim does not compliant http://localhost:4000/enterprise/:idp_id/login',
-    )
-  })
 
   it('returns true if valid', () => {
     expect(validatesIssuer(VALID_ISS_BODY, ConfigFixture.valid())).toBeTruthy()
@@ -118,76 +88,6 @@ describe('validatesIssuer(tokenBody, config)', () => {
     }).toThrow(
       'Issuer (iss) http://localhost:4000/t/trade-in of this token claim does not compliant http://localhost:4000/t/cryptr',
     )
-  })
-})
-
-describe('validatesSsoUserMetadata(tokenBody)', () => {
-  const MAGIC_LINK_TOKEN = { iss: 'http://localhost:4000/t/cryptr' }
-  const SSO_TOKEN_METADATALESS = {
-    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
-  }
-
-  const SSO_TOKEN_EMPTY_METADATA = {
-    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
-    resource_owner_metadata: {},
-  }
-
-  const INVALID_SSO_TOKEN_METADATA = {
-    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
-    resource_owner_metadata: {
-      slug: 'my-slug',
-      email: 'john@doe',
-      saml_subject: '1234',
-    },
-  }
-
-  const VALID_SSO_TOKEN_METADATA = {
-    iss: 'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login',
-    resource_owner_metadata: {
-      uid: '1234',
-      email: 'john@doe',
-      saml_subject: '1234',
-    },
-  }
-
-  it('returns true if not enterprise issuer', () => {
-    expect(() => {
-      validatesSsoUserMetadata(MAGIC_LINK_TOKEN)
-    }).toBeTruthy()
-  })
-
-  it('throws error if enterprise without user metadata', () => {
-    expect(() => {
-      validatesSsoUserMetadata(SSO_TOKEN_METADATALESS)
-    }).toThrowError('resource_owner_metadata must be present keys when SSO enterprise token')
-  })
-
-  it('throws error if not enterprise without empty user metadata', () => {
-    expect(() => {
-      validatesSsoUserMetadata(SSO_TOKEN_EMPTY_METADATA)
-    }).toThrowError(' must include email,uid,saml_subject keys when SSO enterprise token')
-  })
-
-  it('throws error if not enterprise without proper user metadata', () => {
-    expect(() => {
-      validatesSsoUserMetadata(SSO_TOKEN_EMPTY_METADATA)
-    }).toThrowError(
-      "resource_owner_metadata must include email,uid,saml_subject keys when SSO enterprise token, got ''",
-    )
-  })
-
-  it('throws error if not enterprise without not compliant user metadata', () => {
-    expect(() => {
-      validatesSsoUserMetadata(INVALID_SSO_TOKEN_METADATA)
-    }).toThrowError(
-      "resource_owner_metadata must include email,uid,saml_subject keys when SSO enterprise token, got 'slug,email,saml_subject'",
-    )
-  })
-
-  it('returns true if proper user metadata', () => {
-    expect(() => {
-      validatesSsoUserMetadata(VALID_SSO_TOKEN_METADATA)
-    }).toBeTruthy()
   })
 })
 
