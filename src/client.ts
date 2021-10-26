@@ -9,7 +9,7 @@ import {
   DEFAULT_SCOPE,
 } from './constants'
 import { Sign } from './types'
-import Request from './request'
+import Request, { ssoRevokeTokenUrl } from './request'
 import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import Jwt from './jwt'
@@ -368,7 +368,16 @@ class Client {
     }
   }
 
-  async logOut(callback: any, location = window.location) {
+  logOutWithSso(accessToken: string, idpId: string) {
+    let revokeTokenUrl = new URL(ssoRevokeTokenUrl(this.config, idpId))
+    console.log(revokeTokenUrl)
+    revokeTokenUrl.searchParams.append("token", accessToken)
+    revokeTokenUrl.searchParams.append("token_type_hint", "access_token")
+    console.log(revokeTokenUrl)
+    window.location.assign(revokeTokenUrl)
+  }
+
+  async logOut(callback: any, location = window.location, idpId?: string) {
     const accessToken = this.getCurrentAccessToken()
     if (accessToken) {
       Request.revokeAccessToken(this.config, accessToken)
@@ -376,7 +385,9 @@ class Client {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            if (typeof callback === 'function' && callback !== null) {
+            if (idpId) {
+              this.logOutWithSso(accessToken, idpId)
+            } else if (typeof callback === 'function' && callback !== null) {
               callback()
             } else {
               console.info('Default logOut callback : reload page')
