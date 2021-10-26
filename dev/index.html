@@ -53,6 +53,9 @@
       <a href="#" class="btn btn-info" @click="secondSigninWithSSO">
         Signin with same SSO (other app)
       </a>
+      <a href="#" class="btn btn-danger" @click="logOutSso">
+        Force Logout SSO
+      </a>
     </div>
 
     <div class="container">
@@ -185,6 +188,14 @@
           window.location.replace(location.href.split('?')[0])
           // this.isAuthenticated = false
          });
+      },
+      logOutSso() {
+        return this.cryptrClient.logOut(() => {
+          alert('You are now logged out ! Bye :(')
+          window.location.reload()
+          window.location.replace(location.href.split('?')[0])
+          // this.isAuthenticated = false
+         }, window.location, idpId);
       }
     },
     /** Use this lifecycle method to instantiate the SDK client */
