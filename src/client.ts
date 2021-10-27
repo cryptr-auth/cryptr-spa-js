@@ -368,26 +368,16 @@ class Client {
     }
   }
 
-  logOutWithSso(accessToken: string, idpId: string) {
-    let revokeTokenUrl = new URL(ssoRevokeTokenUrl(this.config, idpId))
-    console.log(revokeTokenUrl)
-    revokeTokenUrl.searchParams.append("token", accessToken)
-    revokeTokenUrl.searchParams.append("token_type_hint", "access_token")
-    console.log(revokeTokenUrl)
-    window.location.assign(revokeTokenUrl)
-  }
 
   async logOut(callback: any, location = window.location, idpId?: string) {
     const accessToken = this.getCurrentAccessToken()
     if (accessToken) {
-      Request.revokeAccessToken(this.config, accessToken)
+      Request.revokeAccessToken(this.config, accessToken, idpId)
         .then(async (resp) => {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            if (idpId) {
-              this.logOutWithSso(accessToken, idpId)
-            } else if (typeof callback === 'function' && callback !== null) {
+            if (typeof callback === 'function' && callback !== null) {
               callback()
             } else {
               console.info('Default logOut callback : reload page')
