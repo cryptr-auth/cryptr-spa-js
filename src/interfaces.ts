@@ -78,3 +78,9 @@ export interface SsoSignOptsAttrs extends SignOptsAttrs {
   clientId?: string
   tenantDomain?: string
 }
+
+export interface RevokeParams {
+  token: string
+  token_type_hint: string
+  idp_id?: string
+}
