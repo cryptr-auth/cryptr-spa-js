@@ -39,10 +39,6 @@ export const revokeTokenUrl = (config: Config) => {
   }/oauth/token/revoke`
 }
 
-export const ssoRevokeTokenUrl = (config: Config, idpId: string) => {
-  return `${cryptrBaseUrl(config)}/enterprise/${idpId}/force-logout`
-}
-
 export const tokenUrl = (
   config: Config,
   authorization: Authorization,
