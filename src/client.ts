@@ -368,7 +368,6 @@ class Client {
     }
   }
 
-
   async logOut(callback: any, location = window.location, idpId?: string) {
     const accessToken = this.getCurrentAccessToken()
     if (accessToken) {
