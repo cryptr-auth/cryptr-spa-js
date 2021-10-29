@@ -368,7 +368,7 @@ class Client {
     }
   }
 
-  async logOut(callback: any, location = window.location) {
+  async logOut(callback: any, location = window.location, targetUrl = window.location.href) {
     const accessToken = this.getCurrentAccessToken()
     if (accessToken) {
       Request.revokeAccessToken(this.config, accessToken)
