@@ -9,7 +9,7 @@ import {
   DEFAULT_SCOPE,
 } from './constants'
 import { Sign } from './types'
-import Request from './request'
+import Request, { sloPostRevokeUrl } from './request'
 import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import Jwt from './jwt'
