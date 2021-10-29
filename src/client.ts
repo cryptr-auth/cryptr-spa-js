@@ -376,7 +376,12 @@ class Client {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            if (typeof callback === 'function' && callback !== null) {
+            if (resp.data.slo_coupon !== undefined) {
+              let sloCoupon = resp.data.slo_coupon
+              console.log(sloCoupon)
+              const url = sloPostRevokeUrl(this.config, sloCoupon, targetUrl)
+              window.location.assign(url.href)
+            } else if (typeof callback === 'function' && callback !== null) {
               callback()
             } else {
               console.info('Default logOut callback : reload page')
