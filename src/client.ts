@@ -378,7 +378,6 @@ class Client {
             this.memory.clearTokens()
             if (resp.data.slo_coupon !== undefined) {
               let sloCoupon = resp.data.slo_coupon
-              console.log(sloCoupon)
               const url = sloPostRevokeUrl(this.config, sloCoupon, targetUrl)
               window.location.assign(url.href)
             } else if (typeof callback === 'function' && callback !== null) {
