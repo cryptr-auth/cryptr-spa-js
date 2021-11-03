@@ -9,7 +9,7 @@ import {
   DEFAULT_SCOPE,
 } from './constants'
 import { Sign } from './types'
-import Request from './request'
+import Request, { sloPostRevokeUrl } from './request'
 import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import Jwt from './jwt'
@@ -368,7 +368,7 @@ class Client {
     }
   }
 
-  async logOut(callback: any, location = window.location) {
+  async logOut(callback: any, location = window.location, targetUrl = window.location.href) {
     const accessToken = this.getCurrentAccessToken()
     if (accessToken) {
       Request.revokeAccessToken(this.config, accessToken)
@@ -376,7 +376,11 @@ class Client {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            if (typeof callback === 'function' && callback !== null) {
+            if (resp.data.slo_coupon !== undefined) {
+              let sloCoupon = resp.data.slo_coupon
+              const url = sloPostRevokeUrl(this.config, sloCoupon, targetUrl)
+              window.location.assign(url.href)
+            } else if (typeof callback === 'function' && callback !== null) {
               callback()
             } else {
               console.info('Default logOut callback : reload page')

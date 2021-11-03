@@ -123,8 +123,10 @@
 <script>
 
   var config = {
-    tenant_domain: 'first-tenant',
-    client_id: 'a183dfdf-938e-4dc1-a5cf-16e0910d7f12',
+    // tenant_domain: 'first-tenant',
+    tenant_domain: 'second-tenant',
+    client_id: 'f99fabc8-58e3-4953-ba0d-7ad77fa987ab',
+    // client_id: 'a183dfdf-938e-4dc1-a5cf-16e0910d7f12',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
     cryptr_base_url: 'https://samly.howto:4443',
@@ -138,12 +140,12 @@
   document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
   var scopes = 'openid email';
-  const idpId = 'first_tenant_dA6vwVmxMjPFpbjU552jgi';
+  const idpId = 'second_tenant_5V8L2QucJyEiyrF86fo9cV';
+  // const idpId = 'first_tenant_dA6vwVmxMjPFpbjU552jgi';
   const clientId2 = '9d187be3-ba46-4930-a728-672ae0c0d7f0'
 
   var app = new Vue({
     el: '#app',
-
     data() {
       return {
         message: 'hello world',
