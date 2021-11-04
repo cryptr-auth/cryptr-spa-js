@@ -9,7 +9,7 @@ import {
   DEFAULT_SCOPE,
 } from './constants'
 import { Sign } from './types'
-import Request, { sloPostRevokeUrl } from './request'
+import Request, { sloAfterRevokeTokenUrl } from './request'
 import Storage from './storage'
 import Transaction, { refreshKey } from './transaction'
 import Jwt from './jwt'
@@ -378,7 +378,7 @@ class Client {
             this.memory.clearTokens()
             if (resp.data.slo_code !== undefined) {
               let sloCode = resp.data.slo_code
-              const url = sloPostRevokeUrl(this.config, sloCode, targetUrl)
+              const url = sloAfterRevokeTokenUrl(this.config, sloCode, targetUrl)
               window.location.assign(url.href)
             } else if (typeof callback === 'function' && callback !== null) {
               callback()
