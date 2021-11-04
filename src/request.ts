@@ -34,10 +34,10 @@ export const revokeTokenUrl = (config: Config) => {
   }/oauth/token/revoke`
 }
 
-export const sloPostRevokeUrl = (config: Config, sloCoupon: string, targetUrl: string) => {
+export const sloPostRevokeUrl = (config: Config, sloCode: string, targetUrl: string) => {
   let url: URL = new URL(cryptrBaseUrl(config))
   url.pathname = `/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id}/oauth/token/slo_post_revoke`
-  url.searchParams.append('slo_coupon', sloCoupon)
+  url.searchParams.append('slo_code', sloCode)
   url.searchParams.append('target_url', targetUrl)
   return url
 }

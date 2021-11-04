@@ -376,9 +376,9 @@ class Client {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            if (resp.data.slo_coupon !== undefined) {
-              let sloCoupon = resp.data.slo_coupon
-              const url = sloPostRevokeUrl(this.config, sloCoupon, targetUrl)
+            if (resp.data.slo_code !== undefined) {
+              let sloCode = resp.data.slo_code
+              const url = sloPostRevokeUrl(this.config, sloCode, targetUrl)
               window.location.assign(url.href)
             } else if (typeof callback === 'function' && callback !== null) {
               callback()
