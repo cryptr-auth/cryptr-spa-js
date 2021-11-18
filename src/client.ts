@@ -369,9 +369,9 @@ class Client {
   }
 
   async logOut(callback: any, location = window.location, targetUrl = window.location.href) {
-    const accessToken = this.getCurrentAccessToken()
-    if (accessToken) {
-      Request.revokeAccessToken(this.config, accessToken)
+    const { refresh_token: refreshToken } = this.getRefreshStore()
+    if (refreshToken) {
+      Request.revokeRefreshToken(this.config, refreshToken)
         .then(async (resp) => {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
