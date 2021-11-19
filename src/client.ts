@@ -396,7 +396,7 @@ class Client {
   }
 
   private handleSloCode(resp: AxiosResponse<any>, callback: any, location: Location, targetUrl: string) {
-    if (resp.data.slo_code !== undefined) {
+    if (resp.data && resp.data.slo_code !== undefined) {
       const url = sloAfterRevokeTokenUrl(this.config, resp.data.slo_code, targetUrl)
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
