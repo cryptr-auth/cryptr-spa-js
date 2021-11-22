@@ -65,8 +65,8 @@
     "dev": "concurrently 'yarn build:watch' 'yarn dev:playground' 'yarn dev:library' 'sleep 1 && open http://localhost:8000'",
     "download-extension": "ced gleekbfjekiniecknbkamfmkohkpodhe extensions/ignore-x-frame-headers",
     "unpublish:lib": "yarn unpublish ${npm_package_name}@${npm_package_version} --force",
-    "publish-force": "yarn test && yarn unpublish:lib && yarn build && ls && yarn publish:lib",
-    "publish:lib": "yarn test && yarn prepare && ls && yarn publish"
+    "publish-force": "jest && yarn make-badges && yarn unpublish:lib && yarn build && ls && yarn publish:lib",
+    "publish:lib": "jest && yarn make-badges && yarn prepare && ls && yarn publish"
   },
   "renovate": {
     "extends": [
