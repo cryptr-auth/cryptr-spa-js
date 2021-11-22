@@ -29,7 +29,7 @@
     "eslint-plugin-import": "^2.22.0",
     "faker": "^4.1.0",
     "istanbul-badges-readme": "^1.0.5",
-    "jest": ">=26.0.0",
+    "jest": "^27.3.1",
     "jest-mock-axios": "^4.2.1",
     "light-server": "^2.9.1",
     "msw": "^0.19.5",
