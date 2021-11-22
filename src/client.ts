@@ -1,6 +1,6 @@
 import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import {
   ALLOWED_LOCALES,
   cryptrBaseUrl,
@@ -369,26 +369,14 @@ class Client {
   }
 
   async logOut(callback: any, location = window.location, targetUrl = window.location.href) {
-    const accessToken = this.getCurrentAccessToken()
-    if (accessToken) {
-      Request.revokeAccessToken(this.config, accessToken)
+    const { refresh_token: refreshToken } = this.getRefreshStore()
+    if (refreshToken) {
+      Request.revokeRefreshToken(this.config, refreshToken)
         .then(async (resp) => {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            if (resp.data.slo_code !== undefined) {
-              let sloCode = resp.data.slo_code
-              const url = sloAfterRevokeTokenUrl(this.config, sloCode, targetUrl)
-              window.location.assign(url.href)
-            } else if (typeof callback === 'function' && callback !== null) {
-              callback()
-            } else {
-              console.info('Default logOut callback : reload page')
-              // reload page if no callback defined
-              if (location !== undefined) {
-                location.replace(location.href.split('?')[0])
-              }
-            }
+            this.handleSloCode(resp, callback, location, targetUrl)
           } else {
             console.error('logout response not compliant')
             console.error(resp.data)
@@ -405,6 +393,21 @@ class Client {
       console.log('No accessToken found')
     }
     return true
+  }
+
+  private handleSloCode(resp: AxiosResponse<any>, callback: any, location: Location, targetUrl: string) {
+    if (resp.data && resp.data.slo_code !== undefined) {
+      const url = sloAfterRevokeTokenUrl(this.config, resp.data.slo_code, targetUrl)
+      window.location.assign(url.href)
+    } else if (typeof callback === 'function' && callback !== null) {
+      callback()
+    } else {
+      console.info('Default logOut callback : reload page')
+      // reload page if no callback defined
+      if (location !== undefined) {
+        location.replace(location.href.split('?')[0])
+      }
+    }
   }
 
   decoratedRequest(axiosRequestConfig: any) {
