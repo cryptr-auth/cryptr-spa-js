@@ -22,8 +22,8 @@
     "@typescript-eslint/parser": "^3.7.0",
     "babel-jest": "24.9.0",
     "chrome-ext-downloader": "^1.0.4",
-    "concurrently": "5.0.1",
-    "cypress": "^4.12.1",
+    "concurrently": "^6.4.0",
+    "cypress": "^9.0.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
@@ -38,7 +38,7 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
-    "serve": "11.3.2",
+    "serve": "^13.0.2",
     "terser": "^5.0.0",
     "ts-jest": "^26.1.3",
     "typescript": "^3.9.7",
@@ -64,8 +64,8 @@
     "dev": "concurrently 'yarn build:watch' 'yarn dev:playground' 'yarn dev:library' 'sleep 1 && open http://localhost:8000'",
     "download-extension": "ced gleekbfjekiniecknbkamfmkohkpodhe extensions/ignore-x-frame-headers",
     "unpublish:lib": "yarn unpublish ${npm_package_name}@${npm_package_version} --force",
-    "publish-force": "yarn test && yarn unpublish:lib && yarn build && ls && yarn publish:lib",
-    "publish:lib": "yarn test && yarn prepare && ls && yarn publish"
+    "publish-force": "jest && yarn make-badges && yarn unpublish:lib && yarn build && ls && yarn publish:lib",
+    "publish:lib": "jest && yarn make-badges && yarn prepare && ls && yarn publish"
   },
   "renovate": {
     "extends": [
@@ -88,8 +88,8 @@
     "@sentry/browser": "^5.27.1",
     "@sentry/tracing": "^5.27.1",
     "@types/jwt-decode": "^2.2.1",
-    "axios": "^0.21.1",
     "Base64": "^1.1.0",
+    "axios": "^0.24.0",
     "chrome-ext-downloader": "^1.0.4",
     "crypto-js": "^4.0.0",
     "es-cookie": "^1.3.2",
