@@ -42,7 +42,7 @@ describe('refreshTokens(authorization, transaction)', () => {
   afterAll(() => server.close())
 
   // Valid testing setup with service worker to mock API
-  it('returns access & refresh tokens', async () => {
+  xit('returns access & refresh tokens', async () => {
     Request.refreshTokens(
       ConfigFixture.valid(),
       TransactionFixure.valid(),
