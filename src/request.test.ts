@@ -1,13 +1,12 @@
 import { setupServer } from 'msw/node'
 
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
-import Request from './request'
+import Request, { tokenUrl, revokeTokenUrl } from './request'
 import RequestFixture from './__fixtures__/request.fixture'
 import RequestMock from './__mocks__/request.mock'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
-import { tokenUrl, revokeTokenUrl } from './request'
 
 describe('postAuthorizationCode(authorization, transaction)', () => {
   const handlers = [RequestMock.postAuthorizationCodeResponse()]
