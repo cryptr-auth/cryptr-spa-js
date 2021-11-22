@@ -1,6 +1,7 @@
 {
   "name": "@cryptr/cryptr-spa-js",
   "description": "Cryptr SDK for Single Page Applications using passwordless authentication and/or SSO",
+  "version": "v1.0.4",
   "main": "dist/cryptr-spa-js.cjs.js",
   "module": "dist/cryptr-spa-js.esm.js",
   "browser": "dist/cryptr-spa-js.umd.js",
