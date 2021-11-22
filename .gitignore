@@ -8,3 +8,5 @@ cypress/.DS_Store
 .DS_Store
 coverage/
 .cc_token
+
+audit.json
