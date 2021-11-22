@@ -521,10 +521,10 @@ describe('logOut process', () => {
   let client = new Client(validConfig)
 
   it('should call getCurrentAccessToken', async () => {
-    const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
+    const refreshStoreFn = jest.spyOn(client, 'getRefreshStore')
     await client.logOut(null)
-    expect(accessTokenFn).toHaveBeenCalled()
-    accessTokenFn.mockRestore()
+    expect(refreshStoreFn).toHaveBeenCalled()
+    refreshStoreFn.mockRestore()
   })
 })
 
