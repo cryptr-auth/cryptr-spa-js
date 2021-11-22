@@ -48,11 +48,11 @@ describe('refreshTokens(authorization, transaction)', () => {
       TransactionFixure.valid(),
       TokenFixture.accessToken.valid(),
     )
-      .then((response: any) => {
-        expect(response['data']['access_token']).toMatch(
+      .then((refreshResponse: any) => {
+        expect(refreshResponse['data']['access_token']).toMatch(
           RequestFixture.authorizationCodeResponse.valid().access_token,
         )
-        expect(response['data']['refresh_token']).toMatch(
+        expect(refreshResponse['data']['refresh_token']).toMatch(
           RequestFixture.authorizationCodeResponse.valid().refresh_token,
         )
       })
