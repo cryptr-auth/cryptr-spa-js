@@ -131,15 +131,18 @@
 
   var config = {
     // tenant_domain: 'first-tenant',
-    tenant_domain: 'shark-academy',
+    // tenant_domain: 'shark-academy',
+    tenant_domain: 'thibaud-organization',
     // tenant_domain: 'imperium-coffee',
-    client_id: '1900f4bd-77eb-4f57-9128-2bb83d738186',
+    // client_id: '1900f4bd-77eb-4f57-9128-2bb83d738186',
+    client_id: 'c1621ad3-25b8-4424-bc69-38bc7ae2668b',
     // client_id: '24cdab24-d053-4791-aec3-205324606db4',
     // client_id: 'a183dfdf-938e-4dc1-a5cf-16e0910d7f12',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
-    cryptr_base_url: 'https://samly.howto:4443',
+    // cryptr_base_url: 'https://samly.howto:4443',
     // cryptr_base_url: 'http://localhost:4000',
+    cryptr_base_url: 'https://cleeck-umbrella-staging-eu.onrender.com',
     default_locale: 'en',
     telemetry: false
   };
@@ -157,6 +160,7 @@
   const idpId4 = 'shark_academy_jvSnj95arNrtLavgBGMkqm'; // GOOGLE
   const idpId5 = 'shark_academy_bWoMxSFWKhQt6WAm4AucGk'; // OKTA
   const idpId6 = 'shark_academy_j3QHgzVTpDwzN6BPpoBXCH'; // PING FEDERATE
+  const idpId7 = 'thibaud_organization_YtnfzweuKYJUGrPTDHqiiG'; // OKTA THIBS
   // const idpId = 'shark_academy_DxnMsFgChXHC2EjnCqvegh';
   // const idpId = 'second_tenant_majJm62feP852Zq49sdbaZ';
   // const idpId = 'second_tenant_t89SvM5YQg7R5LhZvSgHMc';
@@ -178,7 +182,7 @@
     methods: {
       /** Authenticates the user using the redirect method */
       signinWithSSO() {
-        return this.cryptrClient.signInWithSSO(idpId6);
+        return this.cryptrClient.signInWithSSO(idpId7);
       },
       signinFrWithSSO() {
         return this.cryptrClient.signInWithSSO(idpId, {locale: 'fr'});
