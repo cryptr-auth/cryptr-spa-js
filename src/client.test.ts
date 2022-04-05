@@ -229,10 +229,10 @@ describe('handlerefresh token', () => {
 describe('valid client manage location', () => {
   let url = 'http://localhost:4200?state=xeab&code=toto'
   let parsedUrl = new URL(url)
-  // let client = new Client(validConfig)
+  let client = new Client(validConfig)
 
-  xit('should extract right parameters', async () => {
-    // expect(await client.canHandleAuthentication(url)).toBe(true)
+  it('should extract right parameters', async () => {
+    expect(await client.canHandleAuthentication(url)).toBe(true)
   })
 
   it('should extract right state', () => {
@@ -253,7 +253,9 @@ describe('valid client handling redirect callback', () => {
     try {
       await client.handleRedirectCallback()
     } catch (error) {
-      expect(error.message).toEqual('Can not parse authorization params')
+      if (error instanceof Error) {
+        expect(error.message).toEqual('Can not parse authorization params')
+      }
     }
   })
 })

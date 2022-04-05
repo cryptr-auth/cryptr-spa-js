@@ -270,12 +270,8 @@ class Client {
   }
 
   canRefresh(refreshStore: Interface.RefreshStore): boolean {
-    let {
-      access_token_expiration_date,
-      refresh_leeway,
-      refresh_retry,
-      refresh_token,
-    } = refreshStore
+    let { access_token_expiration_date, refresh_leeway, refresh_retry, refresh_token } =
+      refreshStore
     let tryToRefreshDateStart = new Date(access_token_expiration_date)
     const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
     const retry = refresh_retry || DEFAULT_REFRESH_RETRY
@@ -395,7 +391,12 @@ class Client {
     return true
   }
 
-  private handleSloCode(resp: AxiosResponse<any>, callback: any, location: Location, targetUrl: string) {
+  private handleSloCode(
+    resp: AxiosResponse<any>,
+    callback: any,
+    location: Location,
+    targetUrl: string,
+  ) {
     if (resp.data && resp.data.slo_code !== undefined) {
       const url = sloAfterRevokeTokenUrl(this.config, resp.data.slo_code, targetUrl)
       window.location.assign(url.href)

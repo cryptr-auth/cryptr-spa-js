@@ -15,6 +15,7 @@ import Request from './request'
 import Storage from './storage'
 import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
+import axios from 'axios'
 
 const newTransaction = (
   signType: Sign,
@@ -277,11 +278,13 @@ const Transaction: any = {
           })
         } catch (error) {
           Sentry.captureException(error)
-          errors.push({
-            error: 'transaction parse tokens',
-            error_description: `${error}`,
-            http_response: error.response,
-          })
+          if (axios.isAxiosError(error)) {
+            errors.push({
+              error: 'transaction parse tokens',
+              error_description: `${error}`,
+              http_response: error.response,
+            })
+          }
           accessResult = {
             ...accessResult,
             valid: false,
