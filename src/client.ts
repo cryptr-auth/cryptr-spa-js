@@ -270,12 +270,8 @@ class Client {
   }
 
   canRefresh(refreshStore: Interface.RefreshStore): boolean {
-    let {
-      access_token_expiration_date,
-      refresh_leeway,
-      refresh_retry,
-      refresh_token,
-    } = refreshStore
+    let { access_token_expiration_date, refresh_leeway, refresh_retry, refresh_token } =
+      refreshStore
     let tryToRefreshDateStart = new Date(access_token_expiration_date)
     const leeway = refresh_leeway || DEFAULT_LEEWAY_IN_SECONDS
     const retry = refresh_retry || DEFAULT_REFRESH_RETRY
