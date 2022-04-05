@@ -411,7 +411,9 @@ class Client {
     }
   }
 
-  decoratedRequest(axiosRequestConfig: AxiosRequestConfig | null): AxiosRequestConfig | AxiosPromise | null {
+  decoratedRequest(
+    axiosRequestConfig: AxiosRequestConfig | null,
+  ): AxiosRequestConfig | AxiosPromise | null {
     return Request.decoratedRequest(this.getCurrentAccessToken(), axiosRequestConfig)
   }
 }
