@@ -253,7 +253,9 @@ describe('valid client handling redirect callback', () => {
     try {
       await client.handleRedirectCallback()
     } catch (error) {
-      expect(error.message).toEqual('Can not parse authorization params')
+      if (error instanceof Error) {
+        expect(error.message).toEqual('Can not parse authorization params')
+      }
     }
   })
 })
