@@ -9,5 +9,7 @@ module.exports = {
   transform: {
     [`^.+\\.(${extensions.join('|')})$`]: 'ts-jest',
   },
+  verbose: true,
+  collectCoverage: true,
   coverageReporters: ['json-summary', 'html'],
 }
