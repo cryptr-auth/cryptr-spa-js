@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosPromise, AxiosRequestConfig } from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
 
@@ -91,7 +91,10 @@ const Request = {
     return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
   },
 
-  decoratedRequest: (accessToken: any, axiosRequestConfig: any) => {
+  decoratedRequest: (
+    accessToken: any,
+    axiosRequestConfig: AxiosRequestConfig | null,
+  ): AxiosRequestConfig | AxiosPromise | null => {
     if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
       return axiosRequestConfig
     }
