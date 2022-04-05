@@ -1,6 +1,6 @@
 import * as Interface from './interfaces'
 import * as Sentry from '@sentry/browser'
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
 import {
   ALLOWED_LOCALES,
   cryptrBaseUrl,
@@ -411,7 +411,7 @@ class Client {
     }
   }
 
-  decoratedRequest(axiosRequestConfig: any) {
+  decoratedRequest(axiosRequestConfig: AxiosRequestConfig | null): AxiosRequestConfig | AxiosPromise | null {
     return Request.decoratedRequest(this.getCurrentAccessToken(), axiosRequestConfig)
   }
 }

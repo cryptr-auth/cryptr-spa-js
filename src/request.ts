@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosPromise, AxiosRequestConfig } from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
 
@@ -29,9 +29,8 @@ export const refreshTokensParams = (
 })
 
 export const revokeTokenUrl = (config: Config) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/oauth/token/revoke`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
+    }/oauth/token/revoke`
 }
 
 export const sloAfterRevokeTokenUrl = (config: Config, sloCode: string, targetUrl: string) => {
@@ -47,13 +46,11 @@ export const tokenUrl = (
   authorization: Authorization,
   transaction: TransactionInterface,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
   }/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
 
 export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id
   }/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
@@ -91,7 +88,10 @@ const Request = {
     return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
   },
 
-  decoratedRequest: (accessToken: any, axiosRequestConfig: any) => {
+  decoratedRequest: (
+    accessToken: any,
+    axiosRequestConfig: AxiosRequestConfig | null,
+  ): AxiosRequestConfig | AxiosPromise | null => {
     if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
       return axiosRequestConfig
     }
