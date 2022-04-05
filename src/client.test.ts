@@ -229,10 +229,10 @@ describe('handlerefresh token', () => {
 describe('valid client manage location', () => {
   let url = 'http://localhost:4200?state=xeab&code=toto'
   let parsedUrl = new URL(url)
-  // let client = new Client(validConfig)
+  let client = new Client(validConfig)
 
-  xit('should extract right parameters', async () => {
-    // expect(await client.canHandleAuthentication(url)).toBe(true)
+  it('should extract right parameters', async () => {
+    expect(await client.canHandleAuthentication(url)).toBe(true)
   })
 
   it('should extract right state', () => {
