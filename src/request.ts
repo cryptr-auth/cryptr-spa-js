@@ -46,6 +46,13 @@ export const tokenUrl = (
   config: Config,
   authorization: Authorization,
   transaction: TransactionInterface,
+  organization_domain?: string,
+) => {
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
+    }/token`
+}
+
 ) =>
   `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
     config.client_id
@@ -64,8 +71,9 @@ const Request = {
     config: Config,
     authorization: Authorization,
     transaction: TransactionInterface,
+    organization_domain?: string,
   ) => {
-    let url = tokenUrl(config, authorization, transaction)
+    let url = tokenUrl(config, authorization, transaction, organization_domain)
     return axios.post(url, tokenParams(config, authorization, transaction))
   },
 

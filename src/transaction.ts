@@ -83,12 +83,12 @@ const validateAndFormatAuthResp = (
   accessToken?: string,
   idToken?: string,
   refreshToken?: string,
+  organization_domain?: string,
 ) => {
   let valid = true
   let errors: I.TokenError[] = []
-
-  const validIdToken = Jwt.validatesIdToken(idToken || '', config)
-  const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config)
+  const validIdToken = Jwt.validatesIdToken(idToken || '', config, organization_domain)
+  const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config, organization_domain)
 
   if (!validAccessToken) {
     valid = false
@@ -99,13 +99,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -169,8 +169,7 @@ const parseTokensAndStoreRefresh = (
   const accessToken: string = responseData['access_token']
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
-
-  if (Jwt.validatesAccessToken(accessToken, config)) {
+  if (Jwt.validatesAccessToken(accessToken, config, opts.organization_domain)) {
     if (refreshToken) {
       const refreshTokenWrapper = getRefreshParameters(responseData)
       let cookieExpirationDate = new Date()
@@ -198,7 +197,13 @@ const parseTokensAndStoreRefresh = (
   }
 
   return {
-    ...validateAndFormatAuthResp(config, accessToken, idToken, refreshToken),
+    ...validateAndFormatAuthResp(
+      config,
+      accessToken,
+      idToken,
+      refreshToken,
+      opts.organization_domain,
+    ),
     ...getRefreshParameters(responseData),
   }
 }
@@ -260,6 +265,7 @@ const Transaction: any = {
     config: I.Config,
     authorization: I.Authorization,
     transaction: I.Transaction,
+    organization_domain?: string,
   ): Promise<I.TokenResult> => {
     const errors: I.TokenError[] = []
     let accessResult: I.TokenResult = {
@@ -269,12 +275,13 @@ const Transaction: any = {
       refreshToken: '',
       errors: errors,
     }
-    await Request.postAuthorizationCode(config, authorization, transaction)
+    await Request.postAuthorizationCode(config, authorization, transaction, organization_domain)
       .then((response: any) => {
         try {
           validatesNonce(transaction, response['data']['nonce'])
           accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
             withPKCE: true,
+            organization_domain: organization_domain,
           })
         } catch (error) {
           Sentry.captureException(error)
