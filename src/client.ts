@@ -18,41 +18,7 @@ import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr
 import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
-
-const locationSearch = (): string => {
-  if (window != undefined && window.location !== undefined) {
-    return window.location.search
-  } else {
-    /* istanbul ignore next */
-    return ''
-  }
-}
-
-const parseRedirectParams = (): {
-  state: string
-  authorization: Interface.Authorization
-  organization_domain?: string
-} => {
-  const urlParams = new URLSearchParams(locationSearch())
-
-  if (urlParams.get('state') && urlParams.get('authorization_id') && urlParams.get('code')) {
-    let params = {
-      state: urlParams.get('state') || '',
-      authorization: {
-        id: urlParams.get('authorization_id') || '',
-        code: urlParams.get('code') || '',
-      },
-    }
-    const org_domain = urlParams.get('organization_domain')
-    if (org_domain != null) {
-      return { ...params, organization_domain: org_domain }
-    } else {
-      return params
-    }
-  } else {
-    throw new Error('Can not parse authorization params')
-  }
-}
+import { parseRedirectParams } from './utils'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/

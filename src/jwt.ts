@@ -169,11 +169,7 @@ const Jwt = {
 
     return true
   },
-  validatesIdToken: (
-    idToken: string,
-    config: Config,
-    organization_domain?: string,
-  ): boolean => {
+  validatesIdToken: (idToken: string, config: Config, organization_domain?: string): boolean => {
     const jwtBody = Jwt.body(idToken)
     validatesHeader(idToken)
     validatesJwtBody(jwtBody, config, organization_domain)

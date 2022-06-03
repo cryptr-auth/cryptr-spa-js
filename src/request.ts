@@ -29,8 +29,9 @@ export const refreshTokensParams = (
 })
 
 export const revokeTokenUrl = (config: Config, organization_domain?: string) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/oauth/token/revoke`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
+    organization_domain || config.tenant_domain
+  }/${config.client_id}/oauth/token/revoke`
 }
 
 export const sloAfterRevokeTokenUrl = (config: Config, sloCode: string, targetUrl: string) => {
@@ -47,9 +48,11 @@ export const tokenUrl = (
   transaction: TransactionInterface,
   organization_domain?: string,
 ) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
-    }/token`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
+    organization_domain || config.tenant_domain
+  }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${
+    authorization.id
+  }/token`
 }
 
 export const refreshTokensUrl = (
@@ -57,7 +60,8 @@ export const refreshTokensUrl = (
   transaction: TransactionInterface,
   organization_domain?: string,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
+    organization_domain || config.tenant_domain
   }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
