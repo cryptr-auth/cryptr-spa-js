@@ -348,12 +348,13 @@ const Transaction: any = {
     }
 
     const transaction = Transaction.create(Sign.Refresh, '')
-
+    let organization_domain = refresh_token.includes('.') ? refresh_token.split('.')[0] : undefined
     // @ts-ignore
-    await Request.refreshTokens(config, transaction, refresh_token)
+    await Request.refreshTokens(config, transaction, refresh_token, organization_domain)
       .then((response: any) => {
         refreshResult = parseTokensAndStoreRefresh(config, response, transaction, {
           withPKCE: false,
+          organization_domain: organization_domain,
         })
       })
       .catch((error) => {
@@ -388,6 +389,34 @@ const Transaction: any = {
       url.searchParams.append('state', transaction.pkce.state)
     }
 
+    url.searchParams.append('scope', transaction.scope)
+    url.searchParams.append('client_id', config.client_id)
+    url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
+    url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
+    url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
+    return url
+  },
+  gatewaySignUrl: (
+    config: I.Config,
+    transaction: I.Transaction,
+    idpId?: string | string[],
+  ): void | URL => {
+    let url: URL = new URL(cryptrBaseUrl(config))
+
+    // url.pathname = url.pathname.concat(`/t/${config.tenant_domain}`).replace('//', '/')
+
+    if (idpId !== undefined) {
+      if (typeof idpId == 'string') {
+        url.searchParams.append('idp_id', idpId)
+      } else if (idpId) {
+        idpId.map((idp_id) => {
+          url.searchParams.append('idp_ids[]', idp_id)
+        })
+      }
+    }
+    const locale = transaction.locale || config.default_locale || 'en'
+    url.searchParams.append('locale', locale)
+    url.searchParams.append('client_state', transaction.pkce.state)
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
     url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
