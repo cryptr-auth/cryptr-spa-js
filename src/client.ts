@@ -289,6 +289,7 @@ class Client {
       this.config,
       redirectParams.authorization,
       transaction,
+      redirectParams.organization_domain,
     )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
