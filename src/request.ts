@@ -53,15 +53,13 @@ export const tokenUrl = (
     }/token`
 }
 
+export const refreshTokensUrl = (
+  config: Config,
+  transaction: TransactionInterface,
+  organization_domain?: string,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
-
-export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/${transaction.pkce.state}/oauth/client/token`
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+  }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
   // POST /t/:tenant_domain/oauth/token
@@ -94,8 +92,9 @@ const Request = {
     config: Config,
     transaction: TransactionInterface,
     refresh_token: string,
+    organization_domain?: string,
   ) => {
-    let url = refreshTokensUrl(config, transaction)
+    let url = refreshTokensUrl(config, transaction, organization_domain)
     return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
   },
 
