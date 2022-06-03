@@ -209,6 +209,23 @@ class Client {
     window.location.assign(url.href)
   }
 
+  async signInWithSSOGateway(idpId?: string | string[], options?: SsoSignOptsAttrs) {
+    const transaction = await Transaction.create(
+      Sign.Sso,
+      this.finalScope(options?.scope || DEFAULT_SCOPE),
+      options?.locale,
+      options?.redirectUri || this.config.default_redirect_uri,
+    )
+    var transactionConfig = options?.clientId
+      ? { ...this.config, client_id: options.clientId }
+      : this.config
+    transactionConfig = options?.tenantDomain
+      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
+      : transactionConfig
+    const url = await Transaction.gatewaySignUrl(transactionConfig, transaction, idpId)
+    window.location.assign(url.href)
+  }
+
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
