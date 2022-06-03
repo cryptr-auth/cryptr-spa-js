@@ -28,10 +28,9 @@ export const refreshTokensParams = (
   refresh_token: refresh_token,
 })
 
-export const revokeTokenUrl = (config: Config) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/oauth/token/revoke`
+export const revokeTokenUrl = (config: Config, organization_domain?: string) => {
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+    }/${config.client_id}/oauth/token/revoke`
 }
 
 export const sloAfterRevokeTokenUrl = (config: Config, sloCode: string, targetUrl: string) => {
@@ -83,7 +82,8 @@ const Request = {
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
-    let url = revokeTokenUrl(client_config)
+    let organization_domain = refreshToken.includes('.') ? refreshToken.split('.')[0] : undefined
+    let url = revokeTokenUrl(client_config, organization_domain)
     return axios.post(url, { token: refreshToken, token_type_hint: 'refresh_token' })
   },
 
