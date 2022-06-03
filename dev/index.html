@@ -122,6 +122,21 @@
           </div>
         </div>
       </div>
+      <div class="card mb-4 box-shadow">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Gateway</h4>
+          <p>You don't known what's is user's IDP, use our gateway</p>
+          <a @click="globalGateway" class="btn btn-outline mr-3" href="#">
+            Gateway Globale
+          </a>
+          <a @click="gatewayIdp" class="btn btn-outline mr-3" href="#">
+            Gateway with one IDP
+          </a>
+          <a @click="gatewayIdps" class="btn btn-outline mr-3" href="#">
+            Gateway with multiple idps
+          </a>
+        </div>
+      </div>
     </div>
 
 </body>
@@ -130,8 +145,8 @@
 <script>
 
   var config = {
-    // tenant_domain: 'first-tenant',
-    tenant_domain: 'shark-academy',
+    tenant_domain: 'cryptr',
+    // tenant_domain: 'shark-academy',
     // tenant_domain: 'imperium-coffee',
     client_id: '1900f4bd-77eb-4f57-9128-2bb83d738186',
     // client_id: '24cdab24-d053-4791-aec3-205324606db4',
@@ -199,7 +214,7 @@
         return this.cryptrClient.signUpWithRedirect();
       },
       refreshTokens() {
-        return this.cryptrClient.refreshTokens();
+        return this.cryptrClient.handleRefreshTokens();
       },
       openAccount() {
         this.cryptrClient.userAccountAccess().then((data) => {
@@ -210,6 +225,15 @@
             window.open(data.data.data.url, '_blank', popupParams)
           }
         })
+      },
+      globalGateway() {
+        this.cryptrClient.signInWithSSOGateway();
+      },
+      gatewayIdp() {
+        this.cryptrClient.signInWithSSOGateway('shark_academy_ZTVzzpS5JazVgR4k9iomkS');
+      },
+      gatewayIdps() {
+        this.cryptrClient.signInWithSSOGateway(['shark_academy_ZTVzzpS5JazVgR4k9iomkS', 'shark_academy_bWoMxSFWKhQt6WAm4AucGk']);
       },
       /** Logs out the current user**/
       logOut() {
