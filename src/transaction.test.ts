@@ -355,7 +355,7 @@ describe('Transaction.getTokens/3', () => {
       validConfig,
       authorization,
       transaction,
-      undefined
+      undefined,
     )
     requestPostAuthorizationCodeFn.mockRestore()
   })
@@ -371,8 +371,37 @@ describe('Transaction.getTokens/4', () => {
       validConfig,
       authorization,
       transaction,
-      'mark_ki_verfge54'
+      'mark_ki_verfge54',
     )
     requestPostAuthorizationCodeFn.mockRestore()
+  })
+})
+
+describe('Transaction.getTokensByRefresh/4', () => {
+  it('should call Request.refreshTokens without organization_domain if standard refresh', async () => {
+    const requestrefreshTokensFn = jest.spyOn(Request, 'refreshTokens')
+    await Transaction.getTokensByRefresh(validConfig, 'Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ')
+    expect(requestrefreshTokensFn).toHaveBeenCalledWith(
+      validConfig,
+      expect.anything(),
+      'Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ',
+      undefined,
+    )
+    requestrefreshTokensFn.mockRestore()
+  })
+
+  it('should call Request.refreshTokens with organization_domain if domain refresh', async () => {
+    const requestrefreshTokensFn = jest.spyOn(Request, 'refreshTokens')
+    await Transaction.getTokensByRefresh(
+      validConfig,
+      'my-domain.Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ',
+    )
+    expect(requestrefreshTokensFn).toHaveBeenCalledWith(
+      validConfig,
+      expect.anything(),
+      'my-domain.Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ',
+      'my-domain',
+    )
+    requestrefreshTokensFn.mockRestore()
   })
 })
