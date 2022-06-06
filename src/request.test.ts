@@ -72,7 +72,12 @@ describe('Request.refreshTokens/$', () => {
     const refreshTokensUrlFn = jest.spyOn(RequestAPI, 'refreshTokensUrl')
     const config = ConfigFixture.valid()
     const transaction = TransactionFixure.valid()
-    Request.refreshTokens(config, transaction, 'misapret.7uIjfSbu1B-kfHLBRe0h6wadacQL4osWpiTIj0siy3k', 'misapret')
+    Request.refreshTokens(
+      config,
+      transaction,
+      'misapret.7uIjfSbu1B-kfHLBRe0h6wadacQL4osWpiTIj0siy3k',
+      'misapret',
+    )
     expect(refreshTokensUrlFn).toHaveBeenCalledWith(config, transaction, 'misapret')
     refreshTokensUrlFn.mockRestore()
   })
@@ -190,7 +195,6 @@ describe('Request.revokeTokenUrl', () => {
 })
 
 describe('revoke tokens', () => {
-
   //  TODO : reset working stuff
   xit('returns proper data from revoke refresh', async () => {
     Request.revokeRefreshToken(
