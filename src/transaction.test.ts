@@ -238,3 +238,107 @@ describe('Transaction', () => {
     })
   })
 })
+
+const validConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  cryptr_base_url: 'http://localhost:4000',
+  default_locale: 'fr',
+}
+
+describe('Transaction.gatewaySignUrl/3', () => {
+  it('should generate simple gateway url from config and transaction', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl(validConfig, transaction)
+    expect(url.href).toMatch('http://localhost:4000/?locale=fr')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate idp gateway url if provided', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, 'mac_ally_1245')
+    expect(url.href).toMatch('http://localhost:4000/?idp_id=mac_ally_1245&locale=fr')
+    expect(url.searchParams.get('idp_id')).toEqual('mac_ally_1245')
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate idps gateway url if multiple provided', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, [
+      'mac_ally_1245',
+      'oshida_aqsm07',
+    ])
+    expect(url.href).toMatch(
+      'http://localhost:4000/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=fr',
+    )
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate proper gateway url if english transaction', () => {
+    const transaction = { ...TransactionFixure.validWithType(Sign.Sso), locale: 'en' }
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, [
+      'mac_ally_1245',
+      'oshida_aqsm07',
+    ])
+    expect(url.href).toMatch(
+      'http://localhost:4000/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=en',
+    )
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
+    expect(url.searchParams.get('locale')).toEqual('en')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate proper gateway url if specific scope transaction', () => {
+    const transaction = {
+      ...TransactionFixure.validWithType(Sign.Sso),
+      scope: 'openid email profile read:billings',
+    }
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, [
+      'mac_ally_1245',
+      'oshida_aqsm07',
+    ])
+    expect(url.href).toMatch(
+      'http://localhost:4000/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=fr',
+    )
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email profile read:billings')
+  })
+})
