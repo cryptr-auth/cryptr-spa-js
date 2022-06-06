@@ -10,6 +10,8 @@ import TransactionFixure from './__fixtures__/transaction.fixture'
 // import RequestFixture from './__fixtures__/request.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import { Config } from './interfaces'
+import Request from './request'
+import AuthorizationFixture from './__fixtures__/authorization.fixture'
 jest.mock('es-cookie')
 
 // const VALID_CONFIG = ConfigFixture.valid()
@@ -340,5 +342,37 @@ describe('Transaction.gatewaySignUrl/3', () => {
     expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
     expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
     expect(url.searchParams.get('scope')).toEqual('openid email profile read:billings')
+  })
+})
+
+describe('Transaction.getTokens/3', () => {
+  it('should call Request.postAuthorizationCode without organization_domain', async () => {
+    const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
+    const authorization = AuthorizationFixture.valid()
+    const transaction = TransactionFixure.valid()
+    await Transaction.getTokens(validConfig, authorization, transaction)
+    expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
+      validConfig,
+      authorization,
+      transaction,
+      undefined
+    )
+    requestPostAuthorizationCodeFn.mockRestore()
+  })
+})
+
+describe('Transaction.getTokens/4', () => {
+  it('should call Request.postAuthorizationCode with organization_domain', async () => {
+    const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
+    const authorization = AuthorizationFixture.valid()
+    const transaction = TransactionFixure.valid()
+    await Transaction.getTokens(validConfig, authorization, transaction, 'mark_ki_verfge54')
+    expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
+      validConfig,
+      authorization,
+      transaction,
+      'mark_ki_verfge54'
+    )
+    requestPostAuthorizationCodeFn.mockRestore()
   })
 })
