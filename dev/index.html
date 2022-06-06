@@ -127,7 +127,7 @@
           <h4 class="my-0 font-weight-normal">Gateway</h4>
           <p>You don't known what's is user's IDP, use our gateway</p>
           <a @click="globalGateway" class="btn btn-outline mr-3" href="#">
-            Gateway Globale
+            Global Gateway
           </a>
           <a @click="gatewayIdp" class="btn btn-outline mr-3" href="#">
             Gateway with one IDP
@@ -233,7 +233,7 @@
         this.cryptrClient.signInWithSSOGateway('shark_academy_ZTVzzpS5JazVgR4k9iomkS');
       },
       gatewayIdps() {
-        this.cryptrClient.signInWithSSOGateway(['shark_academy_ZTVzzpS5JazVgR4k9iomkS', 'shark_academy_bWoMxSFWKhQt6WAm4AucGk']);
+        this.cryptrClient.signInWithSSOGateway(['shark_academy_ZTVzzpS5JazVgR4k9iomkS', 'blockpulse_CdsZzHNBT7ocqKeSdjWksW']);
       },
       /** Logs out the current user**/
       logOut() {
