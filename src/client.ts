@@ -18,7 +18,7 @@ import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr
 import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
-import { parseRedirectParams } from './utils'
+import { locationSearch, parseRedirectParams } from './utils'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/

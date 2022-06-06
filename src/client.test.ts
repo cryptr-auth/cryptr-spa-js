@@ -558,7 +558,6 @@ describe('signInWithGateway', () => {
 
   it('should call transaction gatewaySignUrl without idp', async () => {
     const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
-    // const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
     await client.signInWithSSOGateway()
     expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(
       client.config,
