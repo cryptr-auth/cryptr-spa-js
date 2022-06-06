@@ -241,7 +241,7 @@ describe('revoke tokens', () => {
 
 describe('Request.sloAfterRevokeTokenUrl/3', () => {
   let validConfig = ConfigFixture.valid()
-  it('should retirns proper url', () => {
+  it('should returns proper url', () => {
     let sloUrl = RequestAPI.sloAfterRevokeTokenUrl(
       validConfig,
       'azerty',
@@ -249,6 +249,20 @@ describe('Request.sloAfterRevokeTokenUrl/3', () => {
     )
     expect(sloUrl.href).toMatch(
       `http://localhost:4000/api/v1/tenants/cryptr/${validConfig.client_id}/oauth/token/slo-after-revoke-token`,
+    )
+    expect(sloUrl.searchParams.get('slo_code')).toEqual('azerty')
+    expect(sloUrl.searchParams.get('target_url')).toEqual('http://localhost:8000/')
+  })
+
+  it('should returns url using organization_domain if present in refresh', () => {
+    let sloUrl = RequestAPI.sloAfterRevokeTokenUrl(
+      validConfig,
+      'azerty',
+      validConfig.default_redirect_uri,
+      'shark-academy.some_refresh_content',
+    )
+    expect(sloUrl.href).toMatch(
+      `http://localhost:4000/api/v1/tenants/shark-academy/${validConfig.client_id}/oauth/token/slo-after-revoke-token`,
     )
     expect(sloUrl.searchParams.get('slo_code')).toEqual('azerty')
     expect(sloUrl.searchParams.get('target_url')).toEqual('http://localhost:8000/')

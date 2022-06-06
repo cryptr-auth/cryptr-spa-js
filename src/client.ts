@@ -390,7 +390,12 @@ class Client {
     targetUrl: string,
   ) {
     if (resp.data && resp.data.slo_code !== undefined) {
-      const url = sloAfterRevokeTokenUrl(this.config, resp.data.slo_code, targetUrl)
+      const url = sloAfterRevokeTokenUrl(
+        this.config,
+        resp.data.slo_code,
+        targetUrl,
+        resp.data.refresh_token,
+      )
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
       callback()

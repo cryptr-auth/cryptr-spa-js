@@ -34,9 +34,18 @@ export const revokeTokenUrl = (config: Config, organization_domain?: string) => 
   }/${config.client_id}/oauth/token/revoke`
 }
 
-export const sloAfterRevokeTokenUrl = (config: Config, sloCode: string, targetUrl: string) => {
+export const sloAfterRevokeTokenUrl = (
+  config: Config,
+  sloCode: string,
+  targetUrl: string,
+  refreshToken?: string,
+) => {
+  let organization_domain =
+    refreshToken && refreshToken.includes('.') ? refreshToken.split('.')[0] : undefined
   let url: URL = new URL(cryptrBaseUrl(config))
-  url.pathname = `/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id}/oauth/token/slo-after-revoke-token`
+  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${
+    config.client_id
+  }/oauth/token/slo-after-revoke-token`
   url.searchParams.append('slo_code', sloCode)
   url.searchParams.append('target_url', targetUrl)
   return url
