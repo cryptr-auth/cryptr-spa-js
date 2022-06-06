@@ -1,37 +1,14 @@
-// import axios from 'axios'
-// import { rest } from 'msw'
-// import { setupServer } from 'msw/node'
-
-import Transaction, { parseErrors } from './transaction'
+import Transaction, { parseErrors, validatesNonce } from './transaction'
 import { Sign } from './types'
 import TransactionFixure from './__fixtures__/transaction.fixture'
-// import { tokenUrl } from './request'
-// import AuthorizationFixture from './__fixtures__/authorization.fixture'
-// import RequestFixture from './__fixtures__/request.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import { Config } from './interfaces'
 import Request from './request'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
+import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
+
 jest.mock('es-cookie')
-
-// const VALID_CONFIG = ConfigFixture.valid()
-// const VALID_AUTHORIZATION = AuthorizationFixture.valid()
-// const VALID_TRANSACTION = TransactionFixure.valid()
-
 describe('Transaction', () => {
-  // const API_ENDPOINT = tokenUrl(VALID_CONFIG, VALID_AUTHORIZATION, VALID_TRANSACTION)
-
-  // const handlers = [
-  //   rest.post(API_ENDPOINT, (_req: any, res: any, ctx: any) => {
-  //     return res(ctx.status(200), ctx.json(RequestFixture.authorizationCodeResponse.valid()))
-  //   }),
-  // ]
-
-  // const server = setupServer(...handlers)
-
-  // beforeAll(() => server.listen())
-  // afterAll(() => server.close())
-
   it('key(state) returns key', () => {
     expect(Transaction.key(TransactionFixure.valid().pkce.state)).toMatchSnapshot()
   })
@@ -403,5 +380,52 @@ describe('Transaction.getTokensByRefresh/4', () => {
       'my-domain',
     )
     requestrefreshTokensFn.mockRestore()
+  })
+
+  it('should returns unvalid response if no refresh', async () => {
+    let resp = await Transaction.getTokensByRefresh(validConfig, '')
+    expect(resp).toEqual({
+      valid: false,
+      accessToken: '',
+      idToken: '',
+      refreshToken: '',
+      errors: [],
+    })
+  })
+})
+
+describe('Transaction.createFromState', () => {
+  it('should test redirect uri if defined', () => {
+    const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
+    Transaction.createFromState(
+      'some_state',
+      Sign.In,
+      'openid email',
+      'fr',
+      'http://localhost:3200',
+    )
+    expect(validRedirectUriFn).toHaveBeenCalledTimes(2)
+    validRedirectUriFn.mockRestore()
+  })
+})
+
+describe('Transaction.validatesNonce/2', () => {
+  it('should returns true if same nonce', () => {
+    const transaction = TransactionFixure.valid()
+    expect(validatesNonce(transaction, transaction.nonce!)).toBeTruthy()
+  })
+
+  it('should throw error if wrong nonce', () => {
+    const transaction = TransactionFixure.valid()
+    expect(() => validatesNonce(transaction, 'nonce')).toThrow('Nonce values have to be the sames')
+  })
+})
+
+describe('Transaction.parseErrors', () => {
+  it('should not returnserror if response', () => {
+    expect(parseErrors({ data: { items: [12] } })).toEqual({
+      http_response: { data: { items: [12] } },
+      items: [12],
+    })
   })
 })
