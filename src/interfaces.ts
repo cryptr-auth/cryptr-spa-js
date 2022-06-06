@@ -14,6 +14,7 @@ export interface Config {
   region?: string
   cryptr_base_url?: string
   telemetry?: boolean
+  dedicated_server?: boolean
 }
 
 export interface ProofKeyChallengeExchange {

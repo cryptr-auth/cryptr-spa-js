@@ -401,7 +401,8 @@ const Transaction: any = {
     transaction: I.Transaction,
     idpId?: string | string[],
   ): void | URL => {
-    let url: URL = new URL(cryptrBaseUrl(config))
+    let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
+    let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
 
     // url.pathname = url.pathname.concat(`/t/${config.tenant_domain}`).replace('//', '/')
 
