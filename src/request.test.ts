@@ -1,5 +1,5 @@
 import { setupServer } from 'msw/node'
-
+import axios from 'axios'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
 import Request, { tokenUrl, revokeTokenUrl, refreshTokensUrl } from './request'
 import * as RequestAPI from './request'
@@ -8,6 +8,8 @@ import RequestMock from './__mocks__/request.mock'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
+jest.mock('axios')
+const mockedAxios = axios as jest.Mocked<typeof axios>
 
 describe('Request.postAuthorizationCode/3', () => {
   const handlers = [RequestMock.postAuthorizationCodeResponse()]
@@ -194,6 +196,18 @@ describe('Request.revokeTokenUrl', () => {
   })
 })
 
+describe('Request.revokeAccessToken', () => {
+  beforeAll(() => {
+    mockedAxios.post.mockResolvedValueOnce({ url: '' })
+  })
+  it('calls revokeTokenUrl', async () => {
+    const revokeTokenUrlFn = jest.spyOn(RequestAPI, 'revokeTokenUrl')
+    await Request.revokeAccessToken(ConfigFixture.valid(), 'access_token')
+    expect(revokeTokenUrl).toHaveBeenCalledWith(ConfigFixture.valid())
+    revokeTokenUrlFn.mockRestore()
+  })
+})
+
 describe('revoke tokens', () => {
   //  TODO : reset working stuff
   xit('returns proper data from revoke refresh', async () => {
@@ -222,5 +236,36 @@ describe('revoke tokens', () => {
         expect(reason.response.status).toEqual(422)
       },
     )
+  })
+})
+
+describe('Request.sloAfterRevokeTokenUrl/3', () => {
+  let validConfig = ConfigFixture.valid()
+  it('should retirns proper url', () => {
+    let sloUrl = RequestAPI.sloAfterRevokeTokenUrl(
+      validConfig,
+      'azerty',
+      validConfig.default_redirect_uri,
+    )
+    expect(sloUrl.href).toMatch(
+      `http://localhost:4000/api/v1/tenants/cryptr/${validConfig.client_id}/oauth/token/slo-after-revoke-token`,
+    )
+    expect(sloUrl.searchParams.get('slo_code')).toEqual('azerty')
+    expect(sloUrl.searchParams.get('target_url')).toEqual('http://localhost:8000/')
+  })
+})
+
+describe('Request.decoratedRequest', () => {
+  it('returns proper headers', () => {
+    let request = RequestAPI.decoratedAxiosRequestConfig('access_token_azerty', {
+      method: 'POST',
+      data: { items: [12, 'blue', 'azerty'] },
+      headers: { 'X-User': 'john.doe' },
+    })
+    expect(request).toEqual({
+      method: 'POST',
+      data: { items: [12, 'blue', 'azerty'] },
+      headers: { Authorization: 'Bearer access_token_azerty', 'X-User': 'john.doe' },
+    })
   })
 })

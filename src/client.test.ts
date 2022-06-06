@@ -4,12 +4,7 @@ import Storage from './storage'
 import Transaction, { tomorrowDate } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
-import {
-  cryptrBaseUrl,
-  DEFAULT_SCOPE,
-  //   DEFAULT_REFRESH_ROTATION_DURATION,
-  // DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE
-} from './constants'
+import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
 import { refreshKey } from './transaction'
@@ -496,7 +491,7 @@ describe('signin process', () => {
   })
 })
 
-describe('userAccountAccess', () => {
+describe('Client.userAccountAccess/0', () => {
   let client = new Client(validConfig)
 
   it('should call getCurrentAccessToken', async () => {
@@ -680,6 +675,12 @@ describe('Client.finalScope', () => {
 
 describe('logOut process', () => {
   let client = new Client(validConfig)
+  let cookieRefreshBody = {
+    refresh_token: 'azerty-951-mlkj',
+  }
+  beforeEach(() => {
+    Storage.createCookie(refreshKey(), cookieRefreshBody, tomorrowDate())
+  })
 
   it('should call getCurrentAccessToken', async () => {
     const refreshStoreFn = jest.spyOn(client, 'getRefreshStore')

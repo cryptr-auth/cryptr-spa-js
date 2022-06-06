@@ -42,6 +42,22 @@ export const sloAfterRevokeTokenUrl = (config: Config, sloCode: string, targetUr
   return url
 }
 
+export const decoratedAxiosRequestConfig = (
+  accessToken: any,
+  axiosRequestConfig: AxiosRequestConfig | null,
+) => {
+  if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
+    return axiosRequestConfig
+  }
+  if (accessToken !== undefined) {
+    let authBearer = `Bearer ${accessToken}`
+    let requestHeaders = axiosRequestConfig.headers || {}
+    requestHeaders['Authorization'] = authBearer
+    axiosRequestConfig.headers = requestHeaders
+  }
+  return axiosRequestConfig
+}
+
 export const tokenUrl = (
   config: Config,
   authorization: Authorization,
@@ -106,16 +122,11 @@ const Request = {
     accessToken: any,
     axiosRequestConfig: AxiosRequestConfig | null,
   ): AxiosRequestConfig | AxiosPromise | null => {
-    if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
-      return axiosRequestConfig
+    let decoratedConfig = decoratedAxiosRequestConfig(accessToken, axiosRequestConfig)
+    if (decoratedConfig !== null) {
+      return axios(decoratedConfig)
     }
-    if (accessToken !== undefined) {
-      let authBearer = `Bearer ${accessToken}`
-      let requestHeaders = axiosRequestConfig.headers || {}
-      requestHeaders['Authorization'] = authBearer
-      axiosRequestConfig.headers = requestHeaders
-    }
-    return axios(axiosRequestConfig)
+    return axiosRequestConfig
   },
 }
 
