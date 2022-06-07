@@ -410,7 +410,7 @@ const Transaction: any = {
       if (typeof idpId == 'string') {
         url.searchParams.append('idp_id', idpId)
       } else if (idpId) {
-        idpId.map((idp_id) => {
+        idpId.forEach((idp_id) => {
           url.searchParams.append('idp_ids[]', idp_id)
         })
       }
