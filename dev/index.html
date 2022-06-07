@@ -94,8 +94,9 @@
           </div>
           <div class="card-body">
             <h1 class="card-title pricing-card-title">Profile <small class="text-muted">/ OpenId</small></h1>
-            <a v-if="isAuthenticated" class="btn btn-success" href="#">Authenticated</a>
-            <a v-if="!isAuthenticated" class="btn btn-danger" href="#">Not authenticated</a>
+            <a v-if="isAuthenticated && !loading" class="btn btn-success" href="#">Authenticated</a>
+            <a v-if="!isAuthenticated && !loading" class="btn btn-danger" href="#">Not authenticated</a>
+            <a v-if="loading" class="btn btn-info" href="#">Loading</a>
             <ul v-if="!user.email" class="list-unstyled mt-3 mb-4">
               <li>Not available</li>
             </ul>
@@ -107,8 +108,12 @@
               <li>
                 <span>from issuer</span>
                 <code>
-                  {{ user.iss }} ( {{ user.tnt }})
+                  {{ user.iss }}
                 </code>
+              </li>
+              <li>
+                <span>tnt</span>
+                <code>{{ user.tnt }}</code>
               </li>
               <li>
                 <span>with scope items</span>
