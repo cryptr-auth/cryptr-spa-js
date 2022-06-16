@@ -1,19 +1,15 @@
 import Client from './client'
-// import InMemory from './memory'
 import Request from './request'
 import Storage from './storage'
 import Transaction, { tomorrowDate } from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
-import {
-  cryptrBaseUrl,
-  DEFAULT_SCOPE,
-  //   DEFAULT_REFRESH_ROTATION_DURATION,
-  // DEFAULT_REFRESH_ROTATION_DURATION, DEFAULT_SCOPE
-} from './constants'
+import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
 import { refreshKey } from './transaction'
+import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
+import * as Utils from './utils'
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -170,7 +166,7 @@ describe('valid client', () => {
 //   })
 // })
 
-describe('refreshTokens()', () => {
+describe('Client.refreshTokens() with refreshStore', () => {
   let client = new Client(validConfig)
   let cookieRefreshBody = {
     refresh_token: 'azerty-951-mlkj',
@@ -191,6 +187,23 @@ describe('refreshTokens()', () => {
     await client.handleRefreshTokens()
     expect(RequestRefreshTokensFn).toHaveBeenCalled()
     RequestRefreshTokensFn.mockRestore()
+  })
+})
+
+describe('Client.refreshTokens() without refreshStore', () => {
+  let client = new Client(validConfig)
+
+  beforeEach(() => {
+    Storage.clearCookies(validConfig.client_id)
+  })
+  it('should throws errors', async () => {
+    const consoleErrorFn = jest.spyOn(console, 'log')
+    expect(client.canRefresh(client.getRefreshStore())).toBeFalsy()
+    expect(client.getRefreshStore()).toEqual({})
+    expect(Object.keys(client.getRefreshStore()).length).toEqual(0)
+    await client.handleRefreshTokens()
+    expect(consoleErrorFn).toHaveBeenCalledWith('should log out')
+    consoleErrorFn.mockRestore()
   })
 })
 
@@ -478,7 +491,7 @@ describe('signin process', () => {
   })
 })
 
-describe('userAccountAccess', () => {
+describe('Client.userAccountAccess/0', () => {
   let client = new Client(validConfig)
 
   it('should call getCurrentAccessToken', async () => {
@@ -489,7 +502,148 @@ describe('userAccountAccess', () => {
   })
 })
 
-describe('finalScope', () => {
+describe('Client.signWithoutRedirect/?', () => {
+  it("calls validRedirectUri if redirectUri is no equals to config's", () => {
+    const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
+    let client = new Client(validConfig)
+    let redirectUri = validConfig.default_redirect_uri + '?param=azerty'
+    client.signInWithoutRedirect('openid email', redirectUri, 'fr')
+    expect(validRedirectUriFn).toHaveBeenCalledWith(redirectUri)
+  })
+})
+
+describe('Client.handleInvitationState', () => {
+  let client = new Client(validConfig)
+
+  it('calls locationSearch', () => {
+    const locationSarchFn = jest.spyOn(Utils, 'locationSearch')
+    client.handleInvitationState()
+    expect(locationSarchFn).toHaveBeenCalled()
+    locationSarchFn.mockRestore()
+  })
+})
+
+describe('Client.handleTokensErrors/1', () => {
+  let client = new Client(validConfig)
+
+  it('throws invalidGrantError if present', () => {
+    const consoleErrorFn = jest.spyOn(console, 'error')
+    client.handleTokensErrors([
+      { error: 'invalid_grant', http_response: 401, error_description: 'invalid_grant' },
+    ])
+    expect(consoleErrorFn).toHaveBeenCalledWith('invalid grant detected')
+    consoleErrorFn.mockRestore()
+  })
+})
+
+describe('Client.handleNewTokens/2', () => {
+  let client = new Client(validConfig)
+  let refreshStore = {
+    refresh_token: 'refresh_token',
+    access_token_expiration_date: 12,
+    refresh_expiration_date: 42,
+    refresh_leeway: 60,
+    refresh_retry: 5,
+  }
+  it('calls setAccessToken is valid accessToken present', () => {
+    const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
+    client.handleNewTokens(refreshStore, { valid: true, accessToken: 'eji.aze' })
+    expect(setAccessTokenFn).toHaveBeenCalledWith('eji.aze')
+    setAccessTokenFn.mockRestore()
+  })
+
+  it('calls setIdToken is valid accessToken present', () => {
+    const setIdTokenFn = jest.spyOn(InMemory.prototype, 'setIdToken')
+    client.handleNewTokens(refreshStore, {
+      valid: true,
+      accessToken: 'eji.aze',
+      idToken: '123-beaw',
+    })
+    expect(setIdTokenFn).toHaveBeenCalledWith('123-beaw')
+    setIdTokenFn.mockRestore()
+  })
+
+  it('calls Transaction.getRefreshParameters is valid tokens', () => {
+    const getRefreshParametersFn = jest.spyOn(Transaction, 'getRefreshParameters')
+    client.handleNewTokens(refreshStore, {
+      valid: true,
+      accessToken: 'eji.aze',
+      idToken: '123-beaw',
+    })
+    expect(getRefreshParametersFn).toHaveBeenCalledWith({
+      valid: true,
+      accessToken: 'eji.aze',
+      idToken: '123-beaw',
+    })
+    getRefreshParametersFn.mockRestore()
+  })
+
+  it('not calls recurringRefreshToken if error present', () => {
+    const recurringRefreshTokenFn = jest.spyOn(Client.prototype, 'recurringRefreshToken')
+    client.handleNewTokens(refreshStore, {
+      errors: [{ error: 'invalid_grant', http_response: 401, error_description: 'invalid_grant' }],
+    })
+    expect(recurringRefreshTokenFn).not.toHaveBeenCalled()
+    recurringRefreshTokenFn.mockRestore()
+  })
+})
+
+describe('Client.recurringRefreshToken/1', () => {
+  let client = new Client(validConfig)
+  beforeEach(() => {
+    Storage.clearCookies(validConfig.client_id)
+  })
+
+  xit('throws error outside browser config', () => {
+    const consoleErrorFn = jest.spyOn(console, 'error')
+    client.recurringRefreshToken(client.getRefreshStore())
+    expect(consoleErrorFn).toHaveBeenCalledWith('error while reccuring refresh token')
+    consoleErrorFn.mockRestore()
+  })
+})
+
+describe('Client.handleRedirectCallback/?', () => {
+  let client = new Client(validConfig)
+  it('looks for transaction from redirectParams state', () => {
+    let transactionGetFn = jest.spyOn(Transaction, 'get')
+    client.handleRedirectCallback({ state: '12', authorization: { id: '42', code: 'azerty' } })
+    expect(transactionGetFn).toHaveBeenCalledWith('12')
+    transactionGetFn.mockRestore()
+  })
+
+  it('calls Transaction.getTokens without organization attribute', async () => {
+    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
+    await client.handleRedirectCallback({
+      state: '12',
+      authorization: { id: '42', code: 'azerty' },
+    })
+    expect(transactionGetTokensFn).toHaveBeenCalledWith(
+      validConfig,
+      { id: '42', code: 'azerty' },
+      expect.anything(),
+      undefined,
+    )
+    transactionGetTokensFn.mockRestore()
+  })
+
+  it('calls Transaction.getTokens with organization attribute if present', async () => {
+    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
+    await client.handleRedirectCallback({
+      state: '12',
+      authorization: { id: '42', code: 'azerty' },
+      organization_domain: 'misapret',
+    })
+    expect(transactionGetTokensFn).toHaveBeenCalledWith(
+      validConfig,
+      { id: '42', code: 'azerty' },
+      expect.anything(),
+      'misapret',
+    )
+    transactionGetTokensFn.mockRestore()
+  })
+})
+
+describe('Client.finalScope', () => {
   let client = new Client(validConfig)
   let newScope = 'read:invoices delete:tutu'
   let duplicatedScope = 'email email openid read:invoices delete:tutu'
@@ -521,6 +675,12 @@ describe('finalScope', () => {
 
 describe('logOut process', () => {
   let client = new Client(validConfig)
+  let cookieRefreshBody = {
+    refresh_token: 'azerty-951-mlkj',
+  }
+  beforeEach(() => {
+    Storage.createCookie(refreshKey(), cookieRefreshBody, tomorrowDate())
+  })
 
   it('should call getCurrentAccessToken', async () => {
     const refreshStoreFn = jest.spyOn(client, 'getRefreshStore')
@@ -538,5 +698,55 @@ describe('decorate request process', () => {
     await client.decoratedRequest(null)
     expect(decoratedRequestFn).toHaveBeenLastCalledWith(client.getCurrentAccessToken(), null)
     decoratedRequestFn.mockRestore()
+  })
+})
+
+describe('signInWithGateway', () => {
+  let client = new Client(validConfig)
+
+  it('should call transaction create', async () => {
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    client.signInWithSSOGateway()
+    expect(transactionCreateFn).toHaveBeenCalledWith(
+      'sso',
+      'openid email profile',
+      undefined,
+      validConfig.default_redirect_uri,
+    )
+    transactionCreateFn.mockRestore()
+  })
+
+  it('should call transaction gatewaySignUrl without idp', async () => {
+    const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
+    await client.signInWithSSOGateway()
+    expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(
+      client.config,
+      expect.anything(),
+      undefined,
+    )
+    transactionGatewaySignUrlFn.mockRestore()
+  })
+
+  it('should call transaction gatewaySignUrl with idp if present', async () => {
+    const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
+    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
+    await client.signInWithSSOGateway(idpId)
+    expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(
+      client.config,
+      expect.anything(),
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
+    )
+    transactionGatewaySignUrlFn.mockRestore()
+  })
+
+  it('should call transaction gatewaySignUrl with idps if present', async () => {
+    const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
+    const idpId = ['misapret_QtqpTS7itBLt4HdoCj5Qck', 'shark_QtqpTS7itBLt4HdoCj5Qck']
+    await client.signInWithSSOGateway(idpId)
+    expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(client.config, expect.anything(), [
+      'misapret_QtqpTS7itBLt4HdoCj5Qck',
+      'shark_QtqpTS7itBLt4HdoCj5Qck',
+    ])
+    transactionGatewaySignUrlFn.mockRestore()
   })
 })

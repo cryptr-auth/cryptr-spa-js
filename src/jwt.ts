@@ -110,10 +110,14 @@ export const validatesAudience = (tokenBody: any, config: Config): void | true =
   return true
 }
 
-export const validatesIssuer = (tokenBody: any, config: Config): void | true => {
+export const validatesIssuer = (
+  tokenBody: any,
+  config: Config,
+  organization_domain?: string,
+): void | true => {
   const tmpCryptrUrl = cryptrBaseUrl(config)
   const cryptrUrl = tmpCryptrUrl.replace('/backoffice', '')
-  const issuer = `${cryptrUrl}/t/${config.tenant_domain}`
+  const issuer = `${cryptrUrl}/t/${organization_domain || config.tenant_domain}`
   const tokenBodyIss = tokenBody.iss
 
   if (issuer !== tokenBodyIss) {
@@ -138,10 +142,14 @@ export const validatesExpiration = (tokenBody: any): void | true => {
 }
 
 // Validates common attributes
-const validatesJwtBody = (jwtBody: any, config: Config): void | true => {
+const validatesJwtBody = (
+  jwtBody: any,
+  config: Config,
+  organization_domain?: string,
+): void | true => {
   validatesTimestamps(jwtBody) &&
     validatesAudience(jwtBody, config) &&
-    validatesIssuer(jwtBody, config) &&
+    validatesIssuer(jwtBody, config, organization_domain) &&
     validatesExpiration(jwtBody)
 }
 
@@ -149,20 +157,22 @@ const Jwt = {
   body: (token: string): object => {
     return jwtDecode(token)
   },
-  validatesAccessToken: (accessToken: string, config: Config): boolean => {
+  validatesAccessToken: (
+    accessToken: string,
+    config: Config,
+    organization_domain?: string,
+  ): boolean => {
     const jwtBody = Jwt.body(accessToken)
-
     validatesHeader(accessToken)
-    validatesJwtBody(jwtBody, config)
+    validatesJwtBody(jwtBody, config, organization_domain)
     validatesFieldsExist(jwtBody, ACCESS_FIELDS)
 
     return true
   },
-  validatesIdToken: (idToken: string, config: Config): boolean => {
+  validatesIdToken: (idToken: string, config: Config, organization_domain?: string): boolean => {
     const jwtBody = Jwt.body(idToken)
-
     validatesHeader(idToken)
-    validatesJwtBody(jwtBody, config)
+    validatesJwtBody(jwtBody, config, organization_domain)
     validatesFieldsExist(jwtBody, ID_FIELDS)
 
     return true

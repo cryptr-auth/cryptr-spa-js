@@ -18,31 +18,7 @@ import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr
 import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
-
-const locationSearch = (): string => {
-  if (window != undefined && window.location !== undefined) {
-    return window.location.search
-  } else {
-    /* istanbul ignore next */
-    return ''
-  }
-}
-
-const parseRedirectParams = (): { state: string; authorization: Interface.Authorization } => {
-  const urlParams = new URLSearchParams(locationSearch())
-
-  if (urlParams.get('state') && urlParams.get('authorization_id') && urlParams.get('code')) {
-    return {
-      state: urlParams.get('state') || '',
-      authorization: {
-        id: urlParams.get('authorization_id') || '',
-        code: urlParams.get('code') || '',
-      },
-    }
-  } else {
-    throw new Error('Can not parse authorization params')
-  }
-}
+import { locationSearch, parseRedirectParams } from './utils'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
@@ -199,6 +175,23 @@ class Client {
     window.location.assign(url.href)
   }
 
+  async signInWithSSOGateway(idpId?: string | string[], options?: SsoSignOptsAttrs) {
+    const transaction = await Transaction.create(
+      Sign.Sso,
+      this.finalScope(options?.scope || DEFAULT_SCOPE),
+      options?.locale,
+      options?.redirectUri || this.config.default_redirect_uri,
+    )
+    var transactionConfig = options?.clientId
+      ? { ...this.config, client_id: options.clientId }
+      : this.config
+    transactionConfig = options?.tenantDomain
+      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
+      : transactionConfig
+    const url = await Transaction.gatewaySignUrl(transactionConfig, transaction, idpId)
+    window.location.assign(url.href)
+  }
+
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
@@ -255,13 +248,13 @@ class Client {
     }
   }
 
-  async handleRedirectCallback() {
-    const redirectParams = parseRedirectParams()
+  async handleRedirectCallback(redirectParams = parseRedirectParams()) {
     const transaction = await Transaction.get(redirectParams.state)
     const tokens = await Transaction.getTokens(
       this.config,
       redirectParams.authorization,
       transaction,
+      redirectParams.organization_domain,
     )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
@@ -290,7 +283,6 @@ class Client {
 
   async handleRefreshTokens() {
     const refreshStore = this.getRefreshStore()
-
     if (this.canRefresh(refreshStore)) {
       const tokens = await Transaction.getTokensByRefresh(this.config, refreshStore.refresh_token)
       this.handleNewTokens(refreshStore, tokens)
@@ -398,7 +390,12 @@ class Client {
     targetUrl: string,
   ) {
     if (resp.data && resp.data.slo_code !== undefined) {
-      const url = sloAfterRevokeTokenUrl(this.config, resp.data.slo_code, targetUrl)
+      const url = sloAfterRevokeTokenUrl(
+        this.config,
+        resp.data.slo_code,
+        targetUrl,
+        resp.data.refresh_token,
+      )
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
       callback()

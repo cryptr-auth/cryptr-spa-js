@@ -1,35 +1,14 @@
-// import axios from 'axios'
-// import { rest } from 'msw'
-// import { setupServer } from 'msw/node'
-
-import Transaction, { parseErrors } from './transaction'
+import Transaction, { parseErrors, validatesNonce } from './transaction'
 import { Sign } from './types'
 import TransactionFixure from './__fixtures__/transaction.fixture'
-// import { tokenUrl } from './request'
-// import AuthorizationFixture from './__fixtures__/authorization.fixture'
-// import RequestFixture from './__fixtures__/request.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import { Config } from './interfaces'
+import Request from './request'
+import AuthorizationFixture from './__fixtures__/authorization.fixture'
+import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
+
 jest.mock('es-cookie')
-
-// const VALID_CONFIG = ConfigFixture.valid()
-// const VALID_AUTHORIZATION = AuthorizationFixture.valid()
-// const VALID_TRANSACTION = TransactionFixure.valid()
-
 describe('Transaction', () => {
-  // const API_ENDPOINT = tokenUrl(VALID_CONFIG, VALID_AUTHORIZATION, VALID_TRANSACTION)
-
-  // const handlers = [
-  //   rest.post(API_ENDPOINT, (_req: any, res: any, ctx: any) => {
-  //     return res(ctx.status(200), ctx.json(RequestFixture.authorizationCodeResponse.valid()))
-  //   }),
-  // ]
-
-  // const server = setupServer(...handlers)
-
-  // beforeAll(() => server.listen())
-  // afterAll(() => server.close())
-
   it('key(state) returns key', () => {
     expect(Transaction.key(TransactionFixure.valid().pkce.state)).toMatchSnapshot()
   })
@@ -235,6 +214,250 @@ describe('Transaction', () => {
       error: 'error',
       error_description: 'response is undefined',
       http_response: null,
+    })
+  })
+})
+
+const validConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  cryptr_base_url: 'http://localhost:4000',
+  default_locale: 'fr',
+}
+
+describe('Transaction.gatewaySignUrl/3', () => {
+  it('should generate root gateway url if config is dedicated_server', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl({ ...validConfig, dedicated_server: true }, transaction)
+    expect(url.href).toMatch('http://localhost:4000/?locale=fr')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate domainized gateway url if config is not dedicated_server', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl({ ...validConfig, dedicated_server: false }, transaction)
+    expect(url.href).toMatch('http://localhost:4000/t/shark-academy/?locale=fr')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate simple gateway url from config and transaction', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl(validConfig, transaction)
+    expect(url.href).toMatch('http://localhost:4000/t/shark-academy/?locale=fr')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate idp gateway url if provided', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, 'mac_ally_1245')
+    expect(url.href).toMatch(
+      'http://localhost:4000/t/shark-academy/?idp_id=mac_ally_1245&locale=fr',
+    )
+    expect(url.searchParams.get('idp_id')).toEqual('mac_ally_1245')
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate idps gateway url if multiple provided', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, [
+      'mac_ally_1245',
+      'oshida_aqsm07',
+    ])
+    expect(url.href).toMatch(
+      'http://localhost:4000/t/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=fr',
+    )
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate proper gateway url if english transaction', () => {
+    const transaction = { ...TransactionFixure.validWithType(Sign.Sso), locale: 'en' }
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, [
+      'mac_ally_1245',
+      'oshida_aqsm07',
+    ])
+    expect(url.href).toMatch(
+      'http://localhost:4000/t/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=en',
+    )
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
+    expect(url.searchParams.get('locale')).toEqual('en')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+  })
+
+  it('should generate proper gateway url if specific scope transaction', () => {
+    const transaction = {
+      ...TransactionFixure.validWithType(Sign.Sso),
+      scope: 'openid email profile read:billings',
+    }
+    const url = Transaction.gatewaySignUrl(validConfig, transaction, [
+      'mac_ally_1245',
+      'oshida_aqsm07',
+    ])
+    expect(url.href).toMatch(
+      'http://localhost:4000/t/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=fr',
+    )
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email profile read:billings')
+  })
+})
+
+describe('Transaction.getTokens/3', () => {
+  it('should call Request.postAuthorizationCode without organization_domain', async () => {
+    const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
+    const authorization = AuthorizationFixture.valid()
+    const transaction = TransactionFixure.valid()
+    await Transaction.getTokens(validConfig, authorization, transaction)
+    expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
+      validConfig,
+      authorization,
+      transaction,
+      undefined,
+    )
+    requestPostAuthorizationCodeFn.mockRestore()
+  })
+})
+
+describe('Transaction.getTokens/4', () => {
+  it('should call Request.postAuthorizationCode with organization_domain', async () => {
+    const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
+    const authorization = AuthorizationFixture.valid()
+    const transaction = TransactionFixure.valid()
+    await Transaction.getTokens(validConfig, authorization, transaction, 'mark_ki_verfge54')
+    expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
+      validConfig,
+      authorization,
+      transaction,
+      'mark_ki_verfge54',
+    )
+    requestPostAuthorizationCodeFn.mockRestore()
+  })
+})
+
+describe('Transaction.getTokensByRefresh/4', () => {
+  it('should call Request.refreshTokens without organization_domain if standard refresh', async () => {
+    const requestrefreshTokensFn = jest.spyOn(Request, 'refreshTokens')
+    await Transaction.getTokensByRefresh(validConfig, 'Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ')
+    expect(requestrefreshTokensFn).toHaveBeenCalledWith(
+      validConfig,
+      expect.anything(),
+      'Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ',
+      undefined,
+    )
+    requestrefreshTokensFn.mockRestore()
+  })
+
+  it('should call Request.refreshTokens with organization_domain if domain refresh', async () => {
+    const requestrefreshTokensFn = jest.spyOn(Request, 'refreshTokens')
+    await Transaction.getTokensByRefresh(
+      validConfig,
+      'my-domain.Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ',
+    )
+    expect(requestrefreshTokensFn).toHaveBeenCalledWith(
+      validConfig,
+      expect.anything(),
+      'my-domain.Ccnl_cwugQMtGWj3aB5lfSIuD0Io4tVTJCTO3XTMrfQ',
+      'my-domain',
+    )
+    requestrefreshTokensFn.mockRestore()
+  })
+
+  it('should returns unvalid response if no refresh', async () => {
+    let resp = await Transaction.getTokensByRefresh(validConfig, '')
+    expect(resp).toEqual({
+      valid: false,
+      accessToken: '',
+      idToken: '',
+      refreshToken: '',
+      errors: [],
+    })
+  })
+})
+
+describe('Transaction.createFromState', () => {
+  it('should test redirect uri if defined', () => {
+    const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
+    Transaction.createFromState(
+      'some_state',
+      Sign.In,
+      'openid email',
+      'fr',
+      'http://localhost:3200',
+    )
+    expect(validRedirectUriFn).toHaveBeenCalledTimes(2)
+    validRedirectUriFn.mockRestore()
+  })
+})
+
+describe('Transaction.validatesNonce/2', () => {
+  it('should returns true if same nonce', () => {
+    const transaction = TransactionFixure.valid()
+    expect(validatesNonce(transaction, transaction.nonce!)).toBeTruthy()
+  })
+
+  it('should throw error if wrong nonce', () => {
+    const transaction = TransactionFixure.valid()
+    expect(() => validatesNonce(transaction, 'nonce')).toThrow('Nonce values have to be the sames')
+  })
+})
+
+describe('Transaction.parseErrors', () => {
+  it('should not returnserror if response', () => {
+    expect(parseErrors({ data: { items: [12] } })).toEqual({
+      http_response: { data: { items: [12] } },
+      items: [12],
     })
   })
 })
