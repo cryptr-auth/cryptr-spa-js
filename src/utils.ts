@@ -36,3 +36,7 @@ export const parseRedirectParams = (
     throw new Error('Can not parse authorization params')
   }
 }
+
+export const organizationDomain = (refreshToken?: string): string | undefined => {
+  return refreshToken && refreshToken.includes('.') ? refreshToken.split('.')[0] : undefined
+}

@@ -1,6 +1,7 @@
 import axios, { AxiosPromise, AxiosRequestConfig } from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
+import { organizationDomain } from './utils'
 
 const API_VERSION = 'v1'
 
@@ -40,8 +41,7 @@ export const sloAfterRevokeTokenUrl = (
   targetUrl: string,
   refreshToken?: string,
 ) => {
-  let organization_domain =
-    refreshToken && refreshToken.includes('.') ? refreshToken.split('.')[0] : undefined
+  let organization_domain = organizationDomain(refreshToken)
   let url: URL = new URL(cryptrBaseUrl(config))
   url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${
     config.client_id
@@ -111,7 +111,7 @@ const Request = {
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
-    let organization_domain = refreshToken.includes('.') ? refreshToken.split('.')[0] : undefined
+    let organization_domain = organizationDomain(refreshToken)
     let url = revokeTokenUrl(client_config, organization_domain)
     return axios.post(url, { token: refreshToken, token_type_hint: 'refresh_token' })
   },

@@ -16,6 +16,7 @@ import Storage from './storage'
 import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 import axios from 'axios'
+import { organizationDomain } from './utils'
 
 const newTransaction = (
   signType: Sign,
@@ -348,7 +349,7 @@ const Transaction: any = {
     }
 
     const transaction = Transaction.create(Sign.Refresh, '')
-    let organization_domain = refresh_token.includes('.') ? refresh_token.split('.')[0] : undefined
+    let organization_domain = organizationDomain(refresh_token)
     // @ts-ignore
     await Request.refreshTokens(config, transaction, refresh_token, organization_domain)
       .then((response: any) => {

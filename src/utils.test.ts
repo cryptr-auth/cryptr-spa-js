@@ -1,4 +1,4 @@
-import { parseRedirectParams } from './utils'
+import { organizationDomain, parseRedirectParams } from './utils'
 
 describe('parseRedirectParams', () => {
   it('should throw error if no location', () => {
@@ -58,5 +58,20 @@ describe('parseRedirectParams', () => {
         id: 'azerty',
       },
     })
+  })
+})
+
+
+describe('organizationDomain', () => {
+  it('should returns undefined if no refreshToken provided', () => {
+    expect(organizationDomain()).toBeUndefined()
+  })
+
+  it('should returns undefined if no dot in refreshToken', () => {
+    expect(organizationDomain('some_refresh_token')).toBeUndefined()
+  })
+
+  it('should returns organization if  dot in refreshToken', () => {
+    expect(organizationDomain('organization_domain.refresh_token')).toEqual('organization_domain')
   })
 })
