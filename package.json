@@ -110,7 +110,8 @@
     "token",
     "user-account",
     "sso",
-    "slo"
+    "slo",
+    "gateway"
   ],
   "author": "Cryptr <jeremie@cryptr.co> (https://www.cryptr.co)",
   "repository": {
