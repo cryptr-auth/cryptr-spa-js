@@ -16,6 +16,7 @@ import Storage from './storage'
 import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 import axios from 'axios'
+import { organizationDomain } from './utils'
 
 const newTransaction = (
   signType: Sign,
@@ -83,12 +84,12 @@ const validateAndFormatAuthResp = (
   accessToken?: string,
   idToken?: string,
   refreshToken?: string,
+  organization_domain?: string,
 ) => {
   let valid = true
   let errors: I.TokenError[] = []
-
-  const validIdToken = Jwt.validatesIdToken(idToken || '', config)
-  const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config)
+  const validIdToken = Jwt.validatesIdToken(idToken || '', config, organization_domain)
+  const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config, organization_domain)
 
   if (!validAccessToken) {
     valid = false
@@ -169,8 +170,7 @@ const parseTokensAndStoreRefresh = (
   const accessToken: string = responseData['access_token']
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
-
-  if (Jwt.validatesAccessToken(accessToken, config)) {
+  if (Jwt.validatesAccessToken(accessToken, config, opts.organization_domain)) {
     if (refreshToken) {
       const refreshTokenWrapper = getRefreshParameters(responseData)
       let cookieExpirationDate = new Date()
@@ -198,7 +198,13 @@ const parseTokensAndStoreRefresh = (
   }
 
   return {
-    ...validateAndFormatAuthResp(config, accessToken, idToken, refreshToken),
+    ...validateAndFormatAuthResp(
+      config,
+      accessToken,
+      idToken,
+      refreshToken,
+      opts.organization_domain,
+    ),
     ...getRefreshParameters(responseData),
   }
 }
@@ -260,6 +266,7 @@ const Transaction: any = {
     config: I.Config,
     authorization: I.Authorization,
     transaction: I.Transaction,
+    organization_domain?: string,
   ): Promise<I.TokenResult> => {
     const errors: I.TokenError[] = []
     let accessResult: I.TokenResult = {
@@ -269,12 +276,13 @@ const Transaction: any = {
       refreshToken: '',
       errors: errors,
     }
-    await Request.postAuthorizationCode(config, authorization, transaction)
+    await Request.postAuthorizationCode(config, authorization, transaction, organization_domain)
       .then((response: any) => {
         try {
           validatesNonce(transaction, response['data']['nonce'])
           accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
             withPKCE: true,
+            organization_domain: organization_domain,
           })
         } catch (error) {
           Sentry.captureException(error)
@@ -341,12 +349,13 @@ const Transaction: any = {
     }
 
     const transaction = Transaction.create(Sign.Refresh, '')
-
+    let organization_domain = organizationDomain(refresh_token)
     // @ts-ignore
-    await Request.refreshTokens(config, transaction, refresh_token)
+    await Request.refreshTokens(config, transaction, refresh_token, organization_domain)
       .then((response: any) => {
         refreshResult = parseTokensAndStoreRefresh(config, response, transaction, {
           withPKCE: false,
+          organization_domain: organization_domain,
         })
       })
       .catch((error) => {
@@ -381,6 +390,35 @@ const Transaction: any = {
       url.searchParams.append('state', transaction.pkce.state)
     }
 
+    url.searchParams.append('scope', transaction.scope)
+    url.searchParams.append('client_id', config.client_id)
+    url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
+    url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
+    url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
+    return url
+  },
+  gatewaySignUrl: (
+    config: I.Config,
+    transaction: I.Transaction,
+    idpId?: string | string[],
+  ): void | URL => {
+    let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
+    let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
+
+    // url.pathname = url.pathname.concat(`/t/${config.tenant_domain}`).replace('//', '/')
+
+    if (idpId !== undefined) {
+      if (typeof idpId == 'string') {
+        url.searchParams.append('idp_id', idpId)
+      } else if (idpId) {
+        idpId.forEach((idp_id) => {
+          url.searchParams.append('idp_ids[]', idp_id)
+        })
+      }
+    }
+    const locale = transaction.locale || config.default_locale || 'en'
+    url.searchParams.append('locale', locale)
+    url.searchParams.append('client_state', transaction.pkce.state)
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
     url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)

@@ -1,6 +1,7 @@
 import axios, { AxiosPromise, AxiosRequestConfig } from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
+import { organizationDomain } from './utils'
 
 const API_VERSION = 'v1'
 
@@ -28,33 +29,60 @@ export const refreshTokensParams = (
   refresh_token: refresh_token,
 })
 
-export const revokeTokenUrl = (config: Config) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/oauth/token/revoke`
+export const revokeTokenUrl = (config: Config, organization_domain?: string) => {
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+    }/${config.client_id}/oauth/token/revoke`
 }
 
-export const sloAfterRevokeTokenUrl = (config: Config, sloCode: string, targetUrl: string) => {
+export const sloAfterRevokeTokenUrl = (
+  config: Config,
+  sloCode: string,
+  targetUrl: string,
+  refreshToken?: string,
+) => {
+  let organization_domain = organizationDomain(refreshToken)
   let url: URL = new URL(cryptrBaseUrl(config))
-  url.pathname = `/api/${API_VERSION}/tenants/${config.tenant_domain}/${config.client_id}/oauth/token/slo-after-revoke-token`
+  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${config.client_id
+    }/oauth/token/slo-after-revoke-token`
   url.searchParams.append('slo_code', sloCode)
   url.searchParams.append('target_url', targetUrl)
   return url
+}
+
+export const decoratedAxiosRequestConfig = (
+  accessToken: any,
+  axiosRequestConfig: AxiosRequestConfig | null,
+) => {
+  if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
+    return axiosRequestConfig
+  }
+  if (accessToken !== undefined) {
+    let authBearer = `Bearer ${accessToken}`
+    let requestHeaders = axiosRequestConfig.headers || {}
+    requestHeaders['Authorization'] = authBearer
+    axiosRequestConfig.headers = requestHeaders
+  }
+  return axiosRequestConfig
 }
 
 export const tokenUrl = (
   config: Config,
   authorization: Authorization,
   transaction: TransactionInterface,
-) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id}/token`
+  organization_domain?: string,
+) => {
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
+    }/token`
+}
 
-export const refreshTokensUrl = (config: Config, transaction: TransactionInterface) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${config.tenant_domain}/${
-    config.client_id
-  }/${transaction.pkce.state}/oauth/client/token`
+export const refreshTokensUrl = (
+  config: Config,
+  transaction: TransactionInterface,
+  organization_domain?: string,
+) =>
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+  }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
   // POST /t/:tenant_domain/oauth/token
@@ -64,8 +92,9 @@ const Request = {
     config: Config,
     authorization: Authorization,
     transaction: TransactionInterface,
+    organization_domain?: string,
   ) => {
-    let url = tokenUrl(config, authorization, transaction)
+    let url = tokenUrl(config, authorization, transaction, organization_domain)
     return axios.post(url, tokenParams(config, authorization, transaction))
   },
 
@@ -77,7 +106,8 @@ const Request = {
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
-    let url = revokeTokenUrl(client_config)
+    let organization_domain = organizationDomain(refreshToken)
+    let url = revokeTokenUrl(client_config, organization_domain)
     return axios.post(url, { token: refreshToken, token_type_hint: 'refresh_token' })
   },
 
@@ -86,8 +116,9 @@ const Request = {
     config: Config,
     transaction: TransactionInterface,
     refresh_token: string,
+    organization_domain?: string,
   ) => {
-    let url = refreshTokensUrl(config, transaction)
+    let url = refreshTokensUrl(config, transaction, organization_domain)
     return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
   },
 
@@ -95,16 +126,11 @@ const Request = {
     accessToken: any,
     axiosRequestConfig: AxiosRequestConfig | null,
   ): AxiosRequestConfig | AxiosPromise | null => {
-    if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
-      return axiosRequestConfig
+    let decoratedConfig = decoratedAxiosRequestConfig(accessToken, axiosRequestConfig)
+    if (decoratedConfig !== null) {
+      return axios(decoratedConfig)
     }
-    if (accessToken !== undefined) {
-      let authBearer = `Bearer ${accessToken}`
-      let requestHeaders = axiosRequestConfig.headers || {}
-      requestHeaders['Authorization'] = authBearer
-      axiosRequestConfig.headers = requestHeaders
-    }
-    return axios(axiosRequestConfig)
+    return axiosRequestConfig
   },
 }
 

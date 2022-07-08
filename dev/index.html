@@ -94,8 +94,9 @@
           </div>
           <div class="card-body">
             <h1 class="card-title pricing-card-title">Profile <small class="text-muted">/ OpenId</small></h1>
-            <a v-if="isAuthenticated" class="btn btn-success" href="#">Authenticated</a>
-            <a v-if="!isAuthenticated" class="btn btn-danger" href="#">Not authenticated</a>
+            <a v-if="isAuthenticated && !loading" class="btn btn-success" href="#">Authenticated</a>
+            <a v-if="!isAuthenticated && !loading" class="btn btn-danger" href="#">Not authenticated</a>
+            <a v-if="loading" class="btn btn-info" href="#">Loading</a>
             <ul v-if="!user.email" class="list-unstyled mt-3 mb-4">
               <li>Not available</li>
             </ul>
@@ -107,8 +108,12 @@
               <li>
                 <span>from issuer</span>
                 <code>
-                  {{ user.iss }} ( {{ user.tnt }})
+                  {{ user.iss }}
                 </code>
+              </li>
+              <li>
+                <span>tnt</span>
+                <code>{{ user.tnt }}</code>
               </li>
               <li>
                 <span>with scope items</span>
@@ -122,6 +127,21 @@
           </div>
         </div>
       </div>
+      <div class="card mb-4 box-shadow">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Gateway</h4>
+          <p>You don't known what's user's IDP, use our gateway</p>
+          <a @click="globalGateway" class="btn btn-outline mr-3" href="#">
+            Global Gateway
+          </a>
+          <a @click="gatewayIdp" class="btn btn-outline mr-3" href="#">
+            Gateway with one IDP
+          </a>
+          <a @click="gatewayIdps" class="btn btn-outline mr-3" href="#">
+            Gateway with multiple idps
+          </a>
+        </div>
+      </div>
     </div>
 
 </body>
@@ -130,7 +150,7 @@
 <script>
 
   var config = {
-    // tenant_domain: 'first-tenant',
+    // tenant_domain: 'cryptr',
     tenant_domain: 'shark-academy',
     // tenant_domain: 'imperium-coffee',
     client_id: '1900f4bd-77eb-4f57-9128-2bb83d738186',
@@ -138,10 +158,11 @@
     // client_id: 'a183dfdf-938e-4dc1-a5cf-16e0910d7f12',
     audience: 'http://localhost:8000',
     default_redirect_uri: 'http://localhost:8000',
-    cryptr_base_url: 'https://samly.howto:4443',
-    // cryptr_base_url: 'http://localhost:4000',
+    // cryptr_base_url: 'https://samly.howto:4443',
+    cryptr_base_url: 'http://localhost:4000',
     default_locale: 'en',
-    telemetry: false
+    telemetry: false,
+    dedicated_server: true
   };
 
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
@@ -157,6 +178,8 @@
   const idpId4 = 'shark_academy_jvSnj95arNrtLavgBGMkqm'; // GOOGLE
   const idpId5 = 'shark_academy_bWoMxSFWKhQt6WAm4AucGk'; // OKTA
   const idpId6 = 'shark_academy_j3QHgzVTpDwzN6BPpoBXCH'; // PING FEDERATE
+  const idpId7 = 'shark_academy_ZTVzzpS5JazVgR4k9iomkS';
+  const idpId8 = 'blockpulse_CdsZzHNBT7ocqKeSdjWksW';
   // const idpId = 'shark_academy_DxnMsFgChXHC2EjnCqvegh';
   // const idpId = 'second_tenant_majJm62feP852Zq49sdbaZ';
   // const idpId = 'second_tenant_t89SvM5YQg7R5LhZvSgHMc';
@@ -199,7 +222,7 @@
         return this.cryptrClient.signUpWithRedirect();
       },
       refreshTokens() {
-        return this.cryptrClient.refreshTokens();
+        return this.cryptrClient.handleRefreshTokens();
       },
       openAccount() {
         this.cryptrClient.userAccountAccess().then((data) => {
@@ -210,6 +233,15 @@
             window.open(data.data.data.url, '_blank', popupParams)
           }
         })
+      },
+      globalGateway() {
+        this.cryptrClient.signInWithSSOGateway();
+      },
+      gatewayIdp() {
+        this.cryptrClient.signInWithSSOGateway(idpId7);
+      },
+      gatewayIdps() {
+        this.cryptrClient.signInWithSSOGateway([idpId7, idpId8]);
       },
       /** Logs out the current user**/
       logOut() {
@@ -241,7 +273,7 @@
           // (useful for retrieving any pre-authentication state)
           // onRedirectCallback(tokens);
           let params = (new URL(window.location)).searchParams;
-          let authParamsKeys = ['authorization_code', 'authorization_id', 'state', 'code']
+          let authParamsKeys = ['authorization_code', 'authorization_id', 'state', 'code', 'organization_domain']
           for (const key of authParamsKeys) {
             params.delete(key)
           }

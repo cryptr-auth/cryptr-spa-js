@@ -49,11 +49,47 @@ describe('Jwt.validatesAccessToken(accessToken)', () => {
       Jwt.validatesAccessToken(TokenFixture.accessToken.valid(), ConfigFixture.valid()),
     ).toBeTruthy()
   })
+
+  it('returns true if matching organization_domain', () => {
+    expect(
+      Jwt.validatesAccessToken(
+        TokenFixture.accessToken.valid(),
+        ConfigFixture.valid(),
+        ConfigFixture.valid().tenant_domain,
+      ),
+    ).toBeTruthy()
+  })
+
+  it('throws error if unmatching organization_domain', () => {
+    expect(() =>
+      Jwt.validatesAccessToken(TokenFixture.accessToken.valid(), ConfigFixture.valid(), 'azerty'),
+    ).toThrow(
+      'Issuer (iss) http://localhost:4000/t/cryptr of this token claim does not compliant http://localhost:4000/t/azerty',
+    )
+  })
 })
 
 describe('Jwt.validatesIdToken(accessToken)', () => {
   it('returns true if valid', () => {
     expect(Jwt.validatesIdToken(TokenFixture.idToken.valid(), ConfigFixture.valid())).toBeTruthy()
+  })
+
+  it('returns true if matching organization_domain', () => {
+    expect(
+      Jwt.validatesIdToken(
+        TokenFixture.idToken.valid(),
+        ConfigFixture.valid(),
+        ConfigFixture.valid().tenant_domain,
+      ),
+    ).toBeTruthy()
+  })
+
+  it('throws error if unmatching organization_domain', () => {
+    expect(() =>
+      Jwt.validatesIdToken(TokenFixture.idToken.valid(), ConfigFixture.valid(), 'azerty'),
+    ).toThrow(
+      'Issuer (iss) http://localhost:4000/t/cryptr of this token claim does not compliant http://localhost:4000/t/azerty',
+    )
   })
 })
 
@@ -77,16 +113,32 @@ describe('validatesAudience(tokenBody, config)', () => {
 
 describe('validatesIssuer(tokenBody, config)', () => {
   const VALID_ISS_BODY = { iss: 'http://localhost:4000/t/cryptr' }
-  const INVALID_ISS_BODY = { iss: 'http://localhost:4000/t/trade-in' }
+  const UNMATCHING_ISS_CONFIG = { iss: 'http://localhost:4000/t/trade-in' }
 
   it('returns true if valid', () => {
     expect(validatesIssuer(VALID_ISS_BODY, ConfigFixture.valid())).toBeTruthy()
   })
   it('throws errors if ', () => {
     expect(() => {
-      validatesIssuer(INVALID_ISS_BODY, ConfigFixture.valid())
+      validatesIssuer(UNMATCHING_ISS_CONFIG, ConfigFixture.valid())
     }).toThrow(
       'Issuer (iss) http://localhost:4000/t/trade-in of this token claim does not compliant http://localhost:4000/t/cryptr',
+    )
+  })
+
+  it('returns true if organization undefined provided matching iss', () => {
+    expect(validatesIssuer(VALID_ISS_BODY, ConfigFixture.valid(), undefined)).toBeTruthy()
+  })
+
+  it('returns true if organization provided matching iss', () => {
+    expect(validatesIssuer(UNMATCHING_ISS_CONFIG, ConfigFixture.valid(), 'trade-in')).toBeTruthy()
+  })
+
+  it('throwns error if organization provided not matching iss', () => {
+    expect(() =>
+      validatesIssuer(UNMATCHING_ISS_CONFIG, ConfigFixture.valid(), 'shark-academy'),
+    ).toThrow(
+      'Issuer (iss) http://localhost:4000/t/trade-in of this token claim does not compliant http://localhost:4000/t/shark-academy',
     )
   })
 })
