@@ -13,6 +13,8 @@ describe('Crypto', () => {
   })
 
   it('sha256Base64UrlEncode(message) returns a SHA256 Base6$ URL encoded', () => {
-    expect(Crypto.sha256Base64UrlEncoded('test')).toEqual('n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg')
+    expect(Crypto.sha256Base64UrlEncoded('test')).toEqual(
+      'n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg',
+    )
   })
 })
