@@ -61,7 +61,6 @@ describe('parseRedirectParams', () => {
   })
 })
 
-
 describe('organizationDomain', () => {
   it('should returns undefined if no refreshToken provided', () => {
     expect(organizationDomain()).toBeUndefined()

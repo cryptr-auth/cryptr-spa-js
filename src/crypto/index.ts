@@ -1,10 +1,15 @@
 // @ts-ignore
 import { sha256 } from './sha256'
+import CryptoJS from 'crypto-js'
 // @ts-ignore
 import secureRandom from 'secure-random'
 import * as Sentry from '@sentry/browser'
 
 const RANDOM_LENGTH = 43
+
+const base64UrlEncode = (str: string) => {
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/[=]/g, '')
+}
 
 const Crypto = {
   random: (): string => {
@@ -22,7 +27,10 @@ const Crypto = {
       return btoa(random).substring(0, 128)
     }
   },
+  randomB64UrlEncoded: (uuid: string) => base64UrlEncode(uuid),
   sha256: (message: string): string => sha256(message, 'base64') || '',
+  sha256Base6$UrlEncoded: (message: string): string =>
+    base64UrlEncode(CryptoJS.SHA256(message).toString(CryptoJS.enc.Base64)),
 }
 
 export default Crypto
