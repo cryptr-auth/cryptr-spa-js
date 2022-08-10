@@ -25,11 +25,14 @@ describe('Pkce', () => {
 
   it('gen(uuid) returns a Pkce with specified uuid state', async () => {
     const state = 'dc9fc366-3b36-4465-b547-e43b45d34076'
-    expect(Pkce.gen(state)).toMatchObject({
+    let pkceState = Pkce.gen(state)
+    expect(pkceState).toMatchObject({
       code_verifier: expect.any(String),
       code_challenge: expect.any(String),
       code_challenge_method: 'S256',
       state: 'dc9fc366-3b36-4465-b547-e43b45d34076',
     })
+    expect(pkceState.code_verifier.length).toEqual(128)
+    expect(pkceState.code_challenge).toEqual(Crypto.sha256Base64UrlEncoded(pkceState.code_verifier))
   })
 })
