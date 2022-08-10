@@ -19,6 +19,7 @@ import axios from 'axios'
 import { organizationDomain } from './utils'
 
 const newTransaction = (
+  fixedPkce: boolean,
   signType: Sign,
   scope: string,
   redirect_uri: string,
@@ -28,7 +29,7 @@ const newTransaction = (
     validRedirectUri(redirect_uri)
   }
   return {
-    pkce: Pkce.gen(),
+    pkce: Pkce.gen(fixedPkce),
     sign_type: signType,
     scope: scope,
     nonce: uuid(),
@@ -38,6 +39,7 @@ const newTransaction = (
 }
 
 const newTransactionWithState = (
+  fixedPkce: boolean,
   signType: Sign,
   scope: string,
   state: string,
@@ -48,7 +50,7 @@ const newTransactionWithState = (
     validRedirectUri(redirect_uri)
   }
   return {
-    pkce: Pkce.gen(state),
+    pkce: Pkce.gen(fixedPkce, state),
     sign_type: signType,
     scope: scope,
     nonce: uuid(),
@@ -214,19 +216,26 @@ const Transaction: any = {
 
   new: newTransaction,
 
-  create: (signType: Sign, scope: string, locale: string, redirect_uri: string): I.Transaction => {
+  create: (
+    fixedPkce: boolean,
+    signType: Sign,
+    scope: string,
+    locale: string,
+    redirect_uri: string,
+  ): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
     }
     if (locale && !ALLOWED_LOCALES.includes(locale)) {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
-    const transaction = newTransaction(signType, scope, redirect_uri, locale)
+    const transaction = newTransaction(fixedPkce, signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction, tomorrowDate())
     return transaction
   },
 
   createFromState: (
+    fixedPkce: boolean,
     state: string,
     signType: Sign,
     scope: string,
@@ -239,7 +248,14 @@ const Transaction: any = {
     if (locale && !ALLOWED_LOCALES.includes(locale)) {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
-    const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
+    const transaction = newTransactionWithState(
+      fixedPkce,
+      signType,
+      scope,
+      state,
+      redirect_uri,
+      locale,
+    )
     Storage.createCookie(transactionKey(state), transaction, tomorrowDate())
     return transaction
   },

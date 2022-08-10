@@ -14,7 +14,7 @@ describe('Transaction', () => {
   })
 
   it('new(state) returns a transaction', () => {
-    expect(Transaction.new(Sign.In, 'openid email')).toMatchObject({
+    expect(Transaction.new(false, Sign.In, 'openid email')).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
         code_challenge: expect.any(String),
@@ -26,7 +26,7 @@ describe('Transaction', () => {
   })
 
   it('creates proper transaction using create function', () => {
-    expect(Transaction.create(Sign.In, 'openid email')).toMatchObject({
+    expect(Transaction.create(false, Sign.In, 'openid email')).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
         code_challenge: expect.any(String),
@@ -38,13 +38,13 @@ describe('Transaction', () => {
   })
 
   it('throw error if wrong locale using create function', () => {
-    expect(() => Transaction.create(Sign.In, 'openid email', 'de')).toThrowError(
+    expect(() => Transaction.create(false, Sign.In, 'openid email', 'de')).toThrowError(
       "'de' locale not valid, possible values en,fr",
     )
   })
 
   it('creates proper transaction with fr locale using create function', () => {
-    expect(Transaction.create(Sign.In, 'openid email', 'fr')).toMatchObject({
+    expect(Transaction.create(false, Sign.In, 'openid email', 'fr')).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
         code_challenge: expect.any(String),
@@ -57,7 +57,7 @@ describe('Transaction', () => {
   })
 
   it('creates proper transaction with en locale using create function', () => {
-    expect(Transaction.create(Sign.In, 'openid email', 'en')).toMatchObject({
+    expect(Transaction.create(false, Sign.In, 'openid email', 'en')).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
         code_challenge: expect.any(String),
@@ -70,7 +70,7 @@ describe('Transaction', () => {
   })
 
   it('creates proper SSO transaction', () => {
-    expect(Transaction.create(Sign.Sso, 'openid email', 'en')).toMatchObject({
+    expect(Transaction.create(false, Sign.Sso, 'openid email', 'en')).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
         code_challenge: expect.any(String),
@@ -85,7 +85,7 @@ describe('Transaction', () => {
 
   it('creates proper transaction using createFromState function', () => {
     var state = '123-xeab'
-    const transaction = Transaction.createFromState(state, Sign.In, 'openid email')
+    const transaction = Transaction.createFromState(false, state, Sign.In, 'openid email')
     expect(transaction).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
@@ -99,7 +99,7 @@ describe('Transaction', () => {
 
   it('creates proper SSO transaction using createFromState function', () => {
     var state = '123-xeab'
-    const transaction = Transaction.createFromState(state, Sign.Sso, 'openid email')
+    const transaction = Transaction.createFromState(false, state, Sign.Sso, 'openid email')
     expect(transaction).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
@@ -114,13 +114,13 @@ describe('Transaction', () => {
 
   xit('creates proper storage cookie using createFromState function', () => {
     var state = '123-xeab'
-    Transaction.createFromState(state, Sign.In, 'openid email')
+    Transaction.createFromState(false, state, Sign.In, 'openid email')
     expect(Transaction.get(state)).toMatchObject({})
   })
 
   it('creates proper transaction with locale using createFromState function', () => {
     var state = '123-xeab'
-    const transaction = Transaction.createFromState(state, Sign.In, 'openid email', 'fr')
+    const transaction = Transaction.createFromState(false, state, Sign.In, 'openid email', 'fr')
     expect(transaction).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
@@ -135,9 +135,9 @@ describe('Transaction', () => {
 
   it('throw error if wrong locale using createFromState function', () => {
     var state = '123-xeab'
-    expect(() => Transaction.createFromState(state, Sign.In, 'openid email', 'be')).toThrowError(
-      "'be' locale not valid, possible values en,fr",
-    )
+    expect(() =>
+      Transaction.createFromState(false, state, Sign.In, 'openid email', 'be'),
+    ).toThrowError("'be' locale not valid, possible values en,fr")
 
     expect(Transaction.get(state)).toMatchObject({})
   })
@@ -430,6 +430,7 @@ describe('Transaction.createFromState', () => {
   it('should test redirect uri if defined', () => {
     const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
     Transaction.createFromState(
+      false,
       'some_state',
       Sign.In,
       'openid email',
