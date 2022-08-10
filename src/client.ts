@@ -38,7 +38,10 @@ class Client {
         `'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
       )
     }
-    this.config = config
+    console.warn(
+      "[Cryptr] 'fixed_pkce' value in Config will be remove from version '1.4.0' and have behavior related to 'true' value",
+    )
+    this.config = { ...{ fixed_pkce: false }, ...config }
     try {
       const workerString =
         "onmessage = function(oEvt) {setTimeout(() => {postMessage('rotate');}, 10000)};"
