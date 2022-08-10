@@ -280,6 +280,7 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signInWithoutRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'signin',
       'openid email profile',
       undefined,
@@ -292,6 +293,7 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signUpWithoutRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'signup',
       'openid email profile',
       undefined,
@@ -304,6 +306,7 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.inviteWithoutRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'invite',
       'openid email profile',
       undefined,
@@ -316,6 +319,7 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signInWithRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'signin',
       'openid email profile',
       undefined,
@@ -328,6 +332,7 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signUpWithRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'signup',
       'openid email profile',
       undefined,
@@ -340,6 +345,7 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.inviteWithRedirect()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'invite',
       'openid email profile',
       undefined,
@@ -353,6 +359,7 @@ describe('signin process', () => {
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
     await client.signInWithSSO(idpId)
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       undefined,
@@ -366,6 +373,7 @@ describe('signin process', () => {
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
     await client.signInWithSSO(idpId, { scope: 'openid email' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       undefined,
@@ -379,6 +387,7 @@ describe('signin process', () => {
     const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
     await client.signInWithSSO(idpId, { scope: 'openid email profile admin' })
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile admin',
       undefined,
@@ -395,6 +404,7 @@ describe('signin process', () => {
       redirectUri: 'http://localhost:3000',
     })
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       undefined,
@@ -412,6 +422,7 @@ describe('signin process', () => {
       locale: 'fr',
     })
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       'fr',
@@ -427,6 +438,7 @@ describe('signin process', () => {
       clientId: 'some-client-id',
     })
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       undefined,
@@ -456,6 +468,7 @@ describe('signin process', () => {
       tenantDomain: 'some-tenant-domain',
     })
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       undefined,
@@ -618,7 +631,7 @@ describe('Client.handleRedirectCallback/?', () => {
       authorization: { id: '42', code: 'azerty' },
     })
     expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      validConfig,
+      { ...validConfig, fixed_pkce: false },
       { id: '42', code: 'azerty' },
       expect.anything(),
       undefined,
@@ -634,7 +647,7 @@ describe('Client.handleRedirectCallback/?', () => {
       organization_domain: 'misapret',
     })
     expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      validConfig,
+      { ...validConfig, fixed_pkce: false },
       { id: '42', code: 'azerty' },
       expect.anything(),
       'misapret',
@@ -708,6 +721,7 @@ describe('signInWithGateway', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     client.signInWithSSOGateway()
     expect(transactionCreateFn).toHaveBeenCalledWith(
+      false,
       'sso',
       'openid email profile',
       undefined,

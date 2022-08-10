@@ -110,7 +110,13 @@ class Client {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    await Transaction.create(sign, this.finalScope(scope), locale, redirectUri)
+    await Transaction.create(
+      this.config.fixed_pkce,
+      sign,
+      this.finalScope(scope),
+      locale,
+      redirectUri,
+    )
   }
 
   async signInWithoutRedirect(
@@ -146,7 +152,13 @@ class Client {
     if (redirectUri !== this.config.default_redirect_uri) {
       validRedirectUri(redirectUri)
     }
-    const transaction = await Transaction.create(sign, this.finalScope(scope), locale, redirectUri)
+    const transaction = await Transaction.create(
+      this.config.fixed_pkce,
+      sign,
+      this.finalScope(scope),
+      locale,
+      redirectUri,
+    )
     const url = await Transaction.signUrl(this.config, transaction)
 
     window.location.assign(url.href)
@@ -162,6 +174,7 @@ class Client {
 
   async signInWithSSO(idpId: string, options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
+      this.config.fixed_pkce,
       Sign.Sso,
       this.finalScope(options?.scope || DEFAULT_SCOPE),
       options?.locale,
@@ -180,6 +193,7 @@ class Client {
 
   async signInWithSSOGateway(idpId?: string | string[], options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
+      this.config.fixed_pkce,
       Sign.Sso,
       this.finalScope(options?.scope || DEFAULT_SCOPE),
       options?.locale,
@@ -214,7 +228,12 @@ class Client {
   async handleInvitationState(scope = DEFAULT_SCOPE) {
     const urlParams = new URLSearchParams(locationSearch())
     const state = urlParams.get('state')
-    const transaction = await Transaction.createFromState(state, Sign.Invite, scope)
+    const transaction = await Transaction.createFromState(
+      this.config.fixed_pkce,
+      state,
+      Sign.Invite,
+      scope,
+    )
     const url = await Transaction.signUrl(this.config, transaction)
     window.location.assign(url.href)
   }
