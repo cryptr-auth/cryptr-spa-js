@@ -10,6 +10,9 @@ import InMemory from './memory'
 import { refreshKey } from './transaction'
 import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
 import * as Utils from './utils'
+import axios from 'axios'
+
+jest.mock('axios');
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -512,6 +515,44 @@ describe('Client.userAccountAccess/0', () => {
     await client.userAccountAccess()
     expect(accessTokenFn).toHaveBeenCalled()
     accessTokenFn.mockRestore()
+  })
+
+  it('should call proper endpoint depending on tnt', async () => {
+    const token = TokenFixture.accessToken.valid()
+    await client.userAccountAccess(token)
+    const axiosGetFn = jest.spyOn(axios, 'post')
+    expect(axiosGetFn).toHaveBeenCalledWith(
+      'http://localhost:4000/api/v1/client-management/tenants/cryptr/account-access',
+      {
+        client_id: client.config.client_id,
+        access_token: token
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+    axiosGetFn.mockRestore()
+  })
+
+  it('should call proper endpoint depending on differnet tnt', async () => {
+    const token = TokenFixture.accessToken.misapretSample()
+    await client.userAccountAccess(token)
+    const axiosGetFn = jest.spyOn(axios, 'post')
+    expect(axiosGetFn).toHaveBeenCalledWith(
+      'http://localhost:4000/api/v1/client-management/tenants/misapret/account-access',
+      {
+        client_id: client.config.client_id,
+        access_token: token
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+    axiosGetFn.mockRestore()
   })
 })
 

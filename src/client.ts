@@ -359,11 +359,12 @@ class Client {
     return !this.currentAccessTokenPresent() && this.hasInvitationParams(searchParams)
   }
 
-  async userAccountAccess() {
-    const accessToken = this.getCurrentAccessToken()
+  async userAccountAccess(accessToken = this.getCurrentAccessToken()) {
     if (accessToken) {
+      let decoded = Jwt.body(accessToken)
+      let domain = decoded.hasOwnProperty('tnt') ? (decoded as any).tnt : this.config.tenant_domain
       let url: URL = new URL(cryptrBaseUrl(this.config))
-      url.pathname = `/api/v1/client-management/tenants/${this.config.tenant_domain}/account-access`
+      url.pathname = `/api/v1/client-management/tenants/${domain}/account-access`
       let params = {
         client_id: this.config.client_id,
         access_token: accessToken,
@@ -374,7 +375,7 @@ class Client {
       return axios.post(url.toString(), params, config)
     } else {
       console.log('no accessToken found')
-      return
+      return null
     }
   }
 
