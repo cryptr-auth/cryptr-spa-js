@@ -1,5 +1,5 @@
-| Statements                                                                            | Branches                                                                       | Functions                                                                           |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Statements                                                                            | Branches                                                                       | Functions                                                                                |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | ![Statements](https://img.shields.io/badge/statements-87.37%25-yellow.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-72.97%25-red.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-91.61%25-brightgreen.svg?style=flat) |
 
 [![codecov](https://codecov.io/gh/cryptr-auth/cryptr-spa-js/branch/master/graph/badge.svg?token=F21AODGJM4)](https://codecov.io/gh/cryptr-auth/cryptr-spa-js)
@@ -7,6 +7,18 @@
 # 📚 cryptr-spa.js
 
 > Cryptr SDK for Single Page Applications using passwordless authentication
+
+## Installation
+
+current version `1.1.2`
+
+```bash
+//yarn
+yarn add @cryptr/cryptr-spa-js
+
+//npm
+npm install @cryptr/cryptr-spa-js
+```
 
 ## Configuration
 
