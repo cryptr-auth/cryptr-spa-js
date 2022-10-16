@@ -143,13 +143,14 @@
     fixed_pkce: window.VUE_APP_CRYPTR_FIXED_PKCE || false,
   };
 
+  const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
+  const idpIds = (window.VUE_APP_IDP_IDS && window.VUE_APP_IDP_IDS.split(",")) || []
+
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
   document.getElementById("client-id").innerText = config.client_id;
   document.getElementById("audience").innerText = config.audience;
   document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
-  const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
-  const idpIds = (window.VUE_APP_IDP_IDS && window.VUE_APP_IDP_IDS.split(",")) || []
 
   var app = new Vue({
     el: '#app',
