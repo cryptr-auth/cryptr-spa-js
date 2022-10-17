@@ -209,6 +209,28 @@ class Client {
     window.location.assign(url.href)
   }
 
+  async signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs) {
+    const attrs = Transaction.buildUniversalAttrs(options)
+
+    const url = await Transaction.universalGatewayUrl({
+      ...attrs,
+      domain: organizationDomain,
+    })
+    console.debug('universal gateway url', url)
+    window.location.assign(url.href)
+  }
+
+  async signInWithEmail(email: string, options?: SsoSignOptsAttrs) {
+    const attrs = Transaction.buildUniversalAttrs(options)
+
+    const url = await Transaction.universalGatewayUrl({
+      ...attrs,
+      email: email,
+    })
+    console.debug('universal gateway url', url)
+    window.location.assign(url.href)
+  }
+
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,

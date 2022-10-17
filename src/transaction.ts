@@ -8,6 +8,7 @@ import {
   DEFAULT_REFRESH_EXPIRATION,
   cryptrBaseUrl,
   ALLOWED_LOCALES,
+  DEFAULT_SCOPE,
 } from './constants'
 import Jwt from './jwt'
 import Pkce from './pkce'
@@ -17,6 +18,7 @@ import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 import axios from 'axios'
 import { organizationDomain } from './utils'
+import { SsoSignOptsAttrs } from './interfaces'
 
 const newTransaction = (
   fixedPkce: boolean,
@@ -102,13 +104,13 @@ const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
@@ -431,6 +433,81 @@ const Transaction: any = {
           url.searchParams.append('idp_ids[]', idp_id)
         })
       }
+    }
+    const locale = transaction.locale || config.default_locale || 'en'
+    url.searchParams.append('locale', locale)
+    url.searchParams.append('client_state', transaction.pkce.state)
+    url.searchParams.append('scope', transaction.scope)
+    url.searchParams.append('client_id', config.client_id)
+    url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
+    url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
+    url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
+    return url
+  },
+
+  async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
+    const transaction = await Transaction.create(
+      this.config.fixed_pkce,
+      Sign.Sso,
+      this.finalScope(options?.scope || DEFAULT_SCOPE),
+      options?.locale,
+      options?.redirectUri || this,
+    )
+    let transactionConfig = options?.clientId
+      ? { ...this.config, client_id: options.clientId }
+      : this.config
+
+    transactionConfig = options?.tenantDomain
+      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
+      : transactionConfig
+    return { config: transactionConfig, transaction: transaction }
+  },
+
+  universalGatewayUrl({
+    config,
+    transaction,
+    organizationDomain,
+    email,
+  }: I.UniversalGatewayUrlParams): void | URL {
+    if (config && transaction) {
+      let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
+      let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
+
+      if (organizationDomain) {
+        url.searchParams.append('organization', organizationDomain)
+      } else if (email) {
+        url.searchParams.append('email', email)
+      }
+
+      const locale = transaction.locale || config.default_locale || 'en'
+      url.searchParams.append('locale', locale)
+      url.searchParams.append('client_state', transaction.pkce.state)
+      url.searchParams.append('scope', transaction.scope)
+      url.searchParams.append('client_id', config.client_id)
+      url.searchParams.append(
+        'redirect_uri',
+        transaction.redirect_uri || config.default_redirect_uri,
+      )
+      url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
+      url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
+      return url
+    } else {
+      throw Error("'config' and 'transaction are mandatory")
+    }
+  },
+
+  newGatewaySignUrl: (
+    config: I.Config,
+    transaction: I.Transaction,
+    organizationDomain?: string,
+  ): void | URL => {
+    let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
+    let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
+
+    // url.pathname = url.pathname.concat(`/t/${config.tenant_domain}`).replace('//', '/')
+
+    if (organizationDomain !== undefined) {
+      url.searchParams.append('organization', organizationDomain)
     }
     const locale = transaction.locale || config.default_locale || 'en'
     url.searchParams.append('locale', locale)

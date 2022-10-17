@@ -227,6 +227,101 @@ const validConfig: Config = {
   default_locale: 'fr',
 }
 
+describe('Transaction.universalGatewayUrl/3', () => {
+  it('should fail if no config', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    expect(() => {
+      Transaction.universalGatewayUrl({ config: undefined, transaction: transaction })
+    }).toThrow("'config' and 'transaction are mandatory")
+  })
+
+  it('should fail if no transaction', () => {
+    const t = () => {
+      Transaction.universalGatewayUrl({ config: validConfig, trnasaction: undefined })
+    }
+    expect(t).toThrow("'config' and 'transaction are mandatory")
+  })
+
+  it('should return en universal gateway url with pkce attrs and english default locale', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.universalGatewayUrl({
+      config: { ...validConfig, default_locale: 'en' },
+      transaction: transaction,
+    })
+    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
+    expect(url.searchParams.get('locale')).toEqual('en')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+
+    expect(url.searchParams.get('email')).toBeNull()
+    expect(url.searchParams.get('organization')).toBeNull()
+  })
+
+  it('should return raw universal gateway url with pkce attrs', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.universalGatewayUrl({ config: validConfig, transaction: transaction })
+    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+
+    expect(url.searchParams.get('email')).toBeNull()
+    expect(url.searchParams.get('organization')).toBeNull()
+  })
+
+  it('should return universal gateway url with pkce and email attrs if email provided', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.universalGatewayUrl({
+      config: validConfig,
+      transaction: transaction,
+      email: 'shark',
+    })
+    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+    expect(url.searchParams.get('email')).toEqual('shark')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+  })
+
+  it('should return universal gateway url with pkce and organization attrs if domain provided', () => {
+    const transaction = TransactionFixure.validWithType(Sign.Sso)
+    const url = Transaction.universalGatewayUrl({
+      config: validConfig,
+      transaction: transaction,
+      organizationDomain: 'shark',
+    })
+    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
+    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
+    expect(url.searchParams.get('client_id')).toEqual('123-xeab')
+    expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
+    expect(url.searchParams.get('code_challenge_method')).toEqual('S256')
+    expect(url.searchParams.get('code_challenge')).toEqual(transaction.pkce.code_challenge)
+    expect(url.searchParams.get('scope')).toEqual('openid email')
+    expect(url.searchParams.get('organization')).toEqual('shark')
+    expect(url.searchParams.get('idp_id')).toBeNull()
+    expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
+  })
+})
+
 describe('Transaction.gatewaySignUrl/3', () => {
   it('should generate root gateway url if config is dedicated_server', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)

@@ -113,6 +113,9 @@
         <div class="card-header">
           <h4 class="my-0 font-weight-normal">Gateway</h4>
           <p>You don't known what's user's IDP, use our gateway</p>
+          <a href="#" class="btn btn-outline-info" @click="universalGateway">
+            Signin with New Gateway
+          </a>
           <a @click="globalGateway" class="btn btn-outline mr-3" href="#">
             Global Gateway
           </a>
@@ -208,6 +211,9 @@
       },
       gatewayIdps() {
         this.cryptrClient.signInWithSSOGateway(idpIds);
+      },
+      universalGateway() {
+        this.cryptrClient.signInWithDomain('blockpulse');
       },
       /** Logs out the current user**/
       logOut() {

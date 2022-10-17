@@ -80,3 +80,10 @@ export interface SsoSignOptsAttrs extends SignOptsAttrs {
   clientId?: string
   tenantDomain?: string
 }
+
+export interface UniversalGatewayUrlParams {
+  config: Config
+  transaction: Transaction
+  organizationDomain?: string
+  email?: string
+}
