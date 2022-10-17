@@ -221,12 +221,13 @@ describe('revoke tokens', () => {
   })
 
   xit('returns proper data from revoke access', async () => {
-    Request.revokeAccessToken(ConfigFixture.valid(), TokenFixture.accessToken.misapretSample()).then(
-      (response: any) => {
-        expect(typeof response['data']['revoked_at']).not.toBe('string')
-        expect(response.status).toEqual(200)
-      },
-    )
+    Request.revokeAccessToken(
+      ConfigFixture.valid(),
+      TokenFixture.accessToken.misapretSample(),
+    ).then((response: any) => {
+      expect(typeof response['data']['revoked_at']).not.toBe('string')
+      expect(response.status).toEqual(200)
+    })
   })
 
   xit('fails when revoke wrong refresh', async () => {

@@ -12,7 +12,7 @@ import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
 import * as Utils from './utils'
 import axios from 'axios'
 
-jest.mock('axios');
+jest.mock('axios')
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -525,13 +525,13 @@ describe('Client.userAccountAccess/0', () => {
       'http://localhost:4000/api/v1/client-management/tenants/cryptr/account-access',
       {
         client_id: client.config.client_id,
-        access_token: token
+        access_token: token,
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     )
     axiosGetFn.mockRestore()
   })
@@ -544,13 +544,13 @@ describe('Client.userAccountAccess/0', () => {
       'http://localhost:4000/api/v1/client-management/tenants/misapret/account-access',
       {
         client_id: client.config.client_id,
-        access_token: token
+        access_token: token,
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     )
     axiosGetFn.mockRestore()
   })
