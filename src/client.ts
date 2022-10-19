@@ -209,19 +209,36 @@ class Client {
     window.location.assign(url.href)
   }
 
-  async signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs) {
-    const attrs = Transaction.buildUniversalAttrs(options)
+  async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
+    const transaction = await Transaction.create(
+      this.config.fixed_pkce,
+      Sign.Sso,
+      this.finalScope(options?.scope || DEFAULT_SCOPE),
+      options?.locale,
+      options?.redirectUri || this.config.default_redirect_uri,
+    )
+    let transactionConfig = options?.clientId
+      ? { ...this.config, client_id: options.clientId }
+      : this.config
 
-    const url = await Transaction.universalGatewayUrl({
-      ...attrs,
-      domain: organizationDomain,
-    })
+    transactionConfig = options?.tenantDomain
+      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
+      : transactionConfig
+    return { config: transactionConfig, transaction: transaction }
+  }
+
+  async signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs) {
+    const attrs = await this.buildUniversalAttrs(options)
+
+    const universalAttrs = organizationDomain ? { ...attrs, domain: organizationDomain } : attrs
+    console.debug('uuniversalAttrs', universalAttrs)
+    const url = await Transaction.universalGatewayUrl(universalAttrs)
     console.debug('universal gateway url', url)
     window.location.assign(url.href)
   }
 
   async signInWithEmail(email: string, options?: SsoSignOptsAttrs) {
-    const attrs = Transaction.buildUniversalAttrs(options)
+    const attrs = await this.buildUniversalAttrs(options)
 
     const url = await Transaction.universalGatewayUrl({
       ...attrs,

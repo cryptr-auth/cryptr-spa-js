@@ -505,6 +505,101 @@ describe('signin process', () => {
     )
     transactionSignUrlFn.mockRestore()
   })
+
+  it('signInWithDomain without call Transaction universalGatewayUrl fn without attribute', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    await client.signInWithDomain()
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+      }),
+    )
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithDomain call Transaction universalGatewayUrl fn', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    await client.signInWithDomain('some-domain')
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        domain: 'some-domain',
+      }),
+    )
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithEmail call Transaction universalGatewayUrl fn', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    await client.signInWithEmail('john.doe@cryptr.co')
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        email: 'john.doe@cryptr.co',
+      }),
+    )
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithEmail with options call Transaction universalGatewayUrl fn properly', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signInWithEmail('john.doe@cryptr.co', { locale: 'fr' })
+    expect(transactionCreateFn).toBeCalledWith(
+      client.config.fixed_pkce,
+      'sso',
+      'openid email profile',
+      'fr',
+      client.config.default_redirect_uri,
+    )
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        email: 'john.doe@cryptr.co',
+        transaction: expect.objectContaining({
+          pkce: expect.objectContaining({
+            code_challenge_method: 'S256',
+          }),
+          sign_type: 'sso',
+          scope: 'openid email profile',
+          locale: 'fr',
+          redirect_uri: client.config.default_redirect_uri,
+        }),
+      }),
+    )
+    transactionCreateFn.mockRestore()
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithDomain with options call Transaction universalGatewayUrl fn properly', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signInWithDomain('some-domain', { locale: 'fr' })
+    expect(transactionCreateFn).toBeCalledWith(
+      client.config.fixed_pkce,
+      'sso',
+      'openid email profile',
+      'fr',
+      client.config.default_redirect_uri,
+    )
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        domain: 'some-domain',
+        transaction: expect.objectContaining({
+          pkce: expect.objectContaining({
+            code_challenge_method: 'S256',
+          }),
+          sign_type: 'sso',
+          scope: 'openid email profile',
+          locale: 'fr',
+          redirect_uri: client.config.default_redirect_uri,
+        }),
+      }),
+    )
+    transactionCreateFn.mockRestore()
+    transactionUniversalSignUrlFn.mockRestore()
+  })
 })
 
 describe('Client.userAccountAccess/0', () => {

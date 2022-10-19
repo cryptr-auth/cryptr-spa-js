@@ -8,7 +8,6 @@ import {
   DEFAULT_REFRESH_EXPIRATION,
   cryptrBaseUrl,
   ALLOWED_LOCALES,
-  DEFAULT_SCOPE,
 } from './constants'
 import Jwt from './jwt'
 import Pkce from './pkce'
@@ -18,7 +17,6 @@ import * as Sentry from '@sentry/browser'
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 import axios from 'axios'
 import { organizationDomain } from './utils'
-import { SsoSignOptsAttrs } from './interfaces'
 
 const newTransaction = (
   fixedPkce: boolean,
@@ -443,24 +441,6 @@ const Transaction: any = {
     url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
     url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
     return url
-  },
-
-  async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
-    const transaction = await Transaction.create(
-      this.config.fixed_pkce,
-      Sign.Sso,
-      this.finalScope(options?.scope || DEFAULT_SCOPE),
-      options?.locale,
-      options?.redirectUri || this,
-    )
-    let transactionConfig = options?.clientId
-      ? { ...this.config, client_id: options.clientId }
-      : this.config
-
-    transactionConfig = options?.tenantDomain
-      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
-      : transactionConfig
-    return { config: transactionConfig, transaction: transaction }
   },
 
   universalGatewayUrl({
