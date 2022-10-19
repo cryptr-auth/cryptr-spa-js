@@ -87,3 +87,10 @@ export interface UniversalGatewayUrlParams {
   organizationDomain?: string
   email?: string
 }
+
+export interface RedirectionParams {
+  state: string
+  authorization: Authorization
+  organization_domain?: string
+  request_id?: string
+}
