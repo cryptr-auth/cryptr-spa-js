@@ -449,6 +449,48 @@ describe('Transaction.gatewaySignUrl/3', () => {
   })
 })
 
+describe('Transaction.getUniversalTokens/4', () => {
+  it('should call Request.postUniversalAuthorizationCode without org domain', async () => {
+    const requestPostUniversalAuthCodeFn = jest.spyOn(Request, 'postUniversalAuthorizationCode')
+    let config = ConfigFixture.valid()
+    let authorization = AuthorizationFixture.valid()
+    let transaction = TransactionFixure.valid()
+    await Transaction.getUniversalTokens(config, authorization, transaction, 'some-request-id')
+    expect(requestPostUniversalAuthCodeFn).toHaveBeenCalledWith(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+      undefined,
+    )
+    requestPostUniversalAuthCodeFn.mockRestore()
+  })
+})
+
+describe('Transaction.getUniversalTokens/5', () => {
+  it('should call Request.postUniversalAuthorizationCode with org domain if provided', async () => {
+    const requestPostUniversalAuthCodeFn = jest.spyOn(Request, 'postUniversalAuthorizationCode')
+    let config = ConfigFixture.valid()
+    let authorization = AuthorizationFixture.valid()
+    let transaction = TransactionFixure.valid()
+    await Transaction.getUniversalTokens(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+      'some-domain',
+    )
+    expect(requestPostUniversalAuthCodeFn).toHaveBeenCalledWith(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+      'some-domain',
+    )
+    requestPostUniversalAuthCodeFn.mockRestore()
+  })
+})
+
 describe('Transaction.getTokens/3', () => {
   it('should call Request.postAuthorizationCode without organization_domain', async () => {
     const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')

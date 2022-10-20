@@ -5,6 +5,21 @@ import { organizationDomain } from './utils'
 
 const API_VERSION = 'v1'
 
+export const universalTokenParams = (
+  config: Config,
+  authorization: Authorization,
+  transaction: TransactionInterface,
+  request_id: string,
+) => ({
+  grant_type: 'authorization_code',
+  client_id: config.client_id,
+  authorization_id: authorization.id,
+  code: authorization.code,
+  code_verifier: transaction.pkce.code_verifier,
+  nonce: transaction.nonce,
+  request_id: request_id,
+})
+
 export const tokenParams = (
   config: Config,
   authorization: Authorization,
@@ -67,6 +82,10 @@ export const decoratedAxiosRequestConfig = (
   return axiosRequestConfig
 }
 
+export const universalTokenUrl = (config: Config, organization_domain?: string) => {
+  return [cryptrBaseUrl(config), 'org', organization_domain, 'oauth2', 'token'].join('/')
+}
+
 export const tokenUrl = (
   config: Config,
   authorization: Authorization,
@@ -103,6 +122,17 @@ const Request = {
     return axios.post(url, tokenParams(config, authorization, transaction))
   },
 
+  postUniversalAuthorizationCode: async (
+    config: Config,
+    authorization: Authorization,
+    transaction: TransactionInterface,
+    request_id: string,
+    organization_domain?: string,
+  ) => {
+    let url = universalTokenUrl(config, organization_domain)
+    const params = universalTokenParams(config, authorization, transaction, request_id)
+    return axios.post(url, params)
+  },
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)

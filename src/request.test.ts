@@ -8,6 +8,7 @@ import RequestMock from './__mocks__/request.mock'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
+import { Authorization, Config, Transaction } from './interfaces'
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
@@ -55,6 +56,49 @@ describe('Request.postAuthorizationCode/4', () => {
     Request.postAuthorizationCode(config, authorization, transaction, 'misapret')
     expect(tokenUrlFn).toHaveBeenCalledWith(config, authorization, transaction, 'misapret')
     tokenUrlFn.mockRestore()
+  })
+})
+
+describe('Request.postUniversalAuthorizationcode', () => {
+  it('calls universalTokenUrl and universalTokenParams properly when no org domain', () => {
+    const universalTokenUrlFn = jest.spyOn(RequestAPI, 'universalTokenUrl')
+    const universalTokenParamsFn = jest.spyOn(RequestAPI, 'universalTokenParams')
+    const config = ConfigFixture.valid()
+    const authorization = AuthorizationFixture.valid()
+    const transaction = TransactionFixure.valid()
+    Request.postUniversalAuthorizationCode(config, authorization, transaction, 'some-request-id')
+    expect(universalTokenUrlFn).toHaveBeenCalledWith(config, undefined)
+    expect(universalTokenParamsFn).toHaveBeenCalledWith(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+    )
+    universalTokenUrlFn.mockRestore()
+    universalTokenParamsFn.mockRestore()
+  })
+  it('calls universalTokenUrl and universalTokenParams properly when org domain provided', () => {
+    const universalTokenUrlFn = jest.spyOn(RequestAPI, 'universalTokenUrl')
+    const universalTokenParamsFn = jest.spyOn(RequestAPI, 'universalTokenParams')
+    const config = ConfigFixture.valid()
+    const authorization = AuthorizationFixture.valid()
+    const transaction = TransactionFixure.valid()
+    Request.postUniversalAuthorizationCode(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+      'some-domain',
+    )
+    expect(universalTokenUrlFn).toHaveBeenCalledWith(config, 'some-domain')
+    expect(universalTokenParamsFn).toHaveBeenCalledWith(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+    )
+    universalTokenUrlFn.mockRestore()
+    universalTokenParamsFn.mockRestore()
   })
 })
 
@@ -281,6 +325,46 @@ describe('Request.decoratedRequest', () => {
       method: 'POST',
       data: { items: [12, 'blue', 'azerty'] },
       headers: { Authorization: 'Bearer access_token_azerty', 'X-User': 'john.doe' },
+    })
+  })
+})
+
+describe('Request.universalTokenParams', () => {
+  it('returns proper formated params', () => {
+    let config: Config = ConfigFixture.valid()
+    let authorization: Authorization = AuthorizationFixture.valid()
+    let transaction: Transaction = TransactionFixure.valid()
+    let params = RequestAPI.universalTokenParams(
+      config,
+      authorization,
+      transaction,
+      'some-request-id',
+    )
+    expect(params).toEqual({
+      grant_type: 'authorization_code',
+      client_id: config.client_id,
+      authorization_id: authorization.id,
+      code: authorization.code,
+      code_verifier: transaction.pkce.code_verifier,
+      nonce: transaction.nonce,
+      request_id: 'some-request-id',
+    })
+  })
+})
+
+describe('Request.tokenParams', () => {
+  it('returns proper formated params', () => {
+    let config: Config = ConfigFixture.valid()
+    let authorization: Authorization = AuthorizationFixture.valid()
+    let transaction: Transaction = TransactionFixure.valid()
+    let params = RequestAPI.tokenParams(config, authorization, transaction)
+    expect(params).toEqual({
+      grant_type: 'authorization_code',
+      client_id: config.client_id,
+      authorization_id: authorization.id,
+      code: authorization.code,
+      code_verifier: transaction.pkce.code_verifier,
+      nonce: transaction.nonce,
     })
   })
 })

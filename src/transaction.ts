@@ -266,6 +266,65 @@ const Transaction: any = {
     return tr
   },
 
+  getUniversalTokens: async (
+    config: I.Config,
+    authorization: I.Authorization,
+    transaction: I.Transaction,
+    request_id: string,
+    organization_domain?: string,
+  ): Promise<I.TokenResult> => {
+    const errors: I.TokenError[] = []
+    let accessResult: I.TokenResult = {
+      valid: false,
+      accessToken: '',
+      idToken: '',
+      refreshToken: '',
+      errors: errors,
+    }
+    await Request.postUniversalAuthorizationCode(
+      config,
+      authorization,
+      transaction,
+      request_id,
+      organization_domain,
+    )
+      .then((response: any) => {
+        try {
+          validatesNonce(transaction, response['data']['nonce'])
+          accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
+            withPKCE: true,
+            organization_domain: organization_domain,
+          })
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            errors.push({
+              error: 'transaction parse tokens',
+              error_description: `${error}`,
+              http_response: error.response,
+            })
+          }
+          accessResult = {
+            ...accessResult,
+            valid: false,
+            errors: errors,
+          }
+        }
+      })
+      .catch((error) => {
+        errors.push({
+          error: 'getUniversalTokens Error',
+          error_description: `${error}`,
+          http_response: error.response,
+        })
+        accessResult = {
+          ...accessResult,
+          valid: false,
+          errors: errors,
+        }
+      })
+    return accessResult
+  },
+
   /*
   Get initial tokens from config & new transaction
 

@@ -790,6 +790,41 @@ describe('Client.handleRedirectCallback/?', () => {
     )
     transactionGetTokensFn.mockRestore()
   })
+
+  it('calls Transaction.getUniversalTokens with request_id attribute if present', async () => {
+    let transactionGetUniversalTokensFn = jest.spyOn(Transaction, 'getUniversalTokens')
+    await client.handleRedirectCallback({
+      state: '12',
+      authorization: { id: '42', code: 'azerty' },
+      request_id: 'some-request-id',
+    })
+    expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
+      { ...validConfig, fixed_pkce: false },
+      { id: '42', code: 'azerty' },
+      expect.anything(),
+      'some-request-id',
+      undefined,
+    )
+    transactionGetUniversalTokensFn.mockRestore()
+  })
+
+  it('calls Transaction.getUniversalTokens with both request_id and organization_domain attribute if present', async () => {
+    let transactionGetUniversalTokensFn = jest.spyOn(Transaction, 'getUniversalTokens')
+    await client.handleRedirectCallback({
+      state: '12',
+      authorization: { id: '42', code: 'azerty' },
+      request_id: 'some-request-id',
+      organization_domain: 'misapret',
+    })
+    expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
+      { ...validConfig, fixed_pkce: false },
+      { id: '42', code: 'azerty' },
+      expect.anything(),
+      'some-request-id',
+      'misapret',
+    )
+    transactionGetUniversalTokensFn.mockRestore()
+  })
 })
 
 describe('Client.finalScope', () => {

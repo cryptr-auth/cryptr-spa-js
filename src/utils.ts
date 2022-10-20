@@ -9,9 +9,7 @@ export const locationSearch = (): string => {
   }
 }
 
-export const parseRedirectParams = (
-  location = locationSearch(),
-): Interface.RedirectionParams => {
+export const parseRedirectParams = (location = locationSearch()): Interface.RedirectionParams => {
   const urlParams = new URLSearchParams(location)
 
   if (urlParams.get('state') && urlParams.get('authorization_id') && urlParams.get('code')) {

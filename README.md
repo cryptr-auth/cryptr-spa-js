@@ -1,6 +1,6 @@
-| Statements                                                                            | Branches                                                                       | Functions                                                                           |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| ![Statements](https://img.shields.io/badge/statements-84.79%25-yellow.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-66.57%25-red.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-89.37%25-yellow.svg?style=flat) |
+| Statements                                                                            | Branches                                                                       | Functions                                                                                |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| ![Statements](https://img.shields.io/badge/statements-86.45%25-yellow.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-73.64%25-red.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-91.25%25-brightgreen.svg?style=flat) |
 
 [![codecov](https://codecov.io/gh/cryptr-auth/cryptr-spa-js/branch/master/graph/badge.svg?token=F21AODGJM4)](https://codecov.io/gh/cryptr-auth/cryptr-spa-js)
 

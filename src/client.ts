@@ -311,12 +311,20 @@ class Client {
 
   async handleRedirectCallback(redirectParams = parseRedirectParams()) {
     const transaction = await Transaction.get(redirectParams.state)
-    const tokens = await Transaction.getTokens(
-      this.config,
-      redirectParams.authorization,
-      transaction,
-      redirectParams.organization_domain,
-    )
+    const tokens = redirectParams.request_id
+      ? await Transaction.getUniversalTokens(
+          this.config,
+          redirectParams.authorization,
+          transaction,
+          redirectParams.request_id,
+          redirectParams.organization_domain,
+        )
+      : await Transaction.getTokens(
+          this.config,
+          redirectParams.authorization,
+          transaction,
+          redirectParams.organization_domain,
+        )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
