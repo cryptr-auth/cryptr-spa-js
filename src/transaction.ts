@@ -511,13 +511,11 @@ const Transaction: any = {
     if (config && transaction) {
       let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
       let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
-
       if (organizationDomain) {
         url.searchParams.append('organization', organizationDomain)
       } else if (email) {
         url.searchParams.append('email', email)
       }
-
       const locale = transaction.locale || config.default_locale || 'en'
       url.searchParams.append('locale', locale)
       url.searchParams.append('client_state', transaction.pkce.state)

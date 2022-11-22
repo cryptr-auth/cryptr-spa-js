@@ -230,10 +230,10 @@ class Client {
   async signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs) {
     const attrs = await this.buildUniversalAttrs(options)
 
-    const universalAttrs = organizationDomain ? { ...attrs, domain: organizationDomain } : attrs
-    console.debug('uuniversalAttrs', universalAttrs)
+    const universalAttrs = organizationDomain
+      ? { ...attrs, domain: organizationDomain, organizationDomain: organizationDomain }
+      : attrs
     const url = await Transaction.universalGatewayUrl(universalAttrs)
-    console.debug('universal gateway url', url)
     window.location.assign(url.href)
   }
 
@@ -310,6 +310,7 @@ class Client {
   }
 
   async handleRedirectCallback(redirectParams = parseRedirectParams()) {
+    console.log('redirectParams', redirectParams)
     const transaction = await Transaction.get(redirectParams.state)
     const tokens = redirectParams.request_id
       ? await Transaction.getUniversalTokens(
