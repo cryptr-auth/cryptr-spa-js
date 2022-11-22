@@ -111,11 +111,21 @@
       </div>
       <div class="card mb-4 box-shadow">
         <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Gateway v2</h4>
+          <p>You can now fasten your user process by email or domain</p>
+          <a href="#" class="btn btn-outline-info" @click="signInWithDomain">
+            Signin with Domain
+          </a>
+          <a href="#" class="btn btn-outline-info" @click="signInWithEmail">
+            Signin with email
+          </a>
+          <a href="#" class="btn btn-outline-info" @click="universalGateway">
+            Raw Gateway v2
+          </a>
+        </div>
+        <div class="card-header">
           <h4 class="my-0 font-weight-normal">Gateway</h4>
           <p>You don't known what's user's IDP, use our gateway</p>
-          <a href="#" class="btn btn-outline-info" @click="universalGateway">
-            Signin with New Gateway
-          </a>
           <a @click="globalGateway" class="btn btn-outline mr-3" href="#">
             Global Gateway
           </a>
@@ -212,8 +222,14 @@
       gatewayIdps() {
         this.cryptrClient.signInWithSSOGateway(idpIds);
       },
+      signInWithDomain() {
+        this.cryptrClient.signInWithDomain(window.VUE_APP_ORGA_DOMAIN);
+      },
+      signInWithEmail() {
+        this.cryptrClient.signInWithEmail(window.VUE_APP_EMAIL_SAMPLE);
+      },
       universalGateway() {
-        this.cryptrClient.signInWithDomain('blockpulse');
+        this.cryptrClient.signInWithDomain();
       },
       /** Logs out the current user**/
       logOut() {
