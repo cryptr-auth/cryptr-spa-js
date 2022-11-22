@@ -1,4 +1,4 @@
-import Transaction, { parseErrors, validatesNonce } from './transaction'
+import Transaction, { parseErrors } from './transaction'
 import { Sign } from './types'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
@@ -579,18 +579,6 @@ describe('Transaction.createFromState', () => {
   })
 })
 
-describe('Transaction.validatesNonce/2', () => {
-  it('should returns true if same nonce', () => {
-    const transaction = TransactionFixure.valid()
-    expect(validatesNonce(transaction, transaction.nonce!)).toBeTruthy()
-  })
-
-  it('should throw error if wrong nonce', () => {
-    const transaction = TransactionFixure.valid()
-    expect(() => validatesNonce(transaction, 'nonce')).toThrow('Nonce values have to be the sames')
-  })
-})
-
 describe('Transaction.parseErrors', () => {
   it('should not returnserror if response', () => {
     expect(parseErrors({ data: { items: [12] } })).toEqual({
@@ -599,3 +587,5 @@ describe('Transaction.parseErrors', () => {
     })
   })
 })
+
+
