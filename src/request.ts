@@ -18,6 +18,7 @@ export const universalTokenParams = (
   code_verifier: transaction.pkce.code_verifier,
   nonce: transaction.nonce,
   request_id: request_id,
+  client_state: transaction.pkce.state,
 })
 
 export const tokenParams = (
