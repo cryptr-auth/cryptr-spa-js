@@ -101,33 +101,28 @@
               <li>Not available</li>
             </ul>
             <ul v-if="user.email" class="mt-3 mb-4">
-              <li>
-                <span>You got access to</span>
-                <code>{{ user.aud }}</code>
-              </li>
-              <li>
-                <span>from issuer</span>
-                <code>
-                  {{ user.iss }}
-                </code>
-              </li>
-              <li>
-                <span>tnt</span>
-                <code>{{ user.tnt }}</code>
-              </li>
-              <li>
-                <span>with scope items</span>
-                <ul>
-                  <li v-for="scope in user.scp" :key="scope">
-                    {{ scope }}
-                  </li>
-                </ul>
+              <li v-for="(key, value) in user">
+                <span>{{ value }} </span>
+                <code>{{ key }}</code>
               </li>
             </ul>
           </div>
         </div>
       </div>
       <div class="card mb-4 box-shadow">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Gateway v2</h4>
+          <p>You can now fasten your user process by email or domain</p>
+          <a href="#" class="btn btn-outline-info" @click="signInWithDomain">
+            Signin with Domain
+          </a>
+          <a href="#" class="btn btn-outline-info" @click="signInWithEmail">
+            Signin with email
+          </a>
+          <a href="#" class="btn btn-outline-info" @click="universalGateway">
+            Raw Gateway v2
+          </a>
+        </div>
         <div class="card-header">
           <h4 class="my-0 font-weight-normal">Gateway</h4>
           <p>You don't known what's user's IDP, use our gateway</p>
@@ -161,13 +156,14 @@
     fixed_pkce: window.VUE_APP_CRYPTR_FIXED_PKCE || false,
   };
 
+  const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
+  const idpIds = (window.VUE_APP_IDP_IDS && window.VUE_APP_IDP_IDS.split(",")) || []
+
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
   document.getElementById("client-id").innerText = config.client_id;
   document.getElementById("audience").innerText = config.audience;
   document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
   document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
-  const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
-  const idpIds = (window.VUE_APP_IDP_IDS && window.VUE_APP_IDP_IDS.split(",")) || []
 
   var app = new Vue({
     el: '#app',
@@ -225,6 +221,15 @@
       },
       gatewayIdps() {
         this.cryptrClient.signInWithSSOGateway(idpIds);
+      },
+      signInWithDomain() {
+        this.cryptrClient.signInWithDomain(window.VUE_APP_ORGA_DOMAIN);
+      },
+      signInWithEmail() {
+        this.cryptrClient.signInWithEmail(window.VUE_APP_EMAIL_SAMPLE);
+      },
+      universalGateway() {
+        this.cryptrClient.signInWithDomain();
       },
       /** Logs out the current user**/
       logOut() {
