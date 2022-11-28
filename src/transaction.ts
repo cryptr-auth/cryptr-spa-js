@@ -1,155 +1,15 @@
-import { v4 as uuid } from 'uuid'
 import * as I from './interfaces'
-
 import { Sign } from './types'
 import {
-  STORAGE_KEY_PREFIX,
-  DEFAULT_REFRESH_ROTATION_DURATION,
-  DEFAULT_REFRESH_EXPIRATION,
   cryptrBaseUrl,
   ALLOWED_LOCALES,
 } from './constants'
-import Jwt from './jwt'
-import Pkce from './pkce'
 import Request from './request'
 import Storage from './storage'
-import * as Sentry from '@sentry/browser'
-import { validRedirectUri } from '@cryptr/cryptr-config-validation'
-import axios from 'axios'
 import { organizationDomain } from './utils'
+import { getRefreshParameters, handlePostAuthorizationCode, handlePostUniversalAuthorizationCode, newTransaction, newTransactionWithState, parseTokensAndStoreRefresh, setTransactionKey, signPath, ssoSignPath, tomorrowDate, transactionKey } from './transaction.utils'
 
-const newTransaction = (
-  fixedPkce: boolean,
-  signType: Sign,
-  scope: string,
-  redirect_uri: string,
-  locale: string,
-): I.Transaction => {
-  if (redirect_uri !== undefined && redirect_uri != null) {
-    validRedirectUri(redirect_uri)
-  }
-  return {
-    pkce: Pkce.gen(fixedPkce),
-    sign_type: signType,
-    scope: scope,
-    nonce: uuid(),
-    locale: locale,
-    redirect_uri: redirect_uri,
-  }
-}
-
-const newTransactionWithState = (
-  fixedPkce: boolean,
-  signType: Sign,
-  scope: string,
-  state: string,
-  redirect_uri: string,
-  locale: string,
-): I.Transaction => {
-  if (redirect_uri !== undefined && redirect_uri != null) {
-    validRedirectUri(redirect_uri)
-  }
-  return {
-    pkce: Pkce.gen(fixedPkce, state),
-    sign_type: signType,
-    scope: scope,
-    nonce: uuid(),
-    locale: locale,
-    redirect_uri: redirect_uri,
-  }
-}
-
-export const validatesNonce = (transaction: I.Transaction, submittedNonce: string): void | true => {
-  if (submittedNonce !== transaction.nonce) {
-    throw new Error(`Nonce values have to be the sames`)
-  }
-  return true
-}
-
-const ssoSignPath = (idpId: string) => {
-  return `/enterprise/${idpId}/login`
-}
-
-const signPath = (config: I.Config, transaction: I.Transaction): string => {
-  const locale = transaction.locale || config.default_locale || 'en'
-  return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
-}
-
-export const transactionKey = (state: string) => `${STORAGE_KEY_PREFIX}.transaction.${state}`
-const setTransactionKey = (transaction: I.Transaction): string =>
-  `${STORAGE_KEY_PREFIX}.transaction.${transaction.pkce.state}`
-
-export const refreshKey = (): string => `${STORAGE_KEY_PREFIX}.refresh`
-
-const validateAndFormatAuthResp = (
-  config: I.Config,
-  accessToken?: string,
-  idToken?: string,
-  refreshToken?: string,
-  organization_domain?: string,
-) => {
-  let valid = true
-  let errors: I.TokenError[] = []
-  const validIdToken = Jwt.validatesIdToken(idToken || '', config, organization_domain)
-  const validAccessToken = Jwt.validatesAccessToken(accessToken || '', config, organization_domain)
-
-  if (!validAccessToken) {
-    valid = false
-    errors = [{ error: 'idToken', error_description: 'Not retrieve', http_response: null }]
-  }
-  if (!idToken || !validIdToken) {
-    valid = false
-    errors = validIdToken
-      ? errors
-      : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
-    errors = idToken
-      ? errors
-      : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
-  }
-
-  return {
-    valid: valid,
-    accessToken: accessToken || '',
-    idToken: idToken || '',
-    refreshToken: refreshToken || '',
-    errors: errors,
-  }
-}
-
-const getRefreshParameters = (resp: any): I.RefreshParameters => {
-  let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
-  let accessExpiration =
-    typeof accessExpInputValue === 'string'
-      ? Date.parse(accessExpInputValue)
-      : new Date(accessExpInputValue).getTime()
-
-  let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
-  let refreshExpiration =
-    typeof refreshExpInputValue === 'string'
-      ? Date.parse(refreshExpInputValue)
-      : new Date(refreshExpInputValue).getTime()
-  try {
-    return {
-      access_token_expiration_date: accessExpiration,
-      refresh_token: resp.refresh_token,
-      refresh_leeway: resp.refresh_leeway,
-      refresh_retry: resp.refresh_retry,
-      refresh_expiration_date: refreshExpiration,
-    }
-  } catch (err) {
-    return {}
-  }
-}
-
-export const tomorrowDate = (): Date => {
-  let now = new Date()
-  now.setDate(now.getDate() + 1)
-  return now
-}
+import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 
 export const parseErrors = (response: any): I.TokenError => {
   if (response) {
@@ -159,55 +19,6 @@ export const parseErrors = (response: any): I.TokenError => {
     error: 'error',
     error_description: 'response is undefined',
     http_response: null,
-  }
-}
-
-const parseTokensAndStoreRefresh = (
-  config: any,
-  response: any,
-  transaction: any,
-  opts: any,
-): I.TokenResult => {
-  const responseData = response['data']
-  const accessToken: string = responseData['access_token']
-  const idToken: string = responseData['id_token']
-  const refreshToken: string = responseData['refresh_token']
-  if (Jwt.validatesAccessToken(accessToken, config, opts.organization_domain)) {
-    if (refreshToken) {
-      const refreshTokenWrapper = getRefreshParameters(responseData)
-      let cookieExpirationDate = new Date()
-      if (refreshTokenWrapper.refresh_expiration_date) {
-        cookieExpirationDate = new Date(refreshTokenWrapper.refresh_expiration_date)
-      } else {
-        cookieExpirationDate = tomorrowDate()
-      }
-      Storage.createCookie(
-        refreshKey(),
-        {
-          refresh_token: refreshToken,
-          rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
-          expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
-          ...getRefreshParameters(responseData),
-        },
-        cookieExpirationDate,
-      )
-    }
-    if (opts.withPKCE) {
-      Storage.deleteCookie(transactionKey(transaction.pkce.state))
-    }
-  } else {
-    console.error('access token not validated')
-  }
-
-  return {
-    ...validateAndFormatAuthResp(
-      config,
-      accessToken,
-      idToken,
-      refreshToken,
-      opts.organization_domain,
-    ),
-    ...getRefreshParameters(responseData),
   }
 }
 
@@ -289,26 +100,14 @@ const Transaction: any = {
       organization_domain,
     )
       .then((response: any) => {
-        try {
-          validatesNonce(transaction, response['data']['nonce'])
-          accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
-            withPKCE: true,
-            organization_domain: organization_domain,
-          })
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            errors.push({
-              error: 'transaction parse tokens',
-              error_description: `${error}`,
-              http_response: error.response,
-            })
-          }
-          accessResult = {
-            ...accessResult,
-            valid: false,
-            errors: errors,
-          }
-        }
+        accessResult = handlePostUniversalAuthorizationCode(
+          response,
+          errors,
+          accessResult,
+          transaction,
+          config,
+          organization_domain
+        )
       })
       .catch((error) => {
         errors.push({
@@ -353,33 +152,19 @@ const Transaction: any = {
     }
     await Request.postAuthorizationCode(config, authorization, transaction, organization_domain)
       .then((response: any) => {
-        try {
-          validatesNonce(transaction, response['data']['nonce'])
-          accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
-            withPKCE: true,
-            organization_domain: organization_domain,
-          })
-        } catch (error) {
-          Sentry.captureException(error)
-          if (axios.isAxiosError(error)) {
-            errors.push({
-              error: 'transaction parse tokens',
-              error_description: `${error}`,
-              http_response: error.response,
-            })
-          }
-          accessResult = {
-            ...accessResult,
-            valid: false,
-            errors: errors,
-          }
-        }
+        accessResult = handlePostAuthorizationCode(
+          response,
+          errors,
+          accessResult,
+          transaction,
+          config,
+          organization_domain
+        )
       })
       .catch((error) => {
         console.error('error in postAuth catch')
         if (!config) {
           const transactionConfigNullMsg = 'config is null'
-          Sentry.captureMessage(transactionConfigNullMsg)
           errors.push({
             error: 'transaction',
             error_description: transactionConfigNullMsg,
@@ -396,7 +181,6 @@ const Transaction: any = {
           valid: false,
           errors: errors,
         }
-        Sentry.captureException(error)
       })
     return accessResult
   },
@@ -531,30 +315,6 @@ const Transaction: any = {
     } else {
       throw Error("'config' and 'transaction are mandatory")
     }
-  },
-
-  newGatewaySignUrl: (
-    config: I.Config,
-    transaction: I.Transaction,
-    organizationDomain?: string,
-  ): void | URL => {
-    let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
-    let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
-
-    // url.pathname = url.pathname.concat(`/t/${config.tenant_domain}`).replace('//', '/')
-
-    if (organizationDomain !== undefined) {
-      url.searchParams.append('organization', organizationDomain)
-    }
-    const locale = transaction.locale || config.default_locale || 'en'
-    url.searchParams.append('locale', locale)
-    url.searchParams.append('client_state', transaction.pkce.state)
-    url.searchParams.append('scope', transaction.scope)
-    url.searchParams.append('client_id', config.client_id)
-    url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
-    url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
-    url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
-    return url
   },
 }
 

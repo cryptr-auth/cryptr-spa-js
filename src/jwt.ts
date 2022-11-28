@@ -82,7 +82,7 @@ export const validatesFieldsExist = (jwtBody: any, fields: Array<string>): void 
   return true
 }
 
-const validatesTimestamps = (jwtBody: any): void | true => {
+export const validatesTimestamps = (jwtBody: any): void | true => {
   if (!Number.isInteger(jwtBody.exp)) {
     throw new Error('Expiration Time (exp) claim must be a number present')
   }

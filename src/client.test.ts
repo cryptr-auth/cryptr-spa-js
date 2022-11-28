@@ -1,16 +1,16 @@
 import Client from './client'
 import Request from './request'
 import Storage from './storage'
-import Transaction, { tomorrowDate } from './transaction'
+import Transaction from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-import { refreshKey } from './transaction'
 import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
 import * as Utils from './utils'
 import axios from 'axios'
+import { refreshKey, tomorrowDate } from './transaction.utils'
 
 jest.mock('axios')
 
