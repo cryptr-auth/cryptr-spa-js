@@ -1,5 +1,5 @@
-| Statements                                                                            | Branches                                                                       | Functions                                                                                |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Statements                                                                                 | Branches                                                                          | Functions                                                                                |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | ![Statements](https://img.shields.io/badge/statements-93.89%25-brightgreen.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-82.85%25-yellow.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-94.08%25-brightgreen.svg?style=flat) |
 
 [![codecov](https://codecov.io/gh/cryptr-auth/cryptr-spa-js/branch/master/graph/badge.svg?token=F21AODGJM4)](https://codecov.io/gh/cryptr-auth/cryptr-spa-js)
@@ -10,7 +10,7 @@
 
 ## Installation
 
-current version `1.1.2`
+current version `1.2.0`
 
 ```bash
 //yarn
