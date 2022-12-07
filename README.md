@@ -10,7 +10,7 @@
 
 ## Installation
 
-current version `1.2.0`
+current version `1.2.0-beta`
 
 ```bash
 //yarn
