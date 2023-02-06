@@ -113,8 +113,8 @@ describe('Request.refreshTokens/3', () => {
   })
 })
 
-describe('Request.refreshTokens/$', () => {
-  it('calls refreshTokensUrl without organization if standard refresh', () => {
+describe('Request.refreshTokens/4', () => {
+  it('calls refreshTokensUrl with organization if org refresh', () => {
     const refreshTokensUrlFn = jest.spyOn(RequestAPI, 'refreshTokensUrl')
     const config = ConfigFixture.valid()
     const transaction = TransactionFixure.valid()
