@@ -506,7 +506,7 @@ describe('signin process', () => {
     transactionSignUrlFn.mockRestore()
   })
 
-  it('signInWithDomain without call Transaction universalGatewayUrl fn without attribute', async () => {
+  it('signInWithDomain without domain, call Transaction universalGatewayUrl fn without attribute', async () => {
     const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
     await client.signInWithDomain()
     expect(transactionUniversalSignUrlFn).toBeCalledWith(
