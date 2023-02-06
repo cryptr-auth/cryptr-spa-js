@@ -694,7 +694,7 @@ describe('Client.handleNewTokens/2', () => {
     refresh_leeway: 60,
     refresh_retry: 5,
   }
-  it('calls setAccessToken is valid accessToken present', () => {
+  it('calls setAccessToken if valid accessToken present', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
     client.handleNewTokens(refreshStore, { valid: true, accessToken: 'eji.aze' })
     expect(setAccessTokenFn).toHaveBeenCalledWith('eji.aze')
