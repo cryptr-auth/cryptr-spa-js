@@ -96,7 +96,7 @@
     "fast-text-encoding": "^1.0.3",
     "hasha": "^5.2.0",
     "jwt-decode": "^2.2.0",
-    "promise-polyfill": "^8.2.3",
+    "promise-polyfill": "^8.3.0",
     "rollup-plugin-node-globals": "^1.4.0",
     "secure-random": "^1.1.2",
     "uuid": "^8.2.0"
