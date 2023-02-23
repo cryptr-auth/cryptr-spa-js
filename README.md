@@ -1,6 +1,6 @@
-| Statements                                                                            | Branches                                                                       | Functions                                                                                |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| ![Statements](https://img.shields.io/badge/statements-87.37%25-yellow.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-72.97%25-red.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-91.61%25-brightgreen.svg?style=flat) |
+| Statements                                                                                 | Branches                                                                          | Functions                                                                                |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| ![Statements](https://img.shields.io/badge/statements-93.88%25-brightgreen.svg?style=flat) | ![Branches](https://img.shields.io/badge/branches-82.85%25-yellow.svg?style=flat) | ![Functions](https://img.shields.io/badge/functions-94.08%25-brightgreen.svg?style=flat) |
 
 [![codecov](https://codecov.io/gh/cryptr-auth/cryptr-spa-js/branch/master/graph/badge.svg?token=F21AODGJM4)](https://codecov.io/gh/cryptr-auth/cryptr-spa-js)
 
@@ -10,7 +10,7 @@
 
 ## Installation
 
-current version `1.1.2`
+current version `1.2.0`
 
 ```bash
 //yarn
@@ -146,3 +146,44 @@ this.cryptrClient.getUser()
 This method will return you a struct with different properties such as email, user id or organization domain.
 
 For more information please contact us.
+
+## Universal Gateway
+
+> ⚠️ Contact us for more info about this section
+
+This is the latest feature of our SDK and our solutions.
+
+The following methods will allow you to open a session either from the email or the domain of the end-user
+
+### Sign with email
+
+If you have the email of the end-user you can call the below method, and depending if the email matches to an organization or to an existing account, user will be guided into to proper login process (sso, magic link, password ..)
+
+```js
+// signature
+signInWithEmail(email: string, options?: SsoSignOptsAttrs)
+
+// simple call
+signInWithEmail('john@doe.com')
+
+// email and options
+signInWithEmail('john@doe.com', { locale: 'fr' })
+```
+
+### Sign with domain
+
+If you have the domain of the end user you can call the below method
+
+```js
+// signature
+signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs)
+
+// simple call
+signInWithDomain('some-organization')
+
+// domain + options
+signInWithDomain('some-organization', {locale: 'fr'})
+
+// access our gateway to let user fill our form
+signInWithDomain()
+```

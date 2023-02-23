@@ -59,6 +59,21 @@ describe('parseRedirectParams', () => {
       },
     })
   })
+
+  it('should return fetch request_id if present in query params', () => {
+    expect(
+      parseRedirectParams(
+        '?state=42&request_id=alphago&authorization_id=azerty&code=12&organization_domain=',
+      ),
+    ).toEqual({
+      state: '42',
+      request_id: 'alphago',
+      authorization: {
+        code: '12',
+        id: 'azerty',
+      },
+    })
+  })
 })
 
 describe('organizationDomain', () => {

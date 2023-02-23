@@ -10,3 +10,5 @@ coverage/
 .cc_token
 
 audit.json
+
+dev/config.js

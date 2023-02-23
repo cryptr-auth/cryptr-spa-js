@@ -1,18 +1,18 @@
 import Client from './client'
 import Request from './request'
 import Storage from './storage'
-import Transaction, { tomorrowDate } from './transaction'
+import Transaction from './transaction'
 import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-import { refreshKey } from './transaction'
 import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
 import * as Utils from './utils'
 import axios from 'axios'
+import { refreshKey, tomorrowDate } from './transaction.utils'
 
-jest.mock('axios');
+jest.mock('axios')
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -505,6 +505,101 @@ describe('signin process', () => {
     )
     transactionSignUrlFn.mockRestore()
   })
+
+  it('signInWithDomain without domain, call Transaction universalGatewayUrl fn without attribute', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    await client.signInWithDomain()
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+      }),
+    )
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithDomain call Transaction universalGatewayUrl fn', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    await client.signInWithDomain('some-domain')
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        domain: 'some-domain',
+      }),
+    )
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithEmail call Transaction universalGatewayUrl fn', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    await client.signInWithEmail('john.doe@cryptr.co')
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        email: 'john.doe@cryptr.co',
+      }),
+    )
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithEmail with options call Transaction universalGatewayUrl fn properly', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signInWithEmail('john.doe@cryptr.co', { locale: 'fr' })
+    expect(transactionCreateFn).toBeCalledWith(
+      client.config.fixed_pkce,
+      'sso',
+      'openid email profile',
+      'fr',
+      client.config.default_redirect_uri,
+    )
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        email: 'john.doe@cryptr.co',
+        transaction: expect.objectContaining({
+          pkce: expect.objectContaining({
+            code_challenge_method: 'S256',
+          }),
+          sign_type: 'sso',
+          scope: 'openid email profile',
+          locale: 'fr',
+          redirect_uri: client.config.default_redirect_uri,
+        }),
+      }),
+    )
+    transactionCreateFn.mockRestore()
+    transactionUniversalSignUrlFn.mockRestore()
+  })
+
+  it('signInWithDomain with options call Transaction universalGatewayUrl fn properly', async () => {
+    const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
+    const transactionCreateFn = jest.spyOn(Transaction, 'create')
+    await client.signInWithDomain('some-domain', { locale: 'fr' })
+    expect(transactionCreateFn).toBeCalledWith(
+      client.config.fixed_pkce,
+      'sso',
+      'openid email profile',
+      'fr',
+      client.config.default_redirect_uri,
+    )
+    expect(transactionUniversalSignUrlFn).toBeCalledWith(
+      expect.objectContaining({
+        config: client.config,
+        domain: 'some-domain',
+        transaction: expect.objectContaining({
+          pkce: expect.objectContaining({
+            code_challenge_method: 'S256',
+          }),
+          sign_type: 'sso',
+          scope: 'openid email profile',
+          locale: 'fr',
+          redirect_uri: client.config.default_redirect_uri,
+        }),
+      }),
+    )
+    transactionCreateFn.mockRestore()
+    transactionUniversalSignUrlFn.mockRestore()
+  })
 })
 
 describe('Client.userAccountAccess/0', () => {
@@ -525,13 +620,13 @@ describe('Client.userAccountAccess/0', () => {
       'http://localhost:4000/api/v1/client-management/tenants/cryptr/account-access',
       {
         client_id: client.config.client_id,
-        access_token: token
+        access_token: token,
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     )
     axiosGetFn.mockRestore()
   })
@@ -544,13 +639,13 @@ describe('Client.userAccountAccess/0', () => {
       'http://localhost:4000/api/v1/client-management/tenants/misapret/account-access',
       {
         client_id: client.config.client_id,
-        access_token: token
+        access_token: token,
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     )
     axiosGetFn.mockRestore()
   })
@@ -599,7 +694,7 @@ describe('Client.handleNewTokens/2', () => {
     refresh_leeway: 60,
     refresh_retry: 5,
   }
-  it('calls setAccessToken is valid accessToken present', () => {
+  it('calls setAccessToken if valid accessToken present', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
     client.handleNewTokens(refreshStore, { valid: true, accessToken: 'eji.aze' })
     expect(setAccessTokenFn).toHaveBeenCalledWith('eji.aze')
@@ -694,6 +789,41 @@ describe('Client.handleRedirectCallback/?', () => {
       'misapret',
     )
     transactionGetTokensFn.mockRestore()
+  })
+
+  it('calls Transaction.getUniversalTokens with request_id attribute if present', async () => {
+    let transactionGetUniversalTokensFn = jest.spyOn(Transaction, 'getUniversalTokens')
+    await client.handleRedirectCallback({
+      state: '12',
+      authorization: { id: '42', code: 'azerty' },
+      request_id: 'some-request-id',
+    })
+    expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
+      { ...validConfig, fixed_pkce: false },
+      { id: '42', code: 'azerty' },
+      expect.anything(),
+      'some-request-id',
+      undefined,
+    )
+    transactionGetUniversalTokensFn.mockRestore()
+  })
+
+  it('calls Transaction.getUniversalTokens with both request_id and organization_domain attribute if present', async () => {
+    let transactionGetUniversalTokensFn = jest.spyOn(Transaction, 'getUniversalTokens')
+    await client.handleRedirectCallback({
+      state: '12',
+      authorization: { id: '42', code: 'azerty' },
+      request_id: 'some-request-id',
+      organization_domain: 'misapret',
+    })
+    expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
+      { ...validConfig, fixed_pkce: false },
+      { id: '42', code: 'azerty' },
+      expect.anything(),
+      'some-request-id',
+      'misapret',
+    )
+    transactionGetUniversalTokensFn.mockRestore()
   })
 })
 

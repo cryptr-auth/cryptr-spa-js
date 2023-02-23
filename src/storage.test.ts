@@ -1,6 +1,7 @@
 import Storage from './storage'
-import { tomorrowDate } from './transaction'
+import { tomorrowDate } from './transaction.utils'
 jest.mock('es-cookie')
+
 
 describe('Storage.createCookie(clientId, value)', () => {
   const CLIENT_ID = 'adefe2f4-fe71-4187-809f-c39f20d8f792'
@@ -37,5 +38,11 @@ describe('Storage.createCookie(clientId, value)', () => {
   })
   it('gets an empty object if the client id doesnt exist', () => {
     expect(Storage.getCookie('client-id-doesnt-exist')).toMatchObject({})
+  })
+
+  it('should fail if wrong expires', () => {
+    let yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    expect(() => Storage.createCookie(CLIENT_ID, TOKENS, yesterday)).toThrowError("cannot create cookie in past")
   })
 })

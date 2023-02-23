@@ -11,7 +11,7 @@ import {
 import { Sign } from './types'
 import Request, { sloAfterRevokeTokenUrl } from './request'
 import Storage from './storage'
-import Transaction, { refreshKey } from './transaction'
+import Transaction from './transaction'
 import Jwt from './jwt'
 import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
@@ -19,6 +19,7 @@ import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
 import { locationSearch, parseRedirectParams } from './utils'
+import { refreshKey } from './transaction.utils'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
@@ -209,6 +210,44 @@ class Client {
     window.location.assign(url.href)
   }
 
+  async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
+    const transaction = await Transaction.create(
+      this.config.fixed_pkce,
+      Sign.Sso,
+      this.finalScope(options?.scope || DEFAULT_SCOPE),
+      options?.locale,
+      options?.redirectUri || this.config.default_redirect_uri,
+    )
+    let transactionConfig = options?.clientId
+      ? { ...this.config, client_id: options.clientId }
+      : this.config
+
+    transactionConfig = options?.tenantDomain
+      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
+      : transactionConfig
+    return { config: transactionConfig, transaction: transaction }
+  }
+
+  async signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs) {
+    const attrs = await this.buildUniversalAttrs(options)
+
+    const universalAttrs = organizationDomain
+      ? { ...attrs, domain: organizationDomain, organizationDomain: organizationDomain }
+      : attrs
+    const url = await Transaction.universalGatewayUrl(universalAttrs)
+    window.location.assign(url.href)
+  }
+
+  async signInWithEmail(email: string, options?: SsoSignOptsAttrs) {
+    const attrs = await this.buildUniversalAttrs(options)
+
+    const url = await Transaction.universalGatewayUrl({
+      ...attrs,
+      email: email,
+    })
+    window.location.assign(url.href)
+  }
+
   async signUpWithRedirect(
     scope = DEFAULT_SCOPE,
     redirectUri = this.config.default_redirect_uri,
@@ -272,12 +311,20 @@ class Client {
 
   async handleRedirectCallback(redirectParams = parseRedirectParams()) {
     const transaction = await Transaction.get(redirectParams.state)
-    const tokens = await Transaction.getTokens(
-      this.config,
-      redirectParams.authorization,
-      transaction,
-      redirectParams.organization_domain,
-    )
+    const tokens = redirectParams.request_id
+      ? await Transaction.getUniversalTokens(
+        this.config,
+        redirectParams.authorization,
+        transaction,
+        redirectParams.request_id,
+        redirectParams.organization_domain,
+      )
+      : await Transaction.getTokens(
+        this.config,
+        redirectParams.authorization,
+        transaction,
+        redirectParams.organization_domain,
+      )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
