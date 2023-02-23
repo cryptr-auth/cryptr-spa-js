@@ -506,7 +506,7 @@ describe('signin process', () => {
     transactionSignUrlFn.mockRestore()
   })
 
-  it('signInWithDomain without call Transaction universalGatewayUrl fn without attribute', async () => {
+  it('signInWithDomain without domain, call Transaction universalGatewayUrl fn without attribute', async () => {
     const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
     await client.signInWithDomain()
     expect(transactionUniversalSignUrlFn).toBeCalledWith(
@@ -694,7 +694,7 @@ describe('Client.handleNewTokens/2', () => {
     refresh_leeway: 60,
     refresh_retry: 5,
   }
-  it('calls setAccessToken is valid accessToken present', () => {
+  it('calls setAccessToken if valid accessToken present', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
     client.handleNewTokens(refreshStore, { valid: true, accessToken: 'eji.aze' })
     expect(setAccessTokenFn).toHaveBeenCalledWith('eji.aze')

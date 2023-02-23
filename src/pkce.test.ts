@@ -11,7 +11,7 @@ describe('Pkce', () => {
     })
   })
 
-  it('gen(false) returns Base64 URL encoded challenge and code verifier', async () => {
+  it('gen(true) returns Base64 URL encoded challenge and code verifier', async () => {
     let pkce = Pkce.gen(true)
     expect(pkce).toMatchObject({
       code_verifier: expect.any(String),

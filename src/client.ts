@@ -245,7 +245,6 @@ class Client {
       ...attrs,
       email: email,
     })
-    console.debug('universal gateway url', url)
     window.location.assign(url.href)
   }
 

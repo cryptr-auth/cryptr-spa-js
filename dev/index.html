@@ -261,7 +261,7 @@
           // (useful for retrieving any pre-authentication state)
           // onRedirectCallback(tokens);
           let params = (new URL(window.location)).searchParams;
-          let authParamsKeys = ['authorization_code', 'authorization_id', 'state', 'code', 'organization_domain']
+          let authParamsKeys = ['authorization_code', 'authorization_id', 'state', 'code', 'organization_domain', 'request_id']
           for (const key of authParamsKeys) {
             params.delete(key)
           }
