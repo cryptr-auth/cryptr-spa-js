@@ -31,6 +31,7 @@
           </div>
         </nav>
         <a v-if="isAuthenticated" class="btn btn-outline-danger mr-3" @click="logOut" href="#">Logout</a>
+        <a v-if="isAuthenticated" class="btn btn-outline-danger mr-3" @click="logOutWithSLO" href="#">Logout with SLO</a>
         <a v-if="isAuthenticated" class="btn btn-outline-info mr-3" @click="refreshTokens" href="#">
           Refresh
         </a>
@@ -183,6 +184,14 @@
             window.location.replace(location.href.split('?')[0])
             // this.isAuthenticated = false
            });
+        },
+        logOutWithSLO() {
+          return this.cryptrClient.logOut(() => {
+            alert('You are now logged out ! Bye :(')
+            window.location.reload()
+            window.location.replace(location.href.split('?')[0])
+            // this.isAuthenticated = false
+           }, window.location, window.location.href, true);
         }
       },
       /** Use this lifecycle method to instantiate the SDK client */
