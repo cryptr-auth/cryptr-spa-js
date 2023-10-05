@@ -21,6 +21,7 @@ const validConfig: Config = {
   default_redirect_uri: 'http://localhost:1234',
   cryptr_base_url: 'http://localhost:4000',
   default_locale: 'fr',
+  default_slo_after_revoke: false
 }
 
 const euValidConfig: Config = {
@@ -29,6 +30,7 @@ const euValidConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
+  default_slo_after_revoke: false
 }
 
 const usValidConfig: Config = {
@@ -37,6 +39,7 @@ const usValidConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'us',
+  default_slo_after_revoke: false
 }
 
 const wrongBaseUrlConfig: Config = {
@@ -44,6 +47,7 @@ const wrongBaseUrlConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
+  default_slo_after_revoke: false
 }
 
 const wrongLocaleConfig: Config = {
@@ -53,6 +57,7 @@ const wrongLocaleConfig: Config = {
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
   default_locale: 'de',
+  default_slo_after_revoke: false
 }
 
 const wrongRegionConfig: Config = {
@@ -61,6 +66,16 @@ const wrongRegionConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'asia',
+  default_slo_after_revoke: false,
+}
+
+const wrongSloConfig: Config = {
+  tenant_domain: 'shark-academy',
+  client_id: '123-xeab',
+  audience: 'http://localhost:4200',
+  default_redirect_uri: 'http://localhost:1234',
+  cryptr_base_url: 'http://localhost:4000',
+  default_locale: 'fr',
 }
 
 describe('Cryptr Base url', () => {
@@ -121,6 +136,12 @@ describe('client creation', () => {
   it('should throw error if  wrong region defined', () => {
     expect(() => new Client(wrongRegionConfig)).toThrowError(
       "You must provide region in values eu,us found 'asia', if not provide your cryptr_base_url",
+    )
+  })
+
+  it('should throw error if no default_slo_after_revoke defined', () => {
+    expect(() => new Client(wrongSloConfig)).toThrow(
+      "Since v(), you have to define boolean value for key 'default_slo_after_revoke'"
     )
   })
 })
