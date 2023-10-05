@@ -154,10 +154,11 @@
     telemetry: window.VUE_APP_CRYPTR_TELEMETRY || false,
     dedicated_server: window.VUE_APP_CRYPTR_DEDICATED_SERVER || false,
     fixed_pkce: window.VUE_APP_CRYPTR_FIXED_PKCE || false,
+    // default_slo_after_revoke: window.VUE_APP_CRYPTR_DEFAULT_SLO_AFTER_REVOKE || false,
   };
 
   const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
-  const idpIds = (window.VUE_APP_IDP_IDS && window.VUE_APP_IDP_IDS.split(",")) || []
+  const idpIds = (window.VUE_APP_IDP_IDS?.split(",")) || []
 
   document.getElementById("tenant-domain").innerText = config.tenant_domain;
   document.getElementById("client-id").innerText = config.client_id;
