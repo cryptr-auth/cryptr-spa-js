@@ -48,18 +48,6 @@
     <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
       <h1 class="display-4">Development mode</h1>
       <p class="lead">This local static site use our cryptr API on our test environment.</p>
-      <a href="#" class="btn btn-secondary" @click="signinWithSSO">
-        Signin with SSO
-      </a>
-      <a href="#" class="btn btn-secondary" @click="signinFrWithSSO">
-        Se connecter en SSO
-      </a>
-      <a href="#" class="btn btn-info" @click="secondSigninWithSSO">
-        Signin with same SSO (other app)
-      </a>
-      <button type="button" class="btn btn-info" @click="signinWithOtherSSO">
-        Signin with other SSO
-      </button>
     </div>
 
     <div class="container">
@@ -69,21 +57,10 @@
             <h4 class="my-0 font-weight-normal">cryptr.config.json</h4>
           </div>
           <div class="card-body">
-            <ul class="list-unstyled mt-3 mb-4">
-              <li>
-                tenant domain : <span id="tenant-domain"></span>
-              </li>
-              <li>
-                client id : <span id="client-id"></span>
-              </li>
-              <li>
-                audience : <span id="audience"></span>
-              </li>
-              <li>
-                redirect uri : <span id="redirect-uri"></span>
-              </li>
-              <li>
-                cryptr base url : <span id="cryptr-base-url"></span>
+            <ul v-if="cryptrClient && cryptrClient.config" class="list-unstyled mt-3 mb-4">
+              <li v-for="(key, value) in cryptrClient.config">
+                <span>{{ value }} </span>
+                <code>{{ key }}</code>
               </li>
             </ul>
           </div>
@@ -111,30 +88,23 @@
       </div>
       <div class="card mb-4 box-shadow">
         <div class="card-header">
-          <h4 class="my-0 font-weight-normal">Gateway v2</h4>
-          <p>You can now fasten your user process by email or domain</p>
-          <a href="#" class="btn btn-outline-info" @click="signInWithDomain">
-            Signin with Domain
-          </a>
-          <a href="#" class="btn btn-outline-info" @click="signInWithEmail">
-            Signin with email
-          </a>
-          <a href="#" class="btn btn-outline-info" @click="universalGateway">
-            Raw Gateway v2
-          </a>
-        </div>
-        <div class="card-header">
           <h4 class="my-0 font-weight-normal">Gateway</h4>
-          <p>You don't known what's user's IDP, use our gateway</p>
-          <a @click="globalGateway" class="btn btn-outline mr-3" href="#">
-            Global Gateway
-          </a>
-          <a @click="gatewayIdp" class="btn btn-outline mr-3" href="#">
-            Gateway with one IDP
-          </a>
-          <a @click="gatewayIdps" class="btn btn-outline mr-3" href="#">
-            Gateway with multiple idps
-          </a>
+
+        </div>
+        <div class="card-body">
+          <p>You can now fasten your user process by email or domain</p>
+          <div class="d-flex flex-column w-50" style="gap: 1rem;">
+            <a href="#" class="btn btn-info" @click="signInWithDomain">
+              Signin with Domain ({{ window.VUE_APP_ORGA_DOMAIN }})
+            </a>
+            <a href="#" class="btn btn-primary" @click="signInWithEmail">
+              Signin with email ({{ window.VUE_APP_EMAIL_SAMPLE }})
+            </a>
+            <a href="#" class="btn btn-success" @click="universalGateway">
+              Signin unknown user/context
+            </a>
+
+          </div>
         </div>
       </div>
     </div>
@@ -160,12 +130,6 @@
   const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
   const idpIds = (window.VUE_APP_IDP_IDS?.split(",")) || []
 
-  document.getElementById("tenant-domain").innerText = config.tenant_domain;
-  document.getElementById("client-id").innerText = config.client_id;
-  document.getElementById("audience").innerText = config.audience;
-  document.getElementById("redirect-uri").innerText = config.default_redirect_uri;
-  document.getElementById("cryptr-base-url").innerText = config.cryptr_base_url;
-
   var app = new Vue({
     el: '#app',
     data() {
@@ -179,19 +143,6 @@
       }
     },
     methods: {
-      /** Authenticates the user using the redirect method */
-      signinWithSSO() {
-        return this.cryptrClient.signInWithSSO(idpIds[0]);
-      },
-      signinFrWithSSO() {
-        return this.cryptrClient.signInWithSSO(idpIds[0], {locale: 'fr'});
-      },
-      secondSigninWithSSO() {
-        return this.cryptrClient.signInWithSSO(idpIds[0], {clientId: clientId2});
-      },
-      signinWithOtherSSO() {
-        return this.cryptrClient.signInWithSSO(idpIds[1]);
-      },
       /** Authenticates the user using the redirect method */
       signinWithRedirect() {
         return this.cryptrClient.signInWithRedirect(scopes);
@@ -213,15 +164,6 @@
             window.open(data.data.data.url, '_blank', popupParams)
           }
         })
-      },
-      globalGateway() {
-        this.cryptrClient.signInWithSSOGateway();
-      },
-      gatewayIdp() {
-        this.cryptrClient.signInWithSSOGateway(idpIds[0]);
-      },
-      gatewayIdps() {
-        this.cryptrClient.signInWithSSOGateway(idpIds);
       },
       signInWithDomain() {
         this.cryptrClient.signInWithDomain(window.VUE_APP_ORGA_DOMAIN);
