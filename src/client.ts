@@ -39,6 +39,10 @@ class Client {
         `'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
       )
     }
+    if (config.default_slo_after_revoke == undefined) {
+      throw new Error('Since v(), you have to define boolean value for key \'default_slo_after_revoke\'')
+    }
+
     console.warn(
       "[Cryptr] 'fixed_pkce' value in Config will be remove from version '1.4.0' and have behavior related to 'true' value",
     )
@@ -426,7 +430,7 @@ class Client {
     }
   }
 
-  async logOut(callback: any, location = window.location, targetUrl = window.location.href) {
+  async logOut(callback: any, location = window.location, targetUrl = window.location.href, sloAfterRevoke = this.config.default_slo_after_revoke) {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       Request.revokeRefreshToken(this.config, refreshToken)
@@ -434,7 +438,7 @@ class Client {
           if (resp.data.revoked_at !== undefined) {
             await Storage.clearCookies(this.config.client_id)
             this.memory.clearTokens()
-            this.handleSloCode(resp, callback, location, targetUrl)
+            this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
           } else {
             console.error('logout response not compliant')
             console.error(resp.data)
@@ -458,8 +462,9 @@ class Client {
     callback: any,
     location: Location,
     targetUrl: string,
+    sloAfterRevoke: boolean,
   ) {
-    if (resp.data && resp.data.slo_code !== undefined) {
+    if (sloAfterRevoke && resp.data?.slo_code !== undefined) {
       const url = sloAfterRevokeTokenUrl(
         this.config,
         resp.data.slo_code,
