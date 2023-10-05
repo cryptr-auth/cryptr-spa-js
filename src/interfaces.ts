@@ -10,6 +10,7 @@ export interface Config {
   client_id: string
   audience: string
   default_redirect_uri: string
+  default_slo_after_revoke?: boolean
   default_locale?: string
   region?: string
   cryptr_base_url?: string
