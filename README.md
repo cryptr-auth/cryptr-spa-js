@@ -147,5 +147,6 @@ For more information please contact us.
 
 ### Deprecated methods
 
-- `signInWithRedirect`
-- `signInWithSSOGateway`
+~~`signInWithRedirect`~~~
+
+~~`signInWithSSOGateway`~~
