@@ -37,23 +37,25 @@ var config = {
   telemetry: false,
   dedicated_server: true,
   fixed_pkce: true,
+  default_slo_after_revoke: false,
 }
 ```
 
 Explanation of config
 
-| key                    | Required/Optional | type          | Default | Description                                          |
-| ---------------------- | ----------------- | ------------- | ------- | ---------------------------------------------------- |
-| `tenant_domain`        | required          | string slug   | -       | Reference to your company entity                     |
-| `client_id`            | required          | uuid          | -       | Reference to your front app id                       |
-| `audience`             | required          | string URL    | -       | Root URL of your front app                           |
-| `default_redirect_uri` | required          | string URL    | -       | Desired redirection URL after authentication process |
-| `cryptr_base_url`      | required          | string URL    | -       | URL of your Cryptr service                           |
-| `default_locale`       | Optional          | string locale | `en`    | -                                                    |
-| `dedicated_server`     | Optional          | boolean       | false   | Contact Cryptr Team to set properly                  |
-| `fixed_pkce`           | Optional          | boolean       | false   | Contact Cryptr Team to set properly                  |
-| `telemetry`            | Optional          | boolean       | false   | Set to `true` if debug required with Cryptr Team     |
-| ---                    | ---               | ---           | ---     | ---                                                  |
+| key                        | Required/Optional | type          | Default | Description                                                              |
+| -------------------------- | ----------------- | ------------- | ------- | ------------------------------------------------------------------------ |
+| `tenant_domain`            | required          | string slug   | -       | Reference to your company entity                                         |
+| `client_id`                | required          | uuid          | -       | Reference to your front app id                                           |
+| `audience`                 | required          | string URL    | -       | Root URL of your front app                                               |
+| `default_redirect_uri`     | required          | string URL    | -       | Desired redirection URL after authentication process                     |
+| `cryptr_base_url`          | required          | string URL    | -       | URL of your Cryptr service                                               |
+| `default_locale`           | Optional          | string locale | `en`    | -                                                                        |
+| `dedicated_server`         | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
+| `fixed_pkce`               | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
+| `telemetry`                | Optional          | boolean       | false   | Set to `true` if debug required with Cryptr Team                         |
+| `default_slo_after_revoke` | required          | boolean       | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
+| ---                        | ---               | ---           | ---     | ---                                                                      |
 
 ⚠️ `fixed_pkce` will be removed in the future `1.4.0` release version
 
@@ -68,86 +70,6 @@ this.cryptrClient = await CryptrSpa.createClient(config)
 After this creation, a quick script is required, contact our team to get it.
 
 ## Open Session
-
-### Magic link
-
-If you are interested in our Magic link solution, follow the below steps:
-
-To start the process call `signInWithRedirect( scope = 'openid email profile', redirectUri, locale)`
-
-example:
-
-```js
-this.cryptrClient.signInWithRedirect()
-```
-
-| Attribute     | Required/Optional | type       | Default                          | Description                                            |
-| ------------- | ----------------- | ---------- | -------------------------------- | ------------------------------------------------------ |
-| `scope`       | optional          | string     | `openid email profile`           | Desired OAuth scopes for user session                  |
-| `redirectUri` | optional          | URL string | this.config.default_redirect_uri | Desired redirect url if different as default in config |
-| `locale`      | optional          | string     | this.config.default_locale       | Desired locale if different as default in config       |
-
-### SSO
-
-If you want to integrate SSO in your app for your client(s), follow the below steps:
-
-To start the process call `signInWithSSOGateway(idpId, options)`
-
-examples:
-
-```js
-// Bare SSO Gateway
-signInWithSSOGateway()
-
-// Single SSO login page
-signInWithSSOGateway('some_id_id', { locale: 'fr' })
-
-// SSO Gateway with idp ids provided
-signInWithSSOGateway(['some_id_id', 'other_idp_id'])
-```
-
-| Attribute | Required/Optional | type    | Default   | Description                                                                                                |
-| --------- | ----------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `idpId`   | optional          | `string | string[]` | -                                                                                                          | If none set -> user will be redirected to Cryptr Gateway and will have to find its SSO by email or organization domain |
-|           |                   |         |           | If one string set -> user will be redirected to Cryptr SSO login page related to IPD provided              |
-|           |                   |         |           | If string array set -> user will be redirected to Cryptr SSO gateway page with choices of IDP ids provided |
-| `options` | optional          | Keyword | -         | Can let you customize options such as locale, redirection etc                                              |
-
-## Close session
-
-When you want to let the user close its session (either Magic Link or SSO) proceed as follow:
-
-To start the process call `logOut(callback, location, targetUrl)`
-
-Example:
-
-```js
-this.cryptrClient.logOut(() => {
-  alert('you are logged out')
-})
-```
-
-| Attribute   | Required/Optional | type       | Default                | Description                                                                                                        |
-| ----------- | ----------------- | ---------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `callback`  | optional          | Function   | -                      | Process to be called after log out process, ⚠️ Only available in Magic link process due to Redirect process in SSO |
-| `location`  | optional          | string URL | `window.location`      | Current location                                                                                                   |
-| `targetUrl` | optional          | string URL | `window.location.href` | URL after Log out process                                                                                          |
-
-## Fetch User data
-
-You can retrieve current user data properties using `getUser()`
-
-Example:
-
-```js
-this.cryptrClient.getUser()
-```
-
-This method will return you a struct with different properties such as email, user id or organization domain.
-
-For more information please contact us.
-
-## Universal Gateway
 
 > ⚠️ Contact us for more info about this section
 
@@ -187,3 +109,44 @@ signInWithDomain('some-organization', {locale: 'fr'})
 // access our gateway to let user fill our form
 signInWithDomain()
 ```
+
+## Close session
+
+When you want to let the user close its session (either Magic Link or SSO) proceed as follow:
+
+To start the process call `logOut(callback, location, targetUrl)`
+
+Example:
+
+```js
+this.cryptrClient.logOut(() => {
+  alert('you are logged out')
+})
+```
+
+| Attribute        | Required/Optional | type       | Default                         | Description                                                                                                        |
+| ---------------- | ----------------- | ---------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `callback`       | optional          | Function   | -                               | Process to be called after log out process, ⚠️ Only available in Magic link process due to Redirect process in SSO |
+| `location`       | optional          | string URL | `window.location`               | Current location                                                                                                   |
+| `targetUrl`      | optional          | string URL | `window.location.href`          | URL after Log out process                                                                                          |
+| `sloAfterRevoke` | optional          | boolean    | config.default_slo_after_revoke | define if SLO has to be processed after session removal                                                            |
+
+## Fetch User data
+
+You can retrieve current user data properties using `getUser()`
+
+Example:
+
+```js
+this.cryptrClient.getUser()
+```
+
+This method will return you a struct with different properties such as email, user id or organization domain.
+
+For more information please contact us.
+
+### Deprecated methods
+
+~~`signInWithRedirect`~~~
+
+~~`signInWithSSOGateway`~~
