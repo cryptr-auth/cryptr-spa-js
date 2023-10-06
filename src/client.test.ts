@@ -141,7 +141,7 @@ describe('client creation', () => {
 
   it('should throw error if no default_slo_after_revoke defined', () => {
     expect(() => new Client(wrongSloConfig)).toThrow(
-      "Since v(), you have to define boolean value for key 'default_slo_after_revoke'"
+      "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'"
     )
   })
 })
