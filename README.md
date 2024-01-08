@@ -10,7 +10,7 @@
 
 ## Installation
 
-current version `1.3.0`
+current version `1.3.5`
 
 ```bash
 //yarn
