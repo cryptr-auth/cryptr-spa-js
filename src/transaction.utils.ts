@@ -1,9 +1,13 @@
 import { v4 as uuid } from 'uuid'
-import { validRedirectUri } from "@cryptr/cryptr-config-validation"
-import Pkce from "./pkce"
-import { Sign } from "./types"
+import { validRedirectUri } from '@cryptr/cryptr-config-validation'
+import Pkce from './pkce'
+import { Sign } from './types'
 import * as I from './interfaces'
-import { DEFAULT_REFRESH_EXPIRATION, DEFAULT_REFRESH_ROTATION_DURATION, STORAGE_KEY_PREFIX } from './constants'
+import {
+  DEFAULT_REFRESH_EXPIRATION,
+  DEFAULT_REFRESH_ROTATION_DURATION,
+  STORAGE_KEY_PREFIX,
+} from './constants'
 import Jwt from './jwt'
 import Storage from './storage'
 import axios from 'axios'
@@ -94,13 +98,13 @@ export const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
@@ -111,7 +115,6 @@ export const validateAndFormatAuthResp = (
     errors: errors,
   }
 }
-
 
 export const getRefreshParameters = (resp: any): I.RefreshParameters => {
   let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
@@ -133,7 +136,7 @@ export const getRefreshParameters = (resp: any): I.RefreshParameters => {
     refresh_expiration_date: refreshExpiration,
   }
   const uniqValues = [...new Set(Object.values(refreshParameters))]
-  return (uniqValues.includes(NaN) || uniqValues.includes(undefined)) ? {} : refreshParameters
+  return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
 }
 
 export const parseTokensAndStoreRefresh = (
@@ -188,7 +191,14 @@ export const parseTokensAndStoreRefresh = (
   }
 }
 
-export const handlePostUniversalAuthorizationCode = (response: any, errors: I.TokenError[], accessResult: I.TokenResult, transaction: I.Transaction, config: I.Config, organization_domain?: string) => {
+export const handlePostUniversalAuthorizationCode = (
+  response: any,
+  errors: I.TokenError[],
+  accessResult: I.TokenResult,
+  transaction: I.Transaction,
+  config: I.Config,
+  organization_domain?: string,
+) => {
   try {
     validatesNonce(transaction, response['data']['nonce'])
     accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
@@ -212,7 +222,14 @@ export const handlePostUniversalAuthorizationCode = (response: any, errors: I.To
   return accessResult
 }
 
-export const handlePostAuthorizationCode = (response: any, errors: I.TokenError[], accessResult: I.TokenResult, transaction: I.Transaction, config: I.Config, organization_domain?: string) => {
+export const handlePostAuthorizationCode = (
+  response: any,
+  errors: I.TokenError[],
+  accessResult: I.TokenResult,
+  transaction: I.Transaction,
+  config: I.Config,
+  organization_domain?: string,
+) => {
   try {
     validatesNonce(transaction, response['data']['nonce'])
     accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
@@ -235,7 +252,6 @@ export const handlePostAuthorizationCode = (response: any, errors: I.TokenError[
   }
   return accessResult
 }
-
 
 export const validatesNonce = (transaction: I.Transaction, submittedNonce: string): void | true => {
   if (submittedNonce !== transaction.nonce) {

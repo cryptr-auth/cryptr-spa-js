@@ -6,7 +6,6 @@ import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-import * as Utils from './utils'
 import axios from 'axios'
 import { refreshKey, tomorrowDate } from './transaction.utils'
 
@@ -18,7 +17,7 @@ const validConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   cryptr_base_url: 'http://localhost:4000',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const euValidConfig: Config = {
@@ -27,7 +26,7 @@ const euValidConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const usValidConfig: Config = {
@@ -36,7 +35,7 @@ const usValidConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'us',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const wrongBaseUrlConfig: Config = {
@@ -44,7 +43,7 @@ const wrongBaseUrlConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const wrongLocaleConfig: Config = {
@@ -53,7 +52,7 @@ const wrongLocaleConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const wrongRegionConfig: Config = {
@@ -70,7 +69,7 @@ const wrongSloConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  cryptr_base_url: 'http://localhost:4000'
+  cryptr_base_url: 'http://localhost:4000',
 }
 
 describe('Cryptr Base url', () => {
@@ -100,9 +99,6 @@ describe('client creation', () => {
   it('should not permit authentication', async () => {
     expect(client.canHandleAuthentication('')).toBe(false)
   })
-  it('should not permit authentication', async () => {
-    expect(await client.canHandleInvitation('')).toBe(false)
-  })
 
   it('should be unauthenticated', async () => {
     expect(await client.isAuthenticated()).toBe(false)
@@ -128,7 +124,7 @@ describe('client creation', () => {
 
   it('should throw error if no default_slo_after_revoke defined', () => {
     expect(() => new Client(wrongSloConfig)).toThrow(
-      "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'"
+      "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'",
     )
   })
 })

@@ -20,7 +20,6 @@ import { refreshKey } from './transaction.utils'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
-const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
   config!: Interface.Config
   private memory: InMemory = new InMemory()
@@ -31,9 +30,11 @@ class Client {
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
     if (config.default_slo_after_revoke == undefined) {
-      throw new Error('Since v(1.3.0), you have to define boolean value for key \'default_slo_after_revoke\'')
+      throw new Error(
+        "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'",
+      )
     }
-    this.config = config;
+    this.config = config
 
     try {
       const workerString =
@@ -151,18 +152,18 @@ class Client {
     const transaction = await Transaction.get(redirectParams.state)
     const tokens = redirectParams.request_id
       ? await Transaction.getUniversalTokens(
-        this.config,
-        redirectParams.authorization,
-        transaction,
-        redirectParams.request_id,
-        redirectParams.organization_domain,
-      )
+          this.config,
+          redirectParams.authorization,
+          transaction,
+          redirectParams.request_id,
+          redirectParams.organization_domain,
+        )
       : await Transaction.getTokens(
-        this.config,
-        redirectParams.authorization,
-        transaction,
-        redirectParams.organization_domain,
-      )
+          this.config,
+          redirectParams.authorization,
+          transaction,
+          redirectParams.organization_domain,
+        )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
@@ -231,17 +232,8 @@ class Client {
   private hasAuthenticationParams(searchParams = locationSearch()): boolean {
     return CODE_PARAMS.test(searchParams) && STATE_PARAMS.test(searchParams)
   }
-
-  private hasInvitationParams(searchParams = locationSearch()) {
-    return STATE_PARAMS.test(searchParams) && !AUTH_PARAMS.test(searchParams)
-  }
-
   canHandleAuthentication(searchParams = locationSearch()): boolean {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
-  }
-
-  canHandleInvitation(searchParams = locationSearch()) {
-    return !this.currentAccessTokenPresent() && this.hasInvitationParams(searchParams)
   }
 
   async userAccountAccess(accessToken = this.getCurrentAccessToken()) {
@@ -264,7 +256,12 @@ class Client {
     }
   }
 
-  async logOut(callback: any, location = window.location, targetUrl = window.location.href, sloAfterRevoke = this.config.default_slo_after_revoke) {
+  async logOut(
+    callback: any,
+    location = window.location,
+    targetUrl = window.location.href,
+    sloAfterRevoke = this.config.default_slo_after_revoke,
+  ) {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       Request.revokeRefreshToken(this.config, refreshToken)

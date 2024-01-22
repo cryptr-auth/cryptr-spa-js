@@ -1,10 +1,19 @@
-import Crypto from "./crypto"
-import Jwt from "./jwt"
-import { getRefreshParameters, handlePostAuthorizationCode, handlePostUniversalAuthorizationCode, newTransaction, parseTokensAndStoreRefresh, transactionKey, validateAndFormatAuthResp, validatesNonce } from "./transaction.utils"
-import { Sign } from "./types"
-import ConfigFixure from "./__fixtures__/config.fixture"
-import TokenFixture from "./__fixtures__/token.fixture"
-import TransactionFixure from "./__fixtures__/transaction.fixture"
+import Crypto from './crypto'
+import Jwt from './jwt'
+import {
+  getRefreshParameters,
+  handlePostAuthorizationCode,
+  handlePostUniversalAuthorizationCode,
+  newTransaction,
+  parseTokensAndStoreRefresh,
+  transactionKey,
+  validateAndFormatAuthResp,
+  validatesNonce,
+} from './transaction.utils'
+import { Sign } from './types'
+import ConfigFixure from './__fixtures__/config.fixture'
+import TokenFixture from './__fixtures__/token.fixture'
+import TransactionFixure from './__fixtures__/transaction.fixture'
 import Storage from './storage'
 import * as I from './interfaces'
 
@@ -12,7 +21,12 @@ describe('newTrasaction', () => {
   it('returns a transaction with Pkce', () => {
     const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
     const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
+    const newTransac = newTransaction(
+      Sign.Sso,
+      'openid email profile',
+      'http://localhost:8000',
+      'fr',
+    )
     expect(newTransac.sign_type).toEqual(Sign.Sso)
     expect(newTransac.scope).toEqual('openid email profile')
     expect(newTransac.locale).toEqual('fr')
@@ -31,7 +45,12 @@ describe('newTrasaction', () => {
     const cryptoSha256Fn = jest.spyOn(Crypto, 'sha256')
     const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
     const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
+    const newTransac = newTransaction(
+      Sign.Sso,
+      'openid email profile',
+      'http://localhost:8000',
+      'fr',
+    )
     expect(newTransac.sign_type).toEqual(Sign.Sso)
     expect(newTransac.scope).toEqual('openid email profile')
     expect(newTransac.locale).toEqual('fr')
@@ -87,9 +106,9 @@ describe('validateAndFormatAuthResp', () => {
 
     expect(resp.valid).toEqual(false)
     expect(resp.errors).toEqual([
-      { error: 'accessToken', error_description: 'Not retrieve', http_response: null }
+      { error: 'accessToken', error_description: 'Not retrieve', http_response: null },
     ])
-    expect(resp.accessToken).toEqual("")
+    expect(resp.accessToken).toEqual('')
     expect(resp.idToken).toEqual(idToken)
     expect(resp.refreshToken).toEqual(refreshToken)
   })
@@ -117,10 +136,9 @@ describe('validateAndFormatAuthResp', () => {
       { error: 'accessToken', error_description: 'Not retrieve', http_response: null },
       { error: 'idToken', error_description: 'Can’t process request', http_response: null },
       { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-
     ])
-    expect(resp.accessToken).toEqual("")
-    expect(resp.idToken).toEqual("")
+    expect(resp.accessToken).toEqual('')
+    expect(resp.idToken).toEqual('')
     expect(resp.refreshToken).toEqual(refreshToken)
   })
 
@@ -134,7 +152,6 @@ describe('validateAndFormatAuthResp', () => {
     expect(resp.valid).toEqual(false)
     expect(resp.errors).toEqual([
       { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-
     ])
     expect(resp.accessToken).toEqual(accessToken)
     expect(resp.idToken).toEqual(idToken)
@@ -163,7 +180,7 @@ describe('getRefreshParameters', () => {
       refresh_expiration_date: tokenBody.exp,
       refresh_leeway: 60,
       refresh_retry: 60,
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
     })
   })
 
@@ -182,11 +199,10 @@ describe('getRefreshParameters', () => {
       refresh_expiration_date: 2051222400000,
       refresh_leeway: 60,
       refresh_retry: 60,
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
     })
   })
 })
-
 
 describe('parseTokensAndStoreRefresh', () => {
   it('should succeed if all params but empty opts', () => {
@@ -195,7 +211,9 @@ describe('parseTokensAndStoreRefresh', () => {
     const idToken = TokenFixture.idToken.valid()
     const refreshToken = TokenFixture.refreshToken.valid()
     const transaction = TransactionFixure.valid()
-    const response = { 'data': { 'access_token': accessToken, 'id_token': idToken, 'refresh_token': refreshToken } }
+    const response = {
+      data: { access_token: accessToken, id_token: idToken, refresh_token: refreshToken },
+    }
 
     const parsedTokens = parseTokensAndStoreRefresh(config, response, transaction, {})
     expect(parsedTokens).toEqual({
@@ -203,10 +221,9 @@ describe('parseTokensAndStoreRefresh', () => {
       errors: [],
       idToken: idToken,
       refreshToken: refreshToken,
-      valid: true
+      valid: true,
     })
   })
-
 
   it('should succeed and call delete cookie if withPKCE opt', () => {
     const storageDeleteCookieFn = jest.spyOn(Storage, 'deleteCookie')
@@ -215,7 +232,9 @@ describe('parseTokensAndStoreRefresh', () => {
     const idToken = TokenFixture.idToken.valid()
     const refreshToken = TokenFixture.refreshToken.valid()
     const transaction = TransactionFixure.valid()
-    const response = { 'data': { 'access_token': accessToken, 'id_token': idToken, 'refresh_token': refreshToken } }
+    const response = {
+      data: { access_token: accessToken, id_token: idToken, refresh_token: refreshToken },
+    }
     const opts = { withPKCE: true }
     const parsedTokens = parseTokensAndStoreRefresh(config, response, transaction, opts)
     expect(parsedTokens).toEqual({
@@ -223,7 +242,7 @@ describe('parseTokensAndStoreRefresh', () => {
       errors: [],
       idToken: idToken,
       refreshToken: refreshToken,
-      valid: true
+      valid: true,
     })
     expect(storageDeleteCookieFn).toHaveBeenCalledWith(transactionKey(transaction.pkce.state))
     storageDeleteCookieFn.mockRestore()
@@ -231,7 +250,7 @@ describe('parseTokensAndStoreRefresh', () => {
 
   it('should fail if wrong access token', () => {
     const config = ConfigFixure.valid()
-    const response = { 'data': { 'access_token': '' } }
+    const response = { data: { access_token: '' } }
     const parsedTokens = parseTokensAndStoreRefresh(config, response, null, {})
     expect(parsedTokens).toEqual({
       accessToken: '',
@@ -242,7 +261,7 @@ describe('parseTokensAndStoreRefresh', () => {
       ],
       idToken: '',
       refreshToken: '',
-      valid: false
+      valid: false,
     })
   })
 })
@@ -274,14 +293,14 @@ describe('handlePostUniversalAuthorizationCode', () => {
       errors,
       accessResult,
       TransactionFixure.valid(),
-      ConfigFixure.valid()
+      ConfigFixure.valid(),
     )
     expect(handledUniPostCode).toEqual({
-      accessToken: "",
-      idToken: "",
-      refreshToken: "",
+      accessToken: '',
+      idToken: '',
+      refreshToken: '',
       errors: [],
-      valid: false
+      valid: false,
     })
   })
 
@@ -299,26 +318,26 @@ describe('handlePostUniversalAuthorizationCode', () => {
     const refreshToken = TokenFixture.refreshToken.valid()
     const idToken = TokenFixture.idToken.valid()
     const response = {
-      'data': {
-        'nonce': transaction.nonce,
-        'access_token': accessToken,
-        'id_token': idToken,
-        'refresh_token': refreshToken
-      }
+      data: {
+        nonce: transaction.nonce,
+        access_token: accessToken,
+        id_token: idToken,
+        refresh_token: refreshToken,
+      },
     }
     const handledUniPostCode = handlePostUniversalAuthorizationCode(
       response,
       errors,
       accessResult,
       TransactionFixure.valid(),
-      ConfigFixure.valid()
+      ConfigFixure.valid(),
     )
     expect(handledUniPostCode).toEqual({
       accessToken: accessToken,
       idToken: idToken,
       refreshToken: refreshToken,
       errors: [],
-      valid: true
+      valid: true,
     })
   })
 })
@@ -338,14 +357,14 @@ describe('handlePostAuthorizationCode', () => {
       errors,
       accessResult,
       TransactionFixure.valid(),
-      ConfigFixure.valid()
+      ConfigFixure.valid(),
     )
     expect(handledPostCode).toEqual({
-      accessToken: "",
-      idToken: "",
-      refreshToken: "",
+      accessToken: '',
+      idToken: '',
+      refreshToken: '',
       errors: [],
-      valid: false
+      valid: false,
     })
   })
 
@@ -363,26 +382,26 @@ describe('handlePostAuthorizationCode', () => {
     const refreshToken = TokenFixture.refreshToken.valid()
     const idToken = TokenFixture.idToken.valid()
     const response = {
-      'data': {
-        'nonce': transaction.nonce,
-        'access_token': accessToken,
-        'id_token': idToken,
-        'refresh_token': refreshToken
-      }
+      data: {
+        nonce: transaction.nonce,
+        access_token: accessToken,
+        id_token: idToken,
+        refresh_token: refreshToken,
+      },
     }
     const handledPostCode = handlePostAuthorizationCode(
       response,
       errors,
       accessResult,
       TransactionFixure.valid(),
-      ConfigFixure.valid()
+      ConfigFixure.valid(),
     )
     expect(handledPostCode).toEqual({
       accessToken: accessToken,
       idToken: idToken,
       refreshToken: refreshToken,
       errors: [],
-      valid: true
+      valid: true,
     })
   })
 })
