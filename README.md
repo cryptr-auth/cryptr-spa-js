@@ -35,7 +35,6 @@ var config = {
   cryptr_base_url: 'https://your_cryptr_server_url',
   default_locale: 'en',
   dedicated_server: true,
-  fixed_pkce: true,
   default_slo_after_revoke: false,
 }
 ```
@@ -51,12 +50,12 @@ Explanation of config
 | `cryptr_base_url`          | required          | string URL    | -       | URL of your Cryptr service                                               |
 | `default_locale`           | Optional          | string locale | `en`    | -                                                                        |
 | `dedicated_server`         | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
-| `fixed_pkce`               | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
+| ~~`fixed_pkce`~~           | **Deprecated**    | boolean       | true    | As mentioned fixed_pkce is now considered as `true`                      |
 | ~~`telemetry`~~            | **Deprecated**    | boolean       | false   | -                                                                        |
 | `default_slo_after_revoke` | required          | boolean       | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
 | ---                        | ---               | ---           | ---     | ---                                                                      |
 
-⚠️ `fixed_pkce` will be removed in the future `1.4.0` release version
+⚠️ `fixed_pkce` has been removed in the `1.4.0` release version
 
 ### Cryptr Client Instance
 
@@ -144,8 +143,14 @@ This method will return you a struct with different properties such as email, us
 
 For more information please contact us.
 
+## Deprecations
+
 ### Deprecated methods
 
-~~`signInWithRedirect`~~~
+~~`signInWithRedirect`~~
 
 ~~`signInWithSSOGateway`~~
+
+### Config
+
+~~`fixed_pkce`~~
