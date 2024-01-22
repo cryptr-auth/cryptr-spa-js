@@ -146,9 +146,9 @@ For more information please contact us.
 
 ### Deprecated methods
 
-~~`signInWithRedirect`~~
-
-~~`signInWithSSOGateway`~~
+- ~~`signInWithRedirect`~~
+- ~~`signInWithSSO`~~
+- ~~`signInWithSSOGateway`~~
 
 ### Config
 
