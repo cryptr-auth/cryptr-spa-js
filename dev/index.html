@@ -191,9 +191,7 @@
       /** Use this lifecycle method to instantiate the SDK client */
       async created() {
         // Create a new instance of the SDK client using members of the given config object
-        console.log(config)
         this.cryptrClient = await CryptrSpa.createClient(config);
-        console.log(this.cryptrClient)
 
         window.addEventListener(CryptrSpa.events.REFRESH_INVALID_GRANT, (RigError) => {
           console.error(RigError);
