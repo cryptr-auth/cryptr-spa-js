@@ -23,7 +23,7 @@ const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
 const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
-  config: Interface.Config
+  config!: Interface.Config
   private memory: InMemory = new InMemory()
   private worker?: Worker
 
@@ -39,6 +39,7 @@ class Client {
     if (config.default_slo_after_revoke == undefined) {
       throw new Error('Since v(1.3.0), you have to define boolean value for key \'default_slo_after_revoke\'')
     }
+    this.config = config;
 
     try {
       const workerString =
@@ -93,7 +94,6 @@ class Client {
       validRedirectUri(redirectUri)
     }
     await Transaction.create(
-      this.config.fixed_pkce,
       sign,
       this.finalScope(scope),
       locale,
@@ -135,7 +135,6 @@ class Client {
       validRedirectUri(redirectUri)
     }
     const transaction = await Transaction.create(
-      this.config.fixed_pkce,
       sign,
       this.finalScope(scope),
       locale,
@@ -156,7 +155,6 @@ class Client {
 
   async signInWithSSO(idpId: string, options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
-      this.config.fixed_pkce,
       Sign.Sso,
       this.finalScope(options?.scope || DEFAULT_SCOPE),
       options?.locale,
@@ -175,7 +173,6 @@ class Client {
 
   async signInWithSSOGateway(idpId?: string | string[], options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
-      this.config.fixed_pkce,
       Sign.Sso,
       this.finalScope(options?.scope || DEFAULT_SCOPE),
       options?.locale,
@@ -193,7 +190,6 @@ class Client {
 
   async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
-      this.config.fixed_pkce,
       Sign.Sso,
       this.finalScope(options?.scope || DEFAULT_SCOPE),
       options?.locale,
@@ -249,7 +245,6 @@ class Client {
     const urlParams = new URLSearchParams(locationSearch())
     const state = urlParams.get('state')
     const transaction = await Transaction.createFromState(
-      this.config.fixed_pkce,
       state,
       Sign.Invite,
       scope,

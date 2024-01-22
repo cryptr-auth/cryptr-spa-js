@@ -558,7 +558,6 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signInWithEmail('john.doe@cryptr.co', { locale: 'fr' })
     expect(transactionCreateFn).toBeCalledWith(
-      client.config.fixed_pkce,
       'sso',
       'openid email profile',
       'fr',
@@ -588,7 +587,6 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signInWithDomain('some-domain', { locale: 'fr' })
     expect(transactionCreateFn).toBeCalledWith(
-      client.config.fixed_pkce,
       'sso',
       'openid email profile',
       'fr',
@@ -779,7 +777,7 @@ describe('Client.handleRedirectCallback/?', () => {
       authorization: { id: '42', code: 'azerty' },
     })
     expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
+      { ...validConfig },
       { id: '42', code: 'azerty' },
       expect.anything(),
       undefined,
@@ -795,7 +793,7 @@ describe('Client.handleRedirectCallback/?', () => {
       organization_domain: 'misapret',
     })
     expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
+      { ...validConfig },
       { id: '42', code: 'azerty' },
       expect.anything(),
       'misapret',
@@ -811,7 +809,7 @@ describe('Client.handleRedirectCallback/?', () => {
       request_id: 'some-request-id',
     })
     expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
+      { ...validConfig },
       { id: '42', code: 'azerty' },
       expect.anything(),
       'some-request-id',
@@ -829,7 +827,7 @@ describe('Client.handleRedirectCallback/?', () => {
       organization_domain: 'misapret',
     })
     expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
+      { ...validConfig },
       { id: '42', code: 'azerty' },
       expect.anything(),
       'some-request-id',
