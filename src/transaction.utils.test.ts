@@ -9,10 +9,10 @@ import Storage from './storage'
 import * as I from './interfaces'
 
 describe('newTrasaction', () => {
-  it('returns a transaction with new pkce if fixed pkce true', () => {
+  it('returns a transaction with new pkce', () => {
     const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
     const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(true, Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
+    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
     expect(newTransac.sign_type).toEqual(Sign.Sso)
     expect(newTransac.scope).toEqual('openid email profile')
     expect(newTransac.locale).toEqual('fr')
@@ -22,28 +22,6 @@ describe('newTrasaction', () => {
     expect(cryptoRndB64Fn).toHaveBeenCalled()
     expect(cryptoShaRndB64Fn).toHaveBeenCalled()
     cryptoRndB64Fn.mockRestore()
-    cryptoShaRndB64Fn.mockRestore()
-  })
-
-  it('returns a transaction with old pkce if fixed pkce false', () => {
-    const cryptoRndFn = jest.spyOn(Crypto, 'random')
-    const cryptoSha256Fn = jest.spyOn(Crypto, 'sha256')
-    const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
-    const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(false, Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
-    expect(newTransac.sign_type).toEqual(Sign.Sso)
-    expect(newTransac.scope).toEqual('openid email profile')
-    expect(newTransac.locale).toEqual('fr')
-    expect(newTransac.redirect_uri).toEqual('http://localhost:8000')
-    expect(newTransac.pkce).not.toBeNull()
-    expect(newTransac.nonce).not.toBeNull()
-    expect(cryptoRndB64Fn).not.toHaveBeenCalled()
-    expect(cryptoShaRndB64Fn).not.toHaveBeenCalled()
-    expect(cryptoRndFn).toHaveBeenCalled()
-    expect(cryptoSha256Fn).toHaveBeenCalled()
-    cryptoRndFn.mockRestore()
-    cryptoSha256Fn.mockRestore()
-    cryptoShaRndB64Fn.mockRestore()
     cryptoShaRndB64Fn.mockRestore()
   })
 })

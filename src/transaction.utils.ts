@@ -9,7 +9,6 @@ import Storage from './storage'
 import axios from 'axios'
 
 export const newTransaction = (
-  fixedPkce: boolean,
   signType: Sign,
   scope: string,
   redirect_uri: string,
@@ -19,7 +18,7 @@ export const newTransaction = (
     validRedirectUri(redirect_uri)
   }
   return {
-    pkce: Pkce.gen(fixedPkce),
+    pkce: Pkce.gen(),
     sign_type: signType,
     scope: scope,
     nonce: uuid(),
@@ -29,7 +28,6 @@ export const newTransaction = (
 }
 
 export const newTransactionWithState = (
-  fixedPkce: boolean,
   signType: Sign,
   scope: string,
   state: string,
@@ -40,7 +38,7 @@ export const newTransactionWithState = (
     validRedirectUri(redirect_uri)
   }
   return {
-    pkce: Pkce.gen(fixedPkce, state),
+    pkce: Pkce.gen(state),
     sign_type: signType,
     scope: scope,
     nonce: uuid(),
