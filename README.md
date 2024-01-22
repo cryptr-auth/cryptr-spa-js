@@ -144,17 +144,17 @@ For more information please contact us.
 
 ## Deprecations
 
-| Type   | Name                       |
-| ------ | -------------------------- |
-| Method | ~~signInWithRedirect~~     |
-|        | ~~signInWithSSOGateway~~~  |
-|        | ~~signUpWithRedirect~~~    |
-|        | ~~inviteWithRedirect~~~    |
-|        | ~~signInWithoutRedirect~~~ |
-|        | ~~signUpWithoutRedirect~~~ |
-|        | ~~inviteWithoutRedirect~~~ |
-|        | ~~signInWithSSO~~~         |
-|        | ~~userAccountAccess~~~     |
-| Config | ~~telemetry~~              |
-|        | ~~fixed_pkce~~             |
-|        | ~~default_locale~~         |
+| Type   | Name                      |
+| ------ | ------------------------- |
+| Method | ~~signInWithRedirect~~    |
+|        | ~~signInWithSSOGateway~~  |
+|        | ~~signUpWithRedirect~~    |
+|        | ~~inviteWithRedirect~~    |
+|        | ~~signInWithoutRedirect~~ |
+|        | ~~signUpWithoutRedirect~~ |
+|        | ~~inviteWithoutRedirect~~ |
+|        | ~~signInWithSSO~~         |
+|        | ~~userAccountAccess~~     |
+| Config | ~~telemetry~~             |
+|        | ~~fixed_pkce~~            |
+|        | ~~default_locale~~        |
