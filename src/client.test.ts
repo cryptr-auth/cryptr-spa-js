@@ -2,7 +2,6 @@ import Client from './client'
 import Request from './request'
 import Storage from './storage'
 import Transaction from './transaction'
-import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
@@ -117,14 +116,6 @@ describe('client creation', () => {
     await client.isAuthenticated()
     expect(accessTokenFn).toHaveBeenCalled()
     accessTokenFn.mockRestore()
-  })
-
-  it('should not init sentry if telemetry false', () => {
-    const sentryInitFn = jest.spyOn(Sentry, 'init')
-    new Client({ ...validConfig, telemetry: false })
-    expect(sentryInitFn).not.toBeCalled()
-    expect(sentryInitFn).not.toHaveBeenCalled()
-    sentryInitFn.mockRestore()
   })
 
   it('should throw error if  wrong locale defined', () => {
