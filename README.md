@@ -147,8 +147,14 @@ For more information please contact us.
 ### Deprecated methods
 
 - ~~`signInWithRedirect`~~
+- ~~`signUpWithRedirect`~~
+- ~~`inviteWithRedirect`~~
+- ~~`signInWithoutRedirect`~~
+- ~~`signUpWithoutRedirect`~~
+- ~~`inviteWithoutRedirect`~~
 - ~~`signInWithSSO`~~
 - ~~`signInWithSSOGateway`~~
+- ~~`userAccountAccess`~~
 
 ### Config
 
