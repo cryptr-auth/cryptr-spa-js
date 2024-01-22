@@ -144,8 +144,10 @@ This method will return you a struct with different properties such as email, us
 
 For more information please contact us.
 
-### Deprecated methods
+## Deprecations
 
-~~`signInWithRedirect`~~~
-
-~~`signInWithSSOGateway`~~
+1. Deprecated methods
+   1. ~~`signInWithRedirect`~~~
+   2. ~~`signInWithSSOGateway`~~
+2. Config
+   1. ~~`telemetry`~~
