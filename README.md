@@ -4,6 +4,18 @@
 
 [![codecov](https://codecov.io/gh/cryptr-auth/cryptr-spa-js/branch/master/graph/badge.svg?token=F21AODGJM4)](https://codecov.io/gh/cryptr-auth/cryptr-spa-js)
 
+- [📚 cryptr-spa.js](#-cryptr-spajs)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [CryptrConfig](#cryptrconfig)
+    - [Cryptr Client Instance](#cryptr-client-instance)
+  - [Open Session](#open-session)
+    - [Sign with email](#sign-with-email)
+    - [Sign with domain](#sign-with-domain)
+  - [Close session](#close-session)
+  - [Fetch User data](#fetch-user-data)
+  - [Deprecations](#deprecations)
+
 # 📚 cryptr-spa.js
 
 > Cryptr SDK for Single Page Applications using passwordless authentication
@@ -145,12 +157,9 @@ For more information please contact us.
 
 ## Deprecations
 
-### Deprecated methods
-
-~~`signInWithRedirect`~~
-
-~~`signInWithSSOGateway`~~
-
-### Config
-
-~~`fixed_pkce`~~
+| Type   | Name                      |
+| ------ | ------------------------- |
+| Method | ~~signInWithRedirect~~    |
+|        | ~~signInWithSSOGateway~~~ |
+| Config | ~~telemetry~~             |
+| Config | ~~fixed_pkce~~            |
