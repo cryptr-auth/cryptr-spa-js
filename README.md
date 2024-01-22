@@ -146,8 +146,8 @@ For more information please contact us.
 
 ## Deprecations
 
-| Type   | Name                      |
-| ------ | ------------------------- |
-| Method | ~~signInWithRedirect~~    |
-|        | ~~signInWithSSOGateway~~~ |
-| Config | ~~telemetry~~             |
+| Type   | Name                     |
+| ------ | ------------------------ |
+| Method | ~~signInWithRedirect~~   |
+|        | ~~signInWithSSOGateway~~ |
+| Config | ~~telemetry~~            |
