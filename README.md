@@ -144,10 +144,10 @@ For more information please contact us.
 
 ## Deprecations
 
-| Type   | Name                      |
-| ------ | ------------------------- |
-| Method | ~~signInWithRedirect~~    |
-|        | ~~signInWithSSOGateway~~~ |
-| Config | ~~telemetry~~             |
-|        | ~~fixed_pkce~~            |
-|        | ~~default_locale~~        |
+| Type   | Name                     |
+| ------ | ------------------------ |
+| Method | ~~signInWithRedirect~~   |
+|        | ~~signInWithSSOGateway~~ |
+| Config | ~~telemetry~~            |
+|        | ~~fixed_pkce~~           |
+|        | ~~default_locale~~       |
