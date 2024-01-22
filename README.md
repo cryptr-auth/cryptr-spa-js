@@ -149,4 +149,5 @@ For more information please contact us.
 | Method | ~~signInWithRedirect~~    |
 |        | ~~signInWithSSOGateway~~~ |
 | Config | ~~telemetry~~             |
-| Config | ~~fixed_pkce~~            |
+|        | ~~fixed_pkce~~            |
+|        | ~~default_locale~~        |
