@@ -109,7 +109,7 @@ signInWithDomain()
 
 ## Close session
 
-When you want to let the user close its session (either Magic Link or SSO) proceed as follow:
+When you want to let the user close its session (either Magic Link or SSO) proceed as follows:
 
 To start the process call `logOut(callback, location, targetUrl)`
 
@@ -138,7 +138,7 @@ Example:
 this.cryptrClient.getUser()
 ```
 
-This method will return you a struct with different properties such as email, user id or organization domain.
+This method will return you a struct with different properties such as email, user ID or organization domain.
 
 For more information please contact us.
 
@@ -146,15 +146,15 @@ For more information please contact us.
 
 ### Deprecated methods
 
-* ~~`signInWithRedirect`~~
-* ~~`signUpWithRedirect`~~
-* ~~`inviteWithRedirect`~~
-* ~~`signInWithoutRedirect`~~
-* ~~`signUpWithoutRedirect`~~
-* ~~`inviteWithoutRedirect`~~
-* ~~`signInWithSSO`~~
-* ~~`signInWithSSOGateway`~~
-* ~~`userAccountAccess`~~
+1. ~~`signInWithRedirect`~~
+2. ~~`signUpWithRedirect`~~
+3. ~~`inviteWithRedirect`~~
+4. ~~`signInWithoutRedirect`~~
+5. ~~`signUpWithoutRedirect`~~
+6. ~~`inviteWithoutRedirect`~~
+7. ~~`signInWithSSO`~~
+8. ~~`signInWithSSOGateway`~~
+9. ~~`userAccountAccess`~~
 
 ### Config
 
