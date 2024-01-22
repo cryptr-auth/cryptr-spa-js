@@ -76,7 +76,7 @@ The following methods will allow you to open a session either from the email or 
 
 ### Sign with email
 
-If you have the email of the end-user you can call the below method, and depending if the email matches to an organization or to an existing account, user will be guided into to proper login process (sso, magic link, password ..)
+If you have the email of the end-user you can call the below method, and depending on whether the email matches an organization or an existing account, the user will be guided into to proper login process (sso, magic link, password ..)
 
 ```js
 // signature
