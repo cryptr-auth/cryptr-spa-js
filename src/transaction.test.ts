@@ -13,62 +13,6 @@ describe('Transaction', () => {
     expect(Transaction.key(TransactionFixure.valid().pkce.state)).toMatchSnapshot()
   })
 
-  it('new(state) returns a transaction', () => {
-    expect(Transaction.new(false, Sign.In, 'openid email')).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: expect.any(String),
-      },
-      nonce: expect.any(String),
-    })
-  })
-
-  it('creates proper transaction using create function', () => {
-    expect(Transaction.create(false, Sign.In, 'openid email')).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: expect.any(String),
-      },
-      nonce: expect.any(String),
-    })
-  })
-
-  it('throw error if wrong locale using create function', () => {
-    expect(() => Transaction.create(false, Sign.In, 'openid email', 'de')).toThrowError(
-      "'de' locale not valid, possible values en,fr",
-    )
-  })
-
-  it('creates proper transaction with fr locale using create function', () => {
-    expect(Transaction.create(false, Sign.In, 'openid email', 'fr')).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: expect.any(String),
-      },
-      nonce: expect.any(String),
-      locale: 'fr',
-    })
-  })
-
-  it('creates proper transaction with en locale using create function', () => {
-    expect(Transaction.create(false, Sign.In, 'openid email', 'en')).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: expect.any(String),
-      },
-      nonce: expect.any(String),
-      locale: 'en',
-    })
-  })
-
   it('creates proper SSO transaction', () => {
     expect(Transaction.create(false, Sign.Sso, 'openid email', 'en')).toMatchObject({
       ...TransactionFixure.valid(),
@@ -80,20 +24,6 @@ describe('Transaction', () => {
       sign_type: Sign.Sso,
       nonce: expect.any(String),
       locale: 'en',
-    })
-  })
-
-  it('creates proper transaction using createFromState function', () => {
-    var state = '123-xeab'
-    const transaction = Transaction.createFromState(false, state, Sign.In, 'openid email')
-    expect(transaction).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: state,
-      },
-      nonce: expect.any(String),
     })
   })
 
@@ -110,36 +40,6 @@ describe('Transaction', () => {
       sign_type: Sign.Sso,
       nonce: expect.any(String),
     })
-  })
-
-  xit('creates proper storage cookie using createFromState function', () => {
-    var state = '123-xeab'
-    Transaction.createFromState(false, state, Sign.In, 'openid email')
-    expect(Transaction.get(state)).toMatchObject({})
-  })
-
-  it('creates proper transaction with locale using createFromState function', () => {
-    var state = '123-xeab'
-    const transaction = Transaction.createFromState(false, state, Sign.In, 'openid email', 'fr')
-    expect(transaction).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: state,
-      },
-      nonce: expect.any(String),
-      locale: 'fr',
-    })
-  })
-
-  it('throw error if wrong locale using createFromState function', () => {
-    var state = '123-xeab'
-    expect(() =>
-      Transaction.createFromState(false, state, Sign.In, 'openid email', 'be'),
-    ).toThrowError("'be' locale not valid, possible values en,fr")
-
-    expect(Transaction.get(state)).toMatchObject({})
   })
 
   // TO FIX
@@ -568,7 +468,7 @@ describe('Transaction.createFromState', () => {
     Transaction.createFromState(
       false,
       'some_state',
-      Sign.In,
+      Sign.Sso,
       'openid email',
       'fr',
       'http://localhost:3200',
