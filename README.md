@@ -144,18 +144,17 @@ For more information please contact us.
 
 ## Deprecations
 
-### Deprecated methods
-
-1. ~~`signInWithRedirect`~~
-2. ~~`signUpWithRedirect`~~
-3. ~~`inviteWithRedirect`~~
-4. ~~`signInWithoutRedirect`~~
-5. ~~`signUpWithoutRedirect`~~
-6. ~~`inviteWithoutRedirect`~~
-7. ~~`signInWithSSO`~~
-8. ~~`signInWithSSOGateway`~~
-9. ~~`userAccountAccess`~~
-
-### Config
-
-~~`fixed_pkce`~~
+| Type   | Name                       |
+| ------ | -------------------------- |
+| Method | ~~signInWithRedirect~~     |
+|        | ~~signInWithSSOGateway~~~  |
+|        | ~~signUpWithRedirect~~~    |
+|        | ~~inviteWithRedirect~~~    |
+|        | ~~signInWithoutRedirect~~~ |
+|        | ~~signUpWithoutRedirect~~~ |
+|        | ~~inviteWithoutRedirect~~~ |
+|        | ~~signInWithSSO~~~         |
+|        | ~~userAccountAccess~~~     |
+| Config | ~~telemetry~~              |
+|        | ~~fixed_pkce~~             |
+|        | ~~default_locale~~         |
