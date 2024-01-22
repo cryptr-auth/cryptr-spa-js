@@ -430,17 +430,6 @@ describe('Client.userAccountAccess/0', () => {
   })
 })
 
-describe('Client.handleInvitationState', () => {
-  let client = new Client(validConfig)
-
-  it('calls locationSearch', () => {
-    const locationSarchFn = jest.spyOn(Utils, 'locationSearch')
-    client.handleInvitationState()
-    expect(locationSarchFn).toHaveBeenCalled()
-    locationSarchFn.mockRestore()
-  })
-})
-
 describe('Client.handleTokensErrors/1', () => {
   let client = new Client(validConfig)
 

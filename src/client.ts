@@ -115,18 +115,6 @@ class Client {
     window.location.assign(url.href)
   }
 
-  async handleInvitationState(scope = DEFAULT_SCOPE) {
-    const urlParams = new URLSearchParams(locationSearch())
-    const state = urlParams.get('state')
-    const transaction = await Transaction.createFromState(
-      state,
-      Sign.Invite,
-      scope,
-    )
-    const url = await Transaction.signUrl(this.config, transaction)
-    window.location.assign(url.href)
-  }
-
   handleTokensErrors(errors: TokenError[]): boolean {
     const invalidGrantError = errors.find((e: TokenError) => e.error === 'invalid_grant')
     if (invalidGrantError) {
