@@ -6,7 +6,6 @@ import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
 import * as Utils from './utils'
 import axios from 'axios'
 import { refreshKey, tomorrowDate } from './transaction.utils'
@@ -287,45 +286,6 @@ describe('valid client handling redirect callback', () => {
 
 describe('signin process', () => {
   let client = new Client(validConfig)
-
-  it('signInWithoutRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signInWithoutRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signin',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signUpWithoutRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signUpWithoutRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signup',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('inviteWithoutRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.inviteWithoutRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'invite',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
 
   it('signInWithRedirect creates a Transaction', async () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
@@ -655,16 +615,6 @@ describe('Client.userAccountAccess/0', () => {
       },
     )
     axiosGetFn.mockRestore()
-  })
-})
-
-describe('Client.signWithoutRedirect/?', () => {
-  it("calls validRedirectUri if redirectUri is no equals to config's", () => {
-    const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
-    let client = new Client(validConfig)
-    let redirectUri = validConfig.default_redirect_uri + '?param=azerty'
-    client.signInWithoutRedirect('openid email', redirectUri, 'fr')
-    expect(validRedirectUriFn).toHaveBeenCalledWith(redirectUri)
   })
 })
 

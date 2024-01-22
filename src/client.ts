@@ -78,47 +78,6 @@ class Client {
     return union.join(' ')
   }
 
-  private async signWithoutRedirect(
-    sign: Sign,
-    scope = DEFAULT_SCOPE,
-    locale?: string,
-    redirectUri = this.config.default_redirect_uri,
-  ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
-    await Transaction.create(
-      sign,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
-    )
-  }
-
-  async signInWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.In, scope, locale, redirectUri)
-  }
-
-  async signUpWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.Up, scope, locale, redirectUri)
-  }
-
-  async inviteWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.Invite, scope, locale, redirectUri)
-  }
-
   private async signWithRedirect(
     sign: Sign,
     scope = DEFAULT_SCOPE,
