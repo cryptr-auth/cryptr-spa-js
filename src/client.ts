@@ -31,11 +31,6 @@ class Client {
     validAppBaseUrl(cryptrBaseUrl(config))
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
-    if (config.default_locale && !ALLOWED_LOCALES.includes(config.default_locale)) {
-      throw new Error(
-        `'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
-      )
-    }
     if (config.default_slo_after_revoke == undefined) {
       throw new Error('Since v(1.3.0), you have to define boolean value for key \'default_slo_after_revoke\'')
     }

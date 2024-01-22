@@ -19,7 +19,6 @@ const validConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   cryptr_base_url: 'http://localhost:4000',
-  default_locale: 'fr',
   default_slo_after_revoke: false
 }
 
@@ -55,7 +54,6 @@ const wrongLocaleConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
-  default_locale: 'de',
   default_slo_after_revoke: false
 }
 
@@ -73,8 +71,7 @@ const wrongSloConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  cryptr_base_url: 'http://localhost:4000',
-  default_locale: 'fr',
+  cryptr_base_url: 'http://localhost:4000'
 }
 
 describe('Cryptr Base url', () => {
