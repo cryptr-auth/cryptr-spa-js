@@ -6,7 +6,6 @@ import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-import axios from 'axios'
 import { refreshKey, tomorrowDate } from './transaction.utils'
 
 jest.mock('axios')
@@ -374,55 +373,6 @@ describe('signin process', () => {
     )
     transactionCreateFn.mockRestore()
     transactionUniversalSignUrlFn.mockRestore()
-  })
-})
-
-describe('Client.userAccountAccess/0', () => {
-  let client = new Client(validConfig)
-
-  it('should call getCurrentAccessToken', async () => {
-    const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
-    await client.userAccountAccess()
-    expect(accessTokenFn).toHaveBeenCalled()
-    accessTokenFn.mockRestore()
-  })
-
-  it('should call proper endpoint depending on tnt', async () => {
-    const token = TokenFixture.accessToken.valid()
-    await client.userAccountAccess(token)
-    const axiosGetFn = jest.spyOn(axios, 'post')
-    expect(axiosGetFn).toHaveBeenCalledWith(
-      'http://localhost:4000/api/v1/client-management/tenants/cryptr/account-access',
-      {
-        client_id: client.config.client_id,
-        access_token: token,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
-    axiosGetFn.mockRestore()
-  })
-
-  it('should call proper endpoint depending on differnet tnt', async () => {
-    const token = TokenFixture.accessToken.misapretSample()
-    await client.userAccountAccess(token)
-    const axiosGetFn = jest.spyOn(axios, 'post')
-    expect(axiosGetFn).toHaveBeenCalledWith(
-      'http://localhost:4000/api/v1/client-management/tenants/misapret/account-access',
-      {
-        client_id: client.config.client_id,
-        access_token: token,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
-    axiosGetFn.mockRestore()
   })
 })
 

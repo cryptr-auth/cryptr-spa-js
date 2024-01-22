@@ -1,5 +1,5 @@
 import * as Interface from './interfaces'
-import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
 import {
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
@@ -152,18 +152,18 @@ class Client {
     const transaction = await Transaction.get(redirectParams.state)
     const tokens = redirectParams.request_id
       ? await Transaction.getUniversalTokens(
-          this.config,
-          redirectParams.authorization,
-          transaction,
-          redirectParams.request_id,
-          redirectParams.organization_domain,
-        )
+        this.config,
+        redirectParams.authorization,
+        transaction,
+        redirectParams.request_id,
+        redirectParams.organization_domain,
+      )
       : await Transaction.getTokens(
-          this.config,
-          redirectParams.authorization,
-          transaction,
-          redirectParams.organization_domain,
-        )
+        this.config,
+        redirectParams.authorization,
+        transaction,
+        redirectParams.organization_domain,
+      )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
@@ -234,26 +234,6 @@ class Client {
   }
   canHandleAuthentication(searchParams = locationSearch()): boolean {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
-  }
-
-  async userAccountAccess(accessToken = this.getCurrentAccessToken()) {
-    if (accessToken) {
-      let decoded = Jwt.body(accessToken)
-      let domain = decoded.hasOwnProperty('tnt') ? (decoded as any).tnt : this.config.tenant_domain
-      let url: URL = new URL(cryptrBaseUrl(this.config))
-      url.pathname = `/api/v1/client-management/tenants/${domain}/account-access`
-      let params = {
-        client_id: this.config.client_id,
-        access_token: accessToken,
-      }
-      let config = {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-      return axios.post(url.toString(), params, config)
-    } else {
-      console.log('no accessToken found')
-      return null
-    }
   }
 
   async logOut(
