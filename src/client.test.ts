@@ -287,45 +287,6 @@ describe('valid client handling redirect callback', () => {
 describe('signin process', () => {
   let client = new Client(validConfig)
 
-  it('signInWithRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signInWithRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signin',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signUpWithRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signUpWithRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signup',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('inviteWithRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.inviteWithRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'invite',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
   it('signInWithDomain without domain, call Transaction universalGatewayUrl fn without attribute', async () => {
     const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
     await client.signInWithDomain()

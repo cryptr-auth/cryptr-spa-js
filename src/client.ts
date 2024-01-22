@@ -78,34 +78,6 @@ class Client {
     return union.join(' ')
   }
 
-  private async signWithRedirect(
-    sign: Sign,
-    scope = DEFAULT_SCOPE,
-    locale?: string,
-    redirectUri = this.config.default_redirect_uri,
-  ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
-    const transaction = await Transaction.create(
-      sign,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
-    )
-    const url = await Transaction.signUrl(this.config, transaction)
-
-    window.location.assign(url.href)
-  }
-
-  async signInWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.In, scope, locale, redirectUri)
-  }
-
   async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
       Sign.Sso,
@@ -141,22 +113,6 @@ class Client {
       email: email,
     })
     window.location.assign(url.href)
-  }
-
-  async signUpWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.Up, scope, locale, redirectUri)
-  }
-
-  async inviteWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.Invite, scope, locale, redirectUri)
   }
 
   async handleInvitationState(scope = DEFAULT_SCOPE) {
