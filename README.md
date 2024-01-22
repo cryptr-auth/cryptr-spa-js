@@ -146,8 +146,8 @@ For more information please contact us.
 
 ## Deprecations
 
-1. Deprecated methods
-   1. ~~`signInWithRedirect`~~~
-   2. ~~`signInWithSSOGateway`~~
-2. Config
-   1. ~~`telemetry`~~
+| Type   | Name                      |
+| ------ | ------------------------- |
+| Method | ~~signInWithRedirect~~    |
+|        | ~~signInWithSSOGateway~~~ |
+| Config | ~~telemetry~~             |
