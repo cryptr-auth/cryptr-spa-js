@@ -144,12 +144,9 @@ For more information please contact us.
 
 ## Deprecations
 
-### Deprecated methods
-
-~~`signInWithRedirect`~~
-
-~~`signInWithSSOGateway`~~
-
-### Config
-
-~~`fixed_pkce`~~
+| Type   | Name                      |
+| ------ | ------------------------- |
+| Method | ~~signInWithRedirect~~    |
+|        | ~~signInWithSSOGateway~~~ |
+| Config | ~~telemetry~~             |
+| Config | ~~fixed_pkce~~            |
