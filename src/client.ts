@@ -1,7 +1,6 @@
 import * as Interface from './interfaces'
 import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
 import {
-  ALLOWED_LOCALES,
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
   DEFAULT_REFRESH_RETRY,
