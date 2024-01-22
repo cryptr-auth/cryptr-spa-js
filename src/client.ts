@@ -40,10 +40,6 @@ class Client {
       throw new Error('Since v(1.3.0), you have to define boolean value for key \'default_slo_after_revoke\'')
     }
 
-    console.warn(
-      "[Cryptr] 'fixed_pkce' value in Config will be remove from version '1.4.0' and have behavior related to 'true' value",
-    )
-    this.config = { ...{ fixed_pkce: false }, ...config }
     try {
       const workerString =
         "onmessage = function(oEvt) {setTimeout(() => {postMessage('rotate');}, 10000)};"
