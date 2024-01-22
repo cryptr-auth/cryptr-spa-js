@@ -14,6 +14,7 @@ export interface Config {
   default_locale?: string
   region?: string
   cryptr_base_url?: string
+  /** @deprecated  */
   telemetry?: boolean
   dedicated_server?: boolean
   fixed_pkce?: boolean

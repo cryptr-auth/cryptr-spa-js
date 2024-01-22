@@ -34,7 +34,6 @@ var config = {
   default_redirect_uri: 'http://localhost:8000/',
   cryptr_base_url: 'https://your_cryptr_server_url',
   default_locale: 'en',
-  telemetry: false,
   dedicated_server: true,
   fixed_pkce: true,
   default_slo_after_revoke: false,
@@ -53,7 +52,7 @@ Explanation of config
 | `default_locale`           | Optional          | string locale | `en`    | -                                                                        |
 | `dedicated_server`         | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
 | `fixed_pkce`               | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
-| `telemetry`                | Optional          | boolean       | false   | Set to `true` if debug required with Cryptr Team                         |
+| ~~`telemetry`~~            | **Deprecated**    | boolean       | false   | -                                                                        |
 | `default_slo_after_revoke` | required          | boolean       | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
 | ---                        | ---               | ---           | ---     | ---                                                                      |
 

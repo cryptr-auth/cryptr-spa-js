@@ -427,8 +427,6 @@ class Client {
         })
         .catch((error) => {
           console.error('logout SPA error')
-          if (this.config.telemetry == undefined || this.config.telemetry) {
-          }
           console.error(error)
         })
     } else {
