@@ -145,9 +145,9 @@ For more information please contact us.
 
 ## Deprecations
 
-| Type   | Name                      |
-| ------ | ------------------------- |
-| Method | ~~signInWithRedirect~~    |
-|        | ~~signInWithSSOGateway~~~ |
-| Config | ~~telemetry~~             |
-| Config | ~~fixed_pkce~~            |
+| Type   | Name                     |
+| ------ | ------------------------ |
+| Method | ~~signInWithRedirect~~   |
+|        | ~~signInWithSSOGateway~~ |
+| Config | ~~telemetry~~            |
+| Config | ~~fixed_pkce~~           |
