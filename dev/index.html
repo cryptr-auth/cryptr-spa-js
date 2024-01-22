@@ -107,6 +107,10 @@
                 Signin unknown user/context
               </a>
 
+              <a href="#" class="btn btn-secondary" @click="universalGatewayFr">
+                Me connecter
+              </a>
+
             </div>
           </div>
         </div>
@@ -168,6 +172,9 @@
         },
         universalGateway() {
           this.cryptrClient.signInWithDomain();
+        },
+        universalGatewayFr() {
+          this.cryptrClient.signInWithDomain(null, {locale: 'fr'});
         },
         /** Logs out the current user**/
         logOut() {
