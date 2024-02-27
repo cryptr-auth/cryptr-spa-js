@@ -28,7 +28,6 @@ const Transaction: any = {
   new: newTransaction,
 
   create: (
-    fixedPkce: boolean,
     signType: Sign,
     scope: string,
     locale: string,
@@ -40,13 +39,12 @@ const Transaction: any = {
     if (locale && !ALLOWED_LOCALES.includes(locale)) {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
-    const transaction = newTransaction(fixedPkce, signType, scope, redirect_uri, locale)
+    const transaction = newTransaction(signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction, tomorrowDate())
     return transaction
   },
 
   createFromState: (
-    fixedPkce: boolean,
     state: string,
     signType: Sign,
     scope: string,
@@ -60,7 +58,6 @@ const Transaction: any = {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
     const transaction = newTransactionWithState(
-      fixedPkce,
       signType,
       scope,
       state,

@@ -17,6 +17,7 @@ export interface Config {
   /** @deprecated  */
   telemetry?: boolean
   dedicated_server?: boolean
+  /** @deprecated  */
   fixed_pkce?: boolean
 }
 

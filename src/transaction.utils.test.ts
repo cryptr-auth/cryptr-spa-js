@@ -9,10 +9,10 @@ import Storage from './storage'
 import * as I from './interfaces'
 
 describe('newTrasaction', () => {
-  it('returns a transaction with new pkce if fixed pkce true', () => {
+  it('returns a transaction with Pkce', () => {
     const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
     const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(true, Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
+    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
     expect(newTransac.sign_type).toEqual(Sign.Sso)
     expect(newTransac.scope).toEqual('openid email profile')
     expect(newTransac.locale).toEqual('fr')
@@ -25,12 +25,13 @@ describe('newTrasaction', () => {
     cryptoShaRndB64Fn.mockRestore()
   })
 
-  it('returns a transaction with old pkce if fixed pkce false', () => {
+  // fixed_pkce is now default to true
+  xit('returns a transaction with old pkce if fixed pkce false', () => {
     const cryptoRndFn = jest.spyOn(Crypto, 'random')
     const cryptoSha256Fn = jest.spyOn(Crypto, 'sha256')
     const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
     const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(false, Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
+    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
     expect(newTransac.sign_type).toEqual(Sign.Sso)
     expect(newTransac.scope).toEqual('openid email profile')
     expect(newTransac.locale).toEqual('fr')

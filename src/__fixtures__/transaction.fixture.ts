@@ -5,7 +5,7 @@ import Pkce from '../pkce'
 const TransactionFixure = {
   valid: (): Transaction => ({
     pkce: {
-      ...Pkce.gen(false),
+      ...Pkce.gen(),
       state: 'da2379bc-46b2-4e9e-a7c4-62a891827944',
     },
 
@@ -15,7 +15,7 @@ const TransactionFixure = {
   }),
   validWithType: (signType: Sign): Transaction => ({
     pkce: {
-      ...Pkce.gen(false),
+      ...Pkce.gen(),
       state: 'da2379bc-46b2-4e9e-a7c4-62a891827944',
     },
 
