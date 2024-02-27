@@ -33,7 +33,6 @@ var config = {
   audience: 'http://localhost:8000',
   default_redirect_uri: 'http://localhost:8000/',
   cryptr_base_url: 'https://your_cryptr_server_url',
-  default_locale: 'en',
   dedicated_server: true,
   default_slo_after_revoke: false,
 }
@@ -41,19 +40,19 @@ var config = {
 
 Explanation of config
 
-| key                        | Required/Optional | type          | Default | Description                                                              |
-| -------------------------- | ----------------- | ------------- | ------- | ------------------------------------------------------------------------ |
-| `tenant_domain`            | required          | string slug   | -       | Reference to your company entity                                         |
-| `client_id`                | required          | uuid          | -       | Reference to your front app id                                           |
-| `audience`                 | required          | string URL    | -       | Root URL of your front app                                               |
-| `default_redirect_uri`     | required          | string URL    | -       | Desired redirection URL after authentication process                     |
-| `cryptr_base_url`          | required          | string URL    | -       | URL of your Cryptr service                                               |
-| `default_locale`           | Optional          | string locale | `en`    | -                                                                        |
-| `dedicated_server`         | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
-| ~~`fixed_pkce`~~           | **Deprecated**    | boolean       | true    | As mentioned fixed_pkce is now considered as `true`                      |
-| ~~`telemetry`~~            | **Deprecated**    | boolean       | false   | -                                                                        |
-| `default_slo_after_revoke` | required          | boolean       | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
-| ---                        | ---               | ---           | ---     | ---                                                                      |
+| key                        | Required/Optional | type          | Default  | Description                                                              |
+| -------------------------- | ----------------- | ------------- | -------- | ------------------------------------------------------------------------ |
+| `tenant_domain`            | required          | string slug   | -        | Reference to your company entity                                         |
+| `client_id`                | required          | uuid          | -        | Reference to your front app id                                           |
+| `audience`                 | required          | string URL    | -        | Root URL of your front app                                               |
+| `default_redirect_uri`     | required          | string URL    | -        | Desired redirection URL after authentication process                     |
+| `cryptr_base_url`          | required          | string URL    | -        | URL of your Cryptr service                                               |
+| ~~`default_locale`~~       | **Deprecated**    | string locale | ~~`en`~~ | -                                                                        |
+| `dedicated_server`         | Optional          | boolean       | false    | Contact Cryptr Team to set properly                                      |
+| ~~`fixed_pkce`~~           | **Deprecated**    | boolean       | true     | As mentioned fixed_pkce is now considered as `true`                      |
+| ~~`telemetry`~~            | **Deprecated**    | boolean       | false    | -                                                                        |
+| `default_slo_after_revoke` | required          | boolean       | false    | Set to `true`to always proceed SLO while logging out from an SSO session |
+| ---                        | ---               | ---           | ---      | ---                                                                      |
 
 ⚠️ `fixed_pkce` has been removed in the `1.4.0` release version
 
@@ -150,4 +149,5 @@ For more information please contact us.
 | Method | ~~signInWithRedirect~~   |
 |        | ~~signInWithSSOGateway~~ |
 | Config | ~~telemetry~~            |
-| Config | ~~fixed_pkce~~           |
+|        | ~~fixed_pkce~~           |
+|        | ~~default_locale~~       |

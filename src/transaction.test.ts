@@ -223,8 +223,7 @@ const validConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  cryptr_base_url: 'http://localhost:4000',
-  default_locale: 'fr',
+  cryptr_base_url: 'http://localhost:4000'
 }
 
 describe('Transaction.universalGatewayUrl/3', () => {
@@ -245,7 +244,7 @@ describe('Transaction.universalGatewayUrl/3', () => {
   it('should return en universal gateway url with pkce attrs and english default locale', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.universalGatewayUrl({
-      config: { ...validConfig, default_locale: 'en' },
+      config: { ...validConfig },
       transaction: transaction,
     })
     expect(url.href).toMatch('http://localhost:4000/t/shark-academy')

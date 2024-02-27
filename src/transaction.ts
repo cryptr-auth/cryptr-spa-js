@@ -241,8 +241,9 @@ const Transaction: any = {
     url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
 
     if (transaction.sign_type == Sign.Sso) {
-      const locale = transaction.locale || config.default_locale || 'en'
-      url.searchParams.append('locale', locale)
+      if (transaction.locale) {
+        url.searchParams.append('locale', transaction.locale)
+      }
       url.searchParams.append('state', transaction.pkce.state)
     }
 
@@ -272,8 +273,10 @@ const Transaction: any = {
         })
       }
     }
-    const locale = transaction.locale || config.default_locale || 'en'
-    url.searchParams.append('locale', locale)
+    if (transaction.locale) {
+      url.searchParams.append('locale', transaction.locale)
+    }
+
     url.searchParams.append('client_state', transaction.pkce.state)
     url.searchParams.append('scope', transaction.scope)
     url.searchParams.append('client_id', config.client_id)
@@ -297,8 +300,10 @@ const Transaction: any = {
       } else if (email) {
         url.searchParams.append('email', email)
       }
-      const locale = transaction.locale || config.default_locale || 'en'
-      url.searchParams.append('locale', locale)
+      if (transaction.locale) {
+        url.searchParams.append('locale', transaction.locale)
+      }
+
       url.searchParams.append('client_state', transaction.pkce.state)
       url.searchParams.append('scope', transaction.scope)
       url.searchParams.append('client_id', config.client_id)

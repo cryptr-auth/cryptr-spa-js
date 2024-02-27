@@ -11,6 +11,7 @@ export interface Config {
   audience: string
   default_redirect_uri: string
   default_slo_after_revoke?: boolean
+  /** @deprecated */
   default_locale?: string
   region?: string
   cryptr_base_url?: string
