@@ -1,13 +1,22 @@
 import * as I from './interfaces'
 import { Sign } from './types'
-import {
-  cryptrBaseUrl,
-  ALLOWED_LOCALES,
-} from './constants'
+import { cryptrBaseUrl, ALLOWED_LOCALES } from './constants'
 import Request from './request'
 import Storage from './storage'
 import { organizationDomain } from './utils'
-import { getRefreshParameters, handlePostAuthorizationCode, handlePostUniversalAuthorizationCode, newTransaction, newTransactionWithState, parseTokensAndStoreRefresh, setTransactionKey, signPath, ssoSignPath, tomorrowDate, transactionKey } from './transaction.utils'
+import {
+  getRefreshParameters,
+  handlePostAuthorizationCode,
+  handlePostUniversalAuthorizationCode,
+  newTransaction,
+  newTransactionWithState,
+  parseTokensAndStoreRefresh,
+  setTransactionKey,
+  signPath,
+  ssoSignPath,
+  tomorrowDate,
+  transactionKey,
+} from './transaction.utils'
 
 import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 
@@ -27,12 +36,7 @@ const Transaction: any = {
 
   new: newTransaction,
 
-  create: (
-    signType: Sign,
-    scope: string,
-    locale: string,
-    redirect_uri: string,
-  ): I.Transaction => {
+  create: (signType: Sign, scope: string, locale: string, redirect_uri: string): I.Transaction => {
     if (redirect_uri !== undefined && redirect_uri != null) {
       validRedirectUri(redirect_uri)
     }
@@ -57,13 +61,7 @@ const Transaction: any = {
     if (locale && !ALLOWED_LOCALES.includes(locale)) {
       throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
     }
-    const transaction = newTransactionWithState(
-      signType,
-      scope,
-      state,
-      redirect_uri,
-      locale,
-    )
+    const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
     Storage.createCookie(transactionKey(state), transaction, tomorrowDate())
     return transaction
   },
@@ -103,7 +101,7 @@ const Transaction: any = {
           accessResult,
           transaction,
           config,
-          organization_domain
+          organization_domain,
         )
       })
       .catch((error) => {
@@ -155,7 +153,7 @@ const Transaction: any = {
           accessResult,
           transaction,
           config,
-          organization_domain
+          organization_domain,
         )
       })
       .catch((error) => {

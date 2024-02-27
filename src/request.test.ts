@@ -348,7 +348,7 @@ describe('Request.universalTokenParams', () => {
       code_verifier: transaction.pkce.code_verifier,
       nonce: transaction.nonce,
       request_id: 'some-request-id',
-      client_state: transaction.pkce.state
+      client_state: transaction.pkce.state,
     })
   })
 })

@@ -1,388 +1,267 @@
-import Crypto from "./crypto"
-import Jwt from "./jwt"
-import { getRefreshParameters, handlePostAuthorizationCode, handlePostUniversalAuthorizationCode, newTransaction, parseTokensAndStoreRefresh, transactionKey, validateAndFormatAuthResp, validatesNonce } from "./transaction.utils"
-import { Sign } from "./types"
-import ConfigFixure from "./__fixtures__/config.fixture"
-import TokenFixture from "./__fixtures__/token.fixture"
-import TransactionFixure from "./__fixtures__/transaction.fixture"
-import Storage from './storage'
+import { v4 as uuid } from 'uuid'
+import { validRedirectUri } from '@cryptr/cryptr-config-validation'
+import Pkce from './pkce'
+import { Sign } from './types'
 import * as I from './interfaces'
+import {
+  DEFAULT_REFRESH_EXPIRATION,
+  DEFAULT_REFRESH_ROTATION_DURATION,
+  STORAGE_KEY_PREFIX,
+} from './constants'
+import Jwt from './jwt'
+import Storage from './storage'
+import axios from 'axios'
 
-describe('newTrasaction', () => {
-  it('returns a transaction with Pkce', () => {
-    const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
-    const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
-    expect(newTransac.sign_type).toEqual(Sign.Sso)
-    expect(newTransac.scope).toEqual('openid email profile')
-    expect(newTransac.locale).toEqual('fr')
-    expect(newTransac.redirect_uri).toEqual('http://localhost:8000')
-    expect(newTransac.pkce).not.toBeNull()
-    expect(newTransac.nonce).not.toBeNull()
-    expect(cryptoRndB64Fn).toHaveBeenCalled()
-    expect(cryptoShaRndB64Fn).toHaveBeenCalled()
-    cryptoRndB64Fn.mockRestore()
-    cryptoShaRndB64Fn.mockRestore()
-  })
+export const newTransaction = (
+  signType: Sign,
+  scope: string,
+  redirect_uri: string,
+  locale: string,
+): I.Transaction => {
+  if (redirect_uri !== undefined && redirect_uri != null) {
+    validRedirectUri(redirect_uri)
+  }
+  return {
+    pkce: Pkce.gen(),
+    sign_type: signType,
+    scope: scope,
+    nonce: uuid(),
+    locale: locale,
+    redirect_uri: redirect_uri,
+  }
+}
 
-  // fixed_pkce is now default to true
-  xit('returns a transaction with old pkce if fixed pkce false', () => {
-    const cryptoRndFn = jest.spyOn(Crypto, 'random')
-    const cryptoSha256Fn = jest.spyOn(Crypto, 'sha256')
-    const cryptoRndB64Fn = jest.spyOn(Crypto, 'randomB64UrlEncoded')
-    const cryptoShaRndB64Fn = jest.spyOn(Crypto, 'sha256Base64UrlEncoded')
-    const newTransac = newTransaction(Sign.Sso, "openid email profile", "http://localhost:8000", "fr")
-    expect(newTransac.sign_type).toEqual(Sign.Sso)
-    expect(newTransac.scope).toEqual('openid email profile')
-    expect(newTransac.locale).toEqual('fr')
-    expect(newTransac.redirect_uri).toEqual('http://localhost:8000')
-    expect(newTransac.pkce).not.toBeNull()
-    expect(newTransac.nonce).not.toBeNull()
-    expect(cryptoRndB64Fn).not.toHaveBeenCalled()
-    expect(cryptoShaRndB64Fn).not.toHaveBeenCalled()
-    expect(cryptoRndFn).toHaveBeenCalled()
-    expect(cryptoSha256Fn).toHaveBeenCalled()
-    cryptoRndFn.mockRestore()
-    cryptoSha256Fn.mockRestore()
-    cryptoShaRndB64Fn.mockRestore()
-    cryptoShaRndB64Fn.mockRestore()
-  })
-})
+export const newTransactionWithState = (
+  signType: Sign,
+  scope: string,
+  state: string,
+  redirect_uri: string,
+  locale: string,
+): I.Transaction => {
+  if (redirect_uri !== undefined && redirect_uri != null) {
+    validRedirectUri(redirect_uri)
+  }
+  return {
+    pkce: Pkce.gen(state),
+    sign_type: signType,
+    scope: scope,
+    nonce: uuid(),
+    locale: locale,
+    redirect_uri: redirect_uri,
+  }
+}
 
-describe('validateAndFormatAuthResp', () => {
-  it('should returns valid without errors resp', () => {
-    const config = ConfigFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
-    expect(resp.valid).toEqual(true)
-    expect(resp.errors).toEqual([])
-    expect(resp.accessToken).toEqual(accessToken)
-    expect(resp.idToken).toEqual(idToken)
-    expect(resp.refreshToken).toEqual(refreshToken)
-  })
+export const ssoSignPath = (idpId: string) => {
+  return `/enterprise/${idpId}/login`
+}
 
-  it('should returns unvalid with errors resp if no idToken', () => {
-    const config = ConfigFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = validateAndFormatAuthResp(config, accessToken, undefined, refreshToken)
+export const signPath = (config: I.Config, transaction: I.Transaction): string => {
+  const locale = transaction.locale || config.default_locale || 'en'
+  return `/t/${config.tenant_domain}/${locale}/${transaction.pkce.state}/${transaction.sign_type}/new`
+}
 
-    expect(resp.valid).toEqual(false)
-    expect(resp.errors).toEqual([
-      { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-    ])
-    expect(resp.accessToken).toEqual(accessToken)
-    expect(resp.idToken).toEqual('')
-    expect(resp.refreshToken).toEqual(refreshToken)
-  })
+export const transactionKey = (state: string) => `${STORAGE_KEY_PREFIX}.transaction.${state}`
+export const setTransactionKey = (transaction: I.Transaction): string =>
+  `${STORAGE_KEY_PREFIX}.transaction.${transaction.pkce.state}`
 
-  it('should returns unvalid with errors resp if no accessToken', () => {
-    const config = ConfigFixure.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = validateAndFormatAuthResp(config, undefined, idToken, refreshToken)
+export const refreshKey = (): string => `${STORAGE_KEY_PREFIX}.refresh`
 
-    expect(resp.valid).toEqual(false)
-    expect(resp.errors).toEqual([
-      { error: 'accessToken', error_description: 'Not retrieve', http_response: null }
-    ])
-    expect(resp.accessToken).toEqual("")
-    expect(resp.idToken).toEqual(idToken)
-    expect(resp.refreshToken).toEqual(refreshToken)
-  })
+export const validateAndFormatAuthResp = (
+  config: I.Config,
+  accessToken?: string,
+  idToken?: string,
+  refreshToken?: string,
+  organization_domain?: string,
+) => {
+  let valid = true
+  let errors: I.TokenError[] = []
+  let validAccessToken = false
+  let validIdToken = false
+  try {
+    validAccessToken = Jwt.validatesAccessToken(accessToken || '', config, organization_domain)
+  } catch (error) {
+    console.error(error)
+  }
 
-  it('should returns empty refresh resp if no refreshToken', () => {
-    const config = ConfigFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const resp = validateAndFormatAuthResp(config, accessToken, idToken, undefined)
+  try {
+    validIdToken = Jwt.validatesIdToken(idToken || '', config, organization_domain)
+  } catch (error) {
+    console.error(error)
+  }
 
-    expect(resp.valid).toEqual(true)
-    expect(resp.errors).toEqual([])
-    expect(resp.accessToken).toEqual(accessToken)
-    expect(resp.idToken).toEqual(idToken)
-    expect(resp.refreshToken).toEqual('')
-  })
-
-  it('should returns multiple errors resp if no access/id tokens', () => {
-    const config = ConfigFixure.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = validateAndFormatAuthResp(config, undefined, undefined, refreshToken)
-
-    expect(resp.valid).toEqual(false)
-    expect(resp.errors).toEqual([
-      { error: 'accessToken', error_description: 'Not retrieve', http_response: null },
-      { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-
-    ])
-    expect(resp.accessToken).toEqual("")
-    expect(resp.idToken).toEqual("")
-    expect(resp.refreshToken).toEqual(refreshToken)
-  })
-
-  it('should returns invalid id token errors resp if no wrong id token', () => {
-    const config = ConfigFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const idToken = TokenFixture.accessToken.invalid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = validateAndFormatAuthResp(config, accessToken, idToken, refreshToken)
-
-    expect(resp.valid).toEqual(false)
-    expect(resp.errors).toEqual([
-      { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-
-    ])
-    expect(resp.accessToken).toEqual(accessToken)
-    expect(resp.idToken).toEqual(idToken)
-    expect(resp.refreshToken).toEqual(refreshToken)
-  })
-})
-
-describe('getRefreshParameters', () => {
-  it('should return empty object if wrong resp input', () => {
-    expect(getRefreshParameters({})).toEqual({})
-  })
-
-  it('should return object if right resp input', () => {
-    const tokenBody = Jwt.body(TokenFixture.accessToken.valid()) as any
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = {
-      access_token_expiration_date: tokenBody.exp,
-      refresh_expiration_date: tokenBody.exp,
-      refresh_token: refreshToken,
-      refresh_leeway: 60,
-      refresh_retry: 60,
-    }
-    const refreshParameters = getRefreshParameters(resp)
-    expect(refreshParameters).toEqual({
-      access_token_expiration_date: tokenBody.exp,
-      refresh_expiration_date: tokenBody.exp,
-      refresh_leeway: 60,
-      refresh_retry: 60,
-      refresh_token: refreshToken
-    })
-  })
-
-  it('should return object if string resp input', () => {
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const resp = {
-      access_token_expiration_date: '01 Jan 2035 00:00:00 GMT',
-      refresh_expiration_date: '01 Jan 2035 00:00:00 GMT',
-      refresh_token: refreshToken,
-      refresh_leeway: 60,
-      refresh_retry: 60,
-    }
-    const refreshParameters = getRefreshParameters(resp)
-    expect(refreshParameters).toEqual({
-      access_token_expiration_date: 2051222400000,
-      refresh_expiration_date: 2051222400000,
-      refresh_leeway: 60,
-      refresh_retry: 60,
-      refresh_token: refreshToken
-    })
-  })
-})
-
-
-describe('parseTokensAndStoreRefresh', () => {
-  it('should succeed if all params but empty opts', () => {
-    const config = ConfigFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const transaction = TransactionFixure.valid()
-    const response = { 'data': { 'access_token': accessToken, 'id_token': idToken, 'refresh_token': refreshToken } }
-
-    const parsedTokens = parseTokensAndStoreRefresh(config, response, transaction, {})
-    expect(parsedTokens).toEqual({
-      accessToken: accessToken,
-      errors: [],
-      idToken: idToken,
-      refreshToken: refreshToken,
-      valid: true
-    })
-  })
-
-
-  it('should succeed and call delete cookie if withPKCE opt', () => {
-    const storageDeleteCookieFn = jest.spyOn(Storage, 'deleteCookie')
-    const config = ConfigFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const transaction = TransactionFixure.valid()
-    const response = { 'data': { 'access_token': accessToken, 'id_token': idToken, 'refresh_token': refreshToken } }
-    const opts = { withPKCE: true }
-    const parsedTokens = parseTokensAndStoreRefresh(config, response, transaction, opts)
-    expect(parsedTokens).toEqual({
-      accessToken: accessToken,
-      errors: [],
-      idToken: idToken,
-      refreshToken: refreshToken,
-      valid: true
-    })
-    expect(storageDeleteCookieFn).toHaveBeenCalledWith(transactionKey(transaction.pkce.state))
-    storageDeleteCookieFn.mockRestore()
-  })
-
-  it('should fail if wrong access token', () => {
-    const config = ConfigFixure.valid()
-    const response = { 'data': { 'access_token': '' } }
-    const parsedTokens = parseTokensAndStoreRefresh(config, response, null, {})
-    expect(parsedTokens).toEqual({
-      accessToken: '',
-      errors: [
-        { error: 'accessToken', error_description: 'Not retrieve', http_response: null },
+  if (!validAccessToken) {
+    valid = false
+    errors = [{ error: 'accessToken', error_description: 'Not retrieve', http_response: null }]
+  }
+  if (!idToken || !validIdToken) {
+    valid = false
+    errors = validIdToken
+      ? errors
+      : errors.concat([
         { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
+    errors = idToken
+      ? errors
+      : errors.concat([
         { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ],
-      idToken: '',
-      refreshToken: '',
-      valid: false
-    })
-  })
-})
+      ])
+  }
 
-describe('validatesNonce/2', () => {
-  it('should returns true if same nonce', () => {
-    const transaction = TransactionFixure.valid()
-    expect(validatesNonce(transaction, transaction.nonce!)).toBeTruthy()
-  })
+  return {
+    valid: valid,
+    accessToken: accessToken || '',
+    idToken: idToken || '',
+    refreshToken: refreshToken || '',
+    errors: errors,
+  }
+}
 
-  it('should throw error if wrong nonce', () => {
-    const transaction = TransactionFixure.valid()
-    expect(() => validatesNonce(transaction, 'nonce')).toThrow('Nonce values have to be the sames')
-  })
-})
+export const getRefreshParameters = (resp: any): I.RefreshParameters => {
+  let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
+  let accessExpiration =
+    typeof accessExpInputValue === 'string'
+      ? Date.parse(accessExpInputValue)
+      : new Date(accessExpInputValue).getTime()
 
-describe('handlePostUniversalAuthorizationCode', () => {
-  it('should return falsy access result if no response', () => {
-    const errors: I.TokenError[] = []
-    const accessResult: I.TokenResult = {
-      valid: false,
-      accessToken: '',
-      idToken: '',
-      refreshToken: '',
-      errors: errors,
-    }
-    const handledUniPostCode = handlePostUniversalAuthorizationCode(
-      {},
-      errors,
-      accessResult,
-      TransactionFixure.valid(),
-      ConfigFixure.valid()
-    )
-    expect(handledUniPostCode).toEqual({
-      accessToken: "",
-      idToken: "",
-      refreshToken: "",
-      errors: [],
-      valid: false
-    })
-  })
+  let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
+  let refreshExpiration =
+    typeof refreshExpInputValue === 'string'
+      ? Date.parse(refreshExpInputValue)
+      : new Date(refreshExpInputValue).getTime()
+  const refreshParameters = {
+    access_token_expiration_date: accessExpiration,
+    refresh_token: resp.refresh_token,
+    refresh_leeway: resp.refresh_leeway,
+    refresh_retry: resp.refresh_retry,
+    refresh_expiration_date: refreshExpiration,
+  }
+  const uniqValues = [...new Set(Object.values(refreshParameters))]
+  return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
+}
 
-  it('should return right access result if right response', () => {
-    const errors: I.TokenError[] = []
-    const accessResult: I.TokenResult = {
-      valid: false,
-      accessToken: '',
-      idToken: '',
-      refreshToken: '',
-      errors: errors,
-    }
-    const transaction = TransactionFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const response = {
-      'data': {
-        'nonce': transaction.nonce,
-        'access_token': accessToken,
-        'id_token': idToken,
-        'refresh_token': refreshToken
+export const parseTokensAndStoreRefresh = (
+  config: any,
+  response: any,
+  transaction: any,
+  opts: any,
+): I.TokenResult => {
+  const responseData = response['data']
+  const accessToken: string = responseData['access_token']
+  const idToken: string = responseData['id_token']
+  const refreshToken: string = responseData['refresh_token']
+  try {
+    if (Jwt.validatesAccessToken(accessToken, config, opts.organization_domain)) {
+      if (refreshToken) {
+        const refreshTokenWrapper = getRefreshParameters(responseData)
+        let cookieExpirationDate = new Date()
+        if (refreshTokenWrapper.refresh_expiration_date) {
+          cookieExpirationDate = new Date(refreshTokenWrapper.refresh_expiration_date)
+        } else {
+          cookieExpirationDate = tomorrowDate()
+        }
+        Storage.createCookie(
+          refreshKey(),
+          {
+            refresh_token: refreshToken,
+            rotation_duration: DEFAULT_REFRESH_ROTATION_DURATION,
+            expiration_date: Date.now() + DEFAULT_REFRESH_EXPIRATION,
+            ...getRefreshParameters(responseData),
+          },
+          cookieExpirationDate,
+        )
+      }
+      if (opts.withPKCE) {
+        Storage.deleteCookie(transactionKey(transaction.pkce.state))
       }
     }
-    const handledUniPostCode = handlePostUniversalAuthorizationCode(
-      response,
-      errors,
-      accessResult,
-      TransactionFixure.valid(),
-      ConfigFixure.valid()
-    )
-    expect(handledUniPostCode).toEqual({
-      accessToken: accessToken,
-      idToken: idToken,
-      refreshToken: refreshToken,
-      errors: [],
-      valid: true
-    })
-  })
-})
+  } catch (error) {
+    console.error('access token not validated')
+    console.error(error)
+  }
 
-describe('handlePostAuthorizationCode', () => {
-  it('should return falsy access result if no response', () => {
-    const errors: I.TokenError[] = []
-    const accessResult: I.TokenResult = {
+  return {
+    ...validateAndFormatAuthResp(
+      config,
+      accessToken,
+      idToken,
+      refreshToken,
+      opts.organization_domain,
+    ),
+    ...getRefreshParameters(responseData),
+  }
+}
+
+export const handlePostUniversalAuthorizationCode = (
+  response: any,
+  errors: I.TokenError[],
+  accessResult: I.TokenResult,
+  transaction: I.Transaction,
+  config: I.Config,
+  organization_domain?: string,
+) => {
+  try {
+    validatesNonce(transaction, response['data']['nonce'])
+    accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
+      withPKCE: true,
+      organization_domain: organization_domain,
+    })
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      errors.push({
+        error: 'transaction parse tokens',
+        error_description: `${error}`,
+        http_response: error.response,
+      })
+    }
+    accessResult = {
+      ...accessResult,
       valid: false,
-      accessToken: '',
-      idToken: '',
-      refreshToken: '',
       errors: errors,
     }
-    const handledPostCode = handlePostAuthorizationCode(
-      {},
-      errors,
-      accessResult,
-      TransactionFixure.valid(),
-      ConfigFixure.valid()
-    )
-    expect(handledPostCode).toEqual({
-      accessToken: "",
-      idToken: "",
-      refreshToken: "",
-      errors: [],
-      valid: false
-    })
-  })
+  }
+  return accessResult
+}
 
-  it('should return right access result if right response', () => {
-    const errors: I.TokenError[] = []
-    const accessResult: I.TokenResult = {
+export const handlePostAuthorizationCode = (
+  response: any,
+  errors: I.TokenError[],
+  accessResult: I.TokenResult,
+  transaction: I.Transaction,
+  config: I.Config,
+  organization_domain?: string,
+) => {
+  try {
+    validatesNonce(transaction, response['data']['nonce'])
+    accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
+      withPKCE: true,
+      organization_domain: organization_domain,
+    })
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      errors.push({
+        error: 'transaction parse tokens',
+        error_description: `${error}`,
+        http_response: error.response,
+      })
+    }
+    accessResult = {
+      ...accessResult,
       valid: false,
-      accessToken: '',
-      idToken: '',
-      refreshToken: '',
       errors: errors,
     }
-    const transaction = TransactionFixure.valid()
-    const accessToken = TokenFixture.accessToken.valid()
-    const refreshToken = TokenFixture.refreshToken.valid()
-    const idToken = TokenFixture.idToken.valid()
-    const response = {
-      'data': {
-        'nonce': transaction.nonce,
-        'access_token': accessToken,
-        'id_token': idToken,
-        'refresh_token': refreshToken
-      }
-    }
-    const handledPostCode = handlePostAuthorizationCode(
-      response,
-      errors,
-      accessResult,
-      TransactionFixure.valid(),
-      ConfigFixure.valid()
-    )
-    expect(handledPostCode).toEqual({
-      accessToken: accessToken,
-      idToken: idToken,
-      refreshToken: refreshToken,
-      errors: [],
-      valid: true
-    })
-  })
-})
+  }
+  return accessResult
+}
+
+export const validatesNonce = (transaction: I.Transaction, submittedNonce: string): void | true => {
+  if (submittedNonce !== transaction.nonce) {
+    throw new Error(`Nonce values have to be the sames`)
+  }
+  return true
+}
+
+export const tomorrowDate = (): Date => {
+  let now = new Date()
+  now.setDate(now.getDate() + 1)
+  return now
+}

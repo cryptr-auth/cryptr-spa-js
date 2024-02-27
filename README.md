@@ -76,7 +76,7 @@ The following methods will allow you to open a session either from the email or 
 
 ### Sign with email
 
-If you have the email of the end-user you can call the below method, and depending if the email matches to an organization or to an existing account, user will be guided into to proper login process (sso, magic link, password ..)
+If you have the email of the end-user you can call the below method, and depending on whether the email matches an organization or an existing account, the user will be guided into to proper login process (sso, magic link, password ..)
 
 ```js
 // signature
@@ -109,7 +109,7 @@ signInWithDomain()
 
 ## Close session
 
-When you want to let the user close its session (either Magic Link or SSO) proceed as follow:
+When you want to let the user close its session (either Magic Link or SSO) proceed as follows:
 
 To start the process call `logOut(callback, location, targetUrl)`
 
@@ -138,16 +138,23 @@ Example:
 this.cryptrClient.getUser()
 ```
 
-This method will return you a struct with different properties such as email, user id or organization domain.
+This method will return you a struct with different properties such as email, user ID or organization domain.
 
 For more information please contact us.
 
 ## Deprecations
 
-| Type   | Name                     |
-| ------ | ------------------------ |
-| Method | ~~signInWithRedirect~~   |
-|        | ~~signInWithSSOGateway~~ |
-| Config | ~~telemetry~~            |
-|        | ~~fixed_pkce~~           |
-|        | ~~default_locale~~       |
+| Type   | Name                      |
+| ------ | ------------------------- |
+| Method | ~~signInWithRedirect~~    |
+|        | ~~signInWithSSOGateway~~  |
+|        | ~~signUpWithRedirect~~    |
+|        | ~~inviteWithRedirect~~    |
+|        | ~~signInWithoutRedirect~~ |
+|        | ~~signUpWithoutRedirect~~ |
+|        | ~~inviteWithoutRedirect~~ |
+|        | ~~signInWithSSO~~         |
+|        | ~~userAccountAccess~~     |
+| Config | ~~telemetry~~             |
+|        | ~~fixed_pkce~~            |
+|        | ~~default_locale~~        |

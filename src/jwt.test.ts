@@ -33,11 +33,15 @@ describe('validatesHeader(token)', () => {
 
 describe('validatesTimestamps(jwtBody)', () => {
   it('should throw an error if exp not number', () => {
-    expect(() => validatesTimestamps({ exp: '12' })).toThrowError("Expiration Time (exp) claim must be a number present")
+    expect(() => validatesTimestamps({ exp: '12' })).toThrowError(
+      'Expiration Time (exp) claim must be a number present',
+    )
   })
 
   it('should throw an error if iat not number', () => {
-    expect(() => validatesTimestamps({ exp: 12, iat: '12' })).toThrowError("Issued At (iat) claim must be a number present")
+    expect(() => validatesTimestamps({ exp: 12, iat: '12' })).toThrowError(
+      'Issued At (iat) claim must be a number present',
+    )
   })
   it('should returns true if numbers', () => {
     expect(validatesTimestamps({ exp: 12, iat: 42 })).toBeTruthy()
@@ -47,7 +51,9 @@ describe('validatesTimestamps(jwtBody)', () => {
 describe('validatesClient', () => {
   it('should fail if wring client id', () => {
     const config = ConfigFixture.valid()
-    expect(() => validatesClient({ cid: 'config.client_id' }, config)).toThrowError(`Client id (cid) config.client_id claim does not compliant with ${config.client_id} from config`)
+    expect(() => validatesClient({ cid: 'config.client_id' }, config)).toThrowError(
+      `Client id (cid) config.client_id claim does not compliant with ${config.client_id} from config`,
+    )
   })
 
   it('should succeed if same client id', () => {
@@ -78,9 +84,9 @@ describe('Jwt.validatesAccessToken(accessToken)', () => {
   })
 
   it('returns false if empty access token', () => {
-    expect(() =>
-      Jwt.validatesAccessToken('', ConfigFixture.valid()),
-    ).toThrowError("Invalid token specified: Cannot read property 'replace' of undefined")
+    expect(() => Jwt.validatesAccessToken('', ConfigFixture.valid())).toThrowError(
+      "Invalid token specified: Cannot read property 'replace' of undefined",
+    )
   })
 
   it('returns true if valid', () => {

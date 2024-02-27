@@ -1,5 +1,5 @@
 import * as Interface from './interfaces'
-import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
 import {
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
@@ -20,7 +20,6 @@ import { refreshKey } from './transaction.utils'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
-const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
   config!: Interface.Config
   private memory: InMemory = new InMemory()
@@ -31,9 +30,11 @@ class Client {
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
     if (config.default_slo_after_revoke == undefined) {
-      throw new Error('Since v(1.3.0), you have to define boolean value for key \'default_slo_after_revoke\'')
+      throw new Error(
+        "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'",
+      )
     }
-    this.config = config;
+    this.config = config
 
     try {
       const workerString =
@@ -78,110 +79,6 @@ class Client {
     return union.join(' ')
   }
 
-  private async signWithoutRedirect(
-    sign: Sign,
-    scope = DEFAULT_SCOPE,
-    locale?: string,
-    redirectUri = this.config.default_redirect_uri,
-  ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
-    await Transaction.create(
-      sign,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
-    )
-  }
-
-  async signInWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.In, scope, locale, redirectUri)
-  }
-
-  async signUpWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.Up, scope, locale, redirectUri)
-  }
-
-  async inviteWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.Invite, scope, locale, redirectUri)
-  }
-
-  private async signWithRedirect(
-    sign: Sign,
-    scope = DEFAULT_SCOPE,
-    locale?: string,
-    redirectUri = this.config.default_redirect_uri,
-  ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
-    const transaction = await Transaction.create(
-      sign,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
-    )
-    const url = await Transaction.signUrl(this.config, transaction)
-
-    window.location.assign(url.href)
-  }
-
-  async signInWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.In, scope, locale, redirectUri)
-  }
-
-  async signInWithSSO(idpId: string, options?: SsoSignOptsAttrs) {
-    const transaction = await Transaction.create(
-      Sign.Sso,
-      this.finalScope(options?.scope || DEFAULT_SCOPE),
-      options?.locale,
-      options?.redirectUri || this.config.default_redirect_uri,
-    )
-    var transactionConfig = options?.clientId
-      ? { ...this.config, client_id: options.clientId }
-      : this.config
-    transactionConfig = options?.tenantDomain
-      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
-      : transactionConfig
-    const url = await Transaction.signUrl(transactionConfig, transaction, idpId)
-
-    window.location.assign(url.href)
-  }
-
-  async signInWithSSOGateway(idpId?: string | string[], options?: SsoSignOptsAttrs) {
-    const transaction = await Transaction.create(
-      Sign.Sso,
-      this.finalScope(options?.scope || DEFAULT_SCOPE),
-      options?.locale,
-      options?.redirectUri || this.config.default_redirect_uri,
-    )
-    var transactionConfig = options?.clientId
-      ? { ...this.config, client_id: options.clientId }
-      : this.config
-    transactionConfig = options?.tenantDomain
-      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
-      : transactionConfig
-    const url = await Transaction.gatewaySignUrl(transactionConfig, transaction, idpId)
-    window.location.assign(url.href)
-  }
-
   async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
       Sign.Sso,
@@ -216,34 +113,6 @@ class Client {
       ...attrs,
       email: email,
     })
-    window.location.assign(url.href)
-  }
-
-  async signUpWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.Up, scope, locale, redirectUri)
-  }
-
-  async inviteWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.Invite, scope, locale, redirectUri)
-  }
-
-  async handleInvitationState(scope = DEFAULT_SCOPE) {
-    const urlParams = new URLSearchParams(locationSearch())
-    const state = urlParams.get('state')
-    const transaction = await Transaction.createFromState(
-      state,
-      Sign.Invite,
-      scope,
-    )
-    const url = await Transaction.signUrl(this.config, transaction)
     window.location.assign(url.href)
   }
 
@@ -363,40 +232,16 @@ class Client {
   private hasAuthenticationParams(searchParams = locationSearch()): boolean {
     return CODE_PARAMS.test(searchParams) && STATE_PARAMS.test(searchParams)
   }
-
-  private hasInvitationParams(searchParams = locationSearch()) {
-    return STATE_PARAMS.test(searchParams) && !AUTH_PARAMS.test(searchParams)
-  }
-
   canHandleAuthentication(searchParams = locationSearch()): boolean {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
   }
 
-  canHandleInvitation(searchParams = locationSearch()) {
-    return !this.currentAccessTokenPresent() && this.hasInvitationParams(searchParams)
-  }
-
-  async userAccountAccess(accessToken = this.getCurrentAccessToken()) {
-    if (accessToken) {
-      let decoded = Jwt.body(accessToken)
-      let domain = decoded.hasOwnProperty('tnt') ? (decoded as any).tnt : this.config.tenant_domain
-      let url: URL = new URL(cryptrBaseUrl(this.config))
-      url.pathname = `/api/v1/client-management/tenants/${domain}/account-access`
-      let params = {
-        client_id: this.config.client_id,
-        access_token: accessToken,
-      }
-      let config = {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-      return axios.post(url.toString(), params, config)
-    } else {
-      console.log('no accessToken found')
-      return null
-    }
-  }
-
-  async logOut(callback: any, location = window.location, targetUrl = window.location.href, sloAfterRevoke = this.config.default_slo_after_revoke) {
+  async logOut(
+    callback: any,
+    location = window.location,
+    targetUrl = window.location.href,
+    sloAfterRevoke = this.config.default_slo_after_revoke,
+  ) {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       Request.revokeRefreshToken(this.config, refreshToken)
