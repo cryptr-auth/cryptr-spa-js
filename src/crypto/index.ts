@@ -3,7 +3,6 @@ import { sha256 } from './sha256'
 import CryptoJS from 'crypto-js'
 // @ts-ignore
 import secureRandom from 'secure-random'
-import * as Sentry from '@sentry/browser'
 
 const RANDOM_LENGTH = 43
 
@@ -22,7 +21,6 @@ const Crypto = {
       randomBytes.forEach((v) => (cryptoRandom += ABNF[v % ABNF.length]))
       return cryptoRandom
     } catch (error) {
-      Sentry.captureException(error)
       const random = secureRandom(RANDOM_LENGTH)
       return random.toString('base64').substring(0, 128)
     }

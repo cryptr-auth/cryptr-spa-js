@@ -1,5 +1,4 @@
 import * as Interface from './interfaces'
-import * as Sentry from '@sentry/browser'
 import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
 import {
   ALLOWED_LOCALES,
@@ -15,7 +14,6 @@ import Transaction from './transaction'
 import Jwt from './jwt'
 import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
-import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
 import { locationSearch, parseRedirectParams } from './utils'
@@ -30,7 +28,6 @@ class Client {
   private worker?: Worker
 
   constructor(config: Interface.Config) {
-    this.configureSentry(config)
     validAppBaseUrl(cryptrBaseUrl(config))
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
@@ -61,22 +58,6 @@ class Client {
       console.log('simple worker error')
       console.error(error)
     }
-  }
-
-  private configureSentry(config: Interface.Config) {
-    if (config.telemetry !== undefined && !config.telemetry) {
-      return
-    }
-    Sentry.init({
-      dsn: 'https://4fa5d7f40b554570b64af9c4326b0efb@o468922.ingest.sentry.io/5497495',
-      integrations: [new Integrations.BrowserTracing()],
-      tracesSampleRate: 1.0,
-    })
-    Sentry.setContext('app', {
-      tenant: config.tenant_domain,
-      client_id: config.client_id,
-      audience: config.audience,
-    })
   }
 
   getCurrentAccessToken(): string | undefined {
@@ -446,9 +427,6 @@ class Client {
         })
         .catch((error) => {
           console.error('logout SPA error')
-          if (this.config.telemetry == undefined || this.config.telemetry) {
-            Sentry.captureException(error)
-          }
           console.error(error)
         })
     } else {
