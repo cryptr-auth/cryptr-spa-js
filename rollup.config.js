@@ -64,4 +64,12 @@ export default {
       name: name,
     },
   ],
+
+  onwarn: function (warning, handler) {
+    // Here to disable Es Cookie warning
+    if (warning.code === 'THIS_IS_UNDEFINED') {
+      return
+    }
+    handler(warning)
+  },
 }
