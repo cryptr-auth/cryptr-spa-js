@@ -257,10 +257,8 @@ const Transaction: any = {
     transaction: I.Transaction,
     idpId?: string | string[],
   ): void | URL => {
-    let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
+    let subPath = config.dedicated_server ? '' : `/a/${config.tenant_domain}`
     let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
-
-    // url.pathname = url.pathname.concat(`/t/${config.tenant_domain}`).replace('//', '/')
 
     if (idpId !== undefined) {
       if (typeof idpId == 'string') {
@@ -291,7 +289,7 @@ const Transaction: any = {
     email,
   }: I.UniversalGatewayUrlParams): void | URL {
     if (config && transaction) {
-      let subPath = config.dedicated_server ? '' : `/t/${config.tenant_domain}`
+      let subPath = config.dedicated_server ? '' : `/a/${config.tenant_domain}`
       let url: URL = new URL(cryptrBaseUrl(config) + subPath + '/')
       if (organizationDomain) {
         url.searchParams.append('organization', organizationDomain)
