@@ -87,7 +87,6 @@ describe('Transaction', () => {
     }
 
     const newUrl = Transaction.signUrl(config, transaction)
-    // expect(newUrl.href).toMatch('https://cryptr-test.onrender.com/t/shark-academy/en/')
     expect(newUrl.href).toMatch('http://localhost:4000/t/shark-academy/en/')
   })
 
