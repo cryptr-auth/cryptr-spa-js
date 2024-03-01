@@ -138,7 +138,7 @@ const Request = {
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)
-    return axios.post(url, { token: accessToken, token_type_hint: 'access_token' })
+    return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token' } }).json()
   },
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
