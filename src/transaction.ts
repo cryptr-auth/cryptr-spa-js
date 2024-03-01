@@ -6,7 +6,6 @@ import Storage from './storage'
 import { organizationDomain } from './utils'
 import {
   getRefreshParameters,
-  handlePostAuthorizationCode,
   handlePostUniversalAuthorizationCode,
   newTransaction,
   newTransactionWithState,
@@ -22,7 +21,7 @@ import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 
 export const parseErrors = (response: any): I.TokenError => {
   if (response) {
-    return { http_response: response, ...response.data }
+    return { http_response: response, ...response }
   }
   return {
     error: 'error',
