@@ -235,7 +235,7 @@ describe('handlerefresh token', () => {
   //     createCookieFn.mockRestore()
   //   })
 
-  xit('should set accesstoken', () => {
+  it('should set accesstoken', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
     client.handleRefreshTokens()
     expect(setAccessTokenFn).toHaveBeenCalledWith('1')
@@ -445,7 +445,7 @@ describe('Client.recurringRefreshToken/1', () => {
     Storage.clearCookies(validConfig.client_id)
   })
 
-  xit('throws error outside browser config', () => {
+  it('throws error outside browser config', () => {
     const consoleErrorFn = jest.spyOn(console, 'error')
     client.recurringRefreshToken(client.getRefreshStore())
     expect(consoleErrorFn).toHaveBeenCalledWith('error while reccuring refresh token')
