@@ -98,13 +98,13 @@ export const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -145,7 +145,7 @@ export const parseTokensAndStoreRefresh = (
   transaction: any,
   opts: any,
 ): I.TokenResult => {
-  const responseData = response['data']
+  const responseData = response
   const accessToken: string = responseData['access_token']
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
@@ -200,7 +200,7 @@ export const handlePostUniversalAuthorizationCode = (
   organization_domain?: string,
 ) => {
   try {
-    validatesNonce(transaction, response['data']['nonce'])
+    validatesNonce(transaction, response['nonce'])
     accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
       withPKCE: true,
       organization_domain: organization_domain,
