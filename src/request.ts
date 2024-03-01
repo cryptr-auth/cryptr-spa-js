@@ -156,7 +156,7 @@ const Request = {
     organization_domain?: string,
   ) => {
     let url = refreshTokensUrl(config, transaction, organization_domain)
-    return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
+    return ky.post(url, { json: refreshTokensParams(config, transaction, refresh_token) }).json()
   },
 
   decoratedRequest: (
