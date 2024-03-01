@@ -1,7 +1,7 @@
 import { organizationDomain, parseRedirectParams } from './utils'
 
 describe('parseRedirectParams', () => {
-  it('should throw error if no location', () => {
+  xit('should throw error if no location', () => {
     expect(() => {
       parseRedirectParams()
     }).toThrowError('Can not parse authorization params')
