@@ -1,5 +1,4 @@
 import * as Interface from './interfaces'
-import { AxiosResponse } from 'axios'
 import {
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
@@ -245,10 +244,11 @@ class Client {
         if (resp.revoked_at !== undefined) {
           await Storage.clearCookies(this.config.client_id)
           this.memory.clearTokens()
+          console.debug('default_slo_after_revoke', sloAfterRevoke)
           this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
         } else {
           console.error('logout response not compliant')
-          console.error(resp.data)
+          console.error(resp)
         }
       } catch (error) {
         console.error('logout SPA error')
@@ -261,18 +261,19 @@ class Client {
   }
 
   private handleSloCode(
-    resp: AxiosResponse<any>,
+    resp: Object | null,
     callback: any,
     location: Location,
     targetUrl: string,
     sloAfterRevoke: boolean,
   ) {
-    if (sloAfterRevoke && resp.data?.slo_code !== undefined) {
+    console.debug('handleSloCode', sloAfterRevoke, resp)
+    if (sloAfterRevoke && resp?.slo_code !== undefined) {
       const url = sloAfterRevokeTokenUrl(
         this.config,
-        resp.data.slo_code,
+        resp.slo_code,
         targetUrl,
-        resp.data.refresh_token,
+        resp.refresh_token,
       )
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
