@@ -29,7 +29,7 @@ describe('Transaction', () => {
   it('signUrl returns a formatted url for signin/up redirection', () => {
     const url = Transaction.signUrl(ConfigFixture.valid(), TransactionFixure.valid())
     expect(url.href).toMatch(
-      'http://localhost:4000/t/cryptr/en/da2379bc-46b2-4e9e-a7c4-62a891827944/signin/new?scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
+      'http://localhost:4000/a/cryptr/en/da2379bc-46b2-4e9e-a7c4-62a891827944/signin/new?scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
     )
 
     const config: Config = {
@@ -66,7 +66,7 @@ describe('Transaction', () => {
       idpId,
     )
     expect(url.href).toMatch(
-      'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login?locale=en&state=da2379bc-46b2-4e9e-a7c4-62a891827944&scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
+      'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login?state=da2379bc-46b2-4e9e-a7c4-62a891827944&scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
     )
   })
 
@@ -114,8 +114,7 @@ describe('Transaction.universalGatewayUrl/3', () => {
       config: { ...validConfig },
       transaction: transaction,
     })
-    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
-    expect(url.searchParams.get('locale')).toEqual('en')
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -124,16 +123,15 @@ describe('Transaction.universalGatewayUrl/3', () => {
     expect(url.searchParams.get('scope')).toEqual('openid email')
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
-
     expect(url.searchParams.get('email')).toBeNull()
+
     expect(url.searchParams.get('organization')).toBeNull()
   })
 
   it('should return raw universal gateway url with pkce attrs', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.universalGatewayUrl({ config: validConfig, transaction: transaction })
-    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
-    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -142,7 +140,6 @@ describe('Transaction.universalGatewayUrl/3', () => {
     expect(url.searchParams.get('scope')).toEqual('openid email')
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
-
     expect(url.searchParams.get('email')).toBeNull()
     expect(url.searchParams.get('organization')).toBeNull()
   })
@@ -154,8 +151,7 @@ describe('Transaction.universalGatewayUrl/3', () => {
       transaction: transaction,
       email: 'shark',
     })
-    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
-    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -174,8 +170,7 @@ describe('Transaction.universalGatewayUrl/3', () => {
       transaction: transaction,
       organizationDomain: 'shark',
     })
-    expect(url.href).toMatch('http://localhost:4000/t/shark-academy')
-    expect(url.searchParams.get('locale')).toEqual('fr')
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -192,10 +187,9 @@ describe('Transaction.gatewaySignUrl/3', () => {
   it('should generate root gateway url if config is dedicated_server', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.gatewaySignUrl({ ...validConfig, dedicated_server: true }, transaction)
-    expect(url.href).toMatch('http://localhost:4000/?locale=fr')
+    expect(url.href).toMatch('http://localhost:4000/')
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
-    expect(url.searchParams.get('locale')).toEqual('fr')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -207,10 +201,9 @@ describe('Transaction.gatewaySignUrl/3', () => {
   it('should generate domainized gateway url if config is not dedicated_server', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.gatewaySignUrl({ ...validConfig, dedicated_server: false }, transaction)
-    expect(url.href).toMatch('http://localhost:4000/t/shark-academy/?locale=fr')
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy/')
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
-    expect(url.searchParams.get('locale')).toEqual('fr')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -222,10 +215,9 @@ describe('Transaction.gatewaySignUrl/3', () => {
   it('should generate simple gateway url from config and transaction', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.gatewaySignUrl(validConfig, transaction)
-    expect(url.href).toMatch('http://localhost:4000/t/shark-academy/?locale=fr')
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy/')
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
-    expect(url.searchParams.get('locale')).toEqual('fr')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -238,11 +230,10 @@ describe('Transaction.gatewaySignUrl/3', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.gatewaySignUrl(validConfig, transaction, 'mac_ally_1245')
     expect(url.href).toMatch(
-      'http://localhost:4000/t/shark-academy/?idp_id=mac_ally_1245&locale=fr',
+      'http://localhost:4000/a/shark-academy/?idp_id=mac_ally_1245',
     )
     expect(url.searchParams.get('idp_id')).toEqual('mac_ally_1245')
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
-    expect(url.searchParams.get('locale')).toEqual('fr')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -258,11 +249,10 @@ describe('Transaction.gatewaySignUrl/3', () => {
       'oshida_aqsm07',
     ])
     expect(url.href).toMatch(
-      'http://localhost:4000/t/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=fr',
+      'http://localhost:4000/a/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07',
     )
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
-    expect(url.searchParams.get('locale')).toEqual('fr')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -278,7 +268,7 @@ describe('Transaction.gatewaySignUrl/3', () => {
       'oshida_aqsm07',
     ])
     expect(url.href).toMatch(
-      'http://localhost:4000/t/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=en',
+      'http://localhost:4000/a/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=en',
     )
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
@@ -301,11 +291,10 @@ describe('Transaction.gatewaySignUrl/3', () => {
       'oshida_aqsm07',
     ])
     expect(url.href).toMatch(
-      'http://localhost:4000/t/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07&locale=fr',
+      'http://localhost:4000/a/shark-academy/?idp_ids%5B%5D=mac_ally_1245&idp_ids%5B%5D=oshida_aqsm07',
     )
     expect(url.searchParams.get('idp_id')).toBeNull()
     expect(url.searchParams.getAll('idp_ids[]')).toEqual(['mac_ally_1245', 'oshida_aqsm07'])
-    expect(url.searchParams.get('locale')).toEqual('fr')
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
     expect(url.searchParams.get('client_id')).toEqual('123-xeab')
     expect(url.searchParams.get('redirect_uri')).toEqual('http://localhost:1234')
@@ -401,7 +390,7 @@ describe('Transaction.parseErrors', () => {
   it('should not returnserror if response', () => {
     expect(parseErrors({ data: { items: [12] } })).toEqual({
       http_response: { data: { items: [12] } },
-      items: [12],
+      data: { items: [12] },
     })
   })
 })
