@@ -88,25 +88,31 @@ const Transaction: any = {
       errors: errors,
     }
     try {
-      const response = await Request.postUniversalAuthorizationCode(config, authorization, transaction, request_id, organization_domain)
+      const response = await Request.postUniversalAuthorizationCode(
+        config,
+        authorization,
+        transaction,
+        request_id,
+        organization_domain,
+      )
       return handlePostUniversalAuthorizationCode(
         response,
         errors,
         accessResult,
         transaction,
         config,
-        organization_domain
+        organization_domain,
       )
     } catch (error) {
       errors.push({
         error: 'getUniversalTokens Error',
         error_description: `${error}`,
-        http_response: '?'
+        http_response: '?',
       })
       return {
         ...accessResult,
         valid: false,
-        errors: errors
+        errors: errors,
       }
     }
   },

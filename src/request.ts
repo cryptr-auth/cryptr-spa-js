@@ -111,9 +111,6 @@ export const refreshTokensUrl = (
   }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
-  // POST /t/:tenant_domain/oauth/token
-  // postAuthorizationCode: async (authorization: Authorization, transaction: Transaction) => axios.post(tokenUrl(authorization, transaction), tokenParams(authorization, transaction)),
-
   postAuthorizationCode: async (
     config: Config,
     authorization: Authorization,
