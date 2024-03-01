@@ -1,14 +1,12 @@
 const extensions = ['js', 'jsx', 'ts', 'tsx']
 
 module.exports = {
-  roots: ['<rootDir>/src'],
-  testMatch: [
-    `**/__tests__/**/*.+(${extensions.join('|')})`,
-    `**/?(*.)+(spec|test).+(${extensions.join('|')})`,
-  ],
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   transform: {
-    [`^.+\\.(${extensions.join('|')})$`]: 'ts-jest',
+    '^.+\\.ts?$': 'ts-jest',
   },
+  transformIgnorePatterns: ['<rootDir>/node_modules/'],
   verbose: true,
   collectCoverage: true,
   coverageReporters: ['json-summary', 'html'],

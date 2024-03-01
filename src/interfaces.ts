@@ -98,3 +98,12 @@ export interface RedirectionParams {
   organization_domain?: string
   request_id?: string
 }
+
+export interface RevokeResponse {
+  access_token: string
+  refresh_token: string
+  nonce: string
+  revoked_at: number
+  scope: string
+  slo_code?: string | null
+}

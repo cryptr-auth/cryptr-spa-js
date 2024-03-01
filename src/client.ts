@@ -240,11 +240,10 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        const resp = await Request.revokeRefreshToken(this.config, refreshToken)
+        const resp = await Request.revokeRefreshToken(this.config, refreshToken) as Interface.RevokeResponse
         if (resp.revoked_at !== undefined) {
           await Storage.clearCookies(this.config.client_id)
           this.memory.clearTokens()
-          console.debug('default_slo_after_revoke', sloAfterRevoke)
           this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
         } else {
           console.error('logout response not compliant')
@@ -261,14 +260,13 @@ class Client {
   }
 
   private handleSloCode(
-    resp: Object | null,
+    resp: Interface.RevokeResponse | null,
     callback: any,
     location: Location,
     targetUrl: string,
     sloAfterRevoke: boolean,
   ) {
-    console.debug('handleSloCode', sloAfterRevoke, resp)
-    if (sloAfterRevoke && resp?.slo_code !== undefined) {
+    if (sloAfterRevoke && resp?.slo_code !== undefined && resp?.slo_code) {
       const url = sloAfterRevokeTokenUrl(
         this.config,
         resp.slo_code,

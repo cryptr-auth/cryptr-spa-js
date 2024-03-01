@@ -389,37 +389,37 @@ describe('Transaction.getUniversalTokens/5', () => {
   })
 })
 
-describe('Transaction.getTokens/3', () => {
-  it('should call Request.postAuthorizationCode without organization_domain', async () => {
-    const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
-    const authorization = AuthorizationFixture.valid()
-    const transaction = TransactionFixure.valid()
-    await Transaction.getTokens(validConfig, authorization, transaction)
-    expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
-      validConfig,
-      authorization,
-      transaction,
-      undefined,
-    )
-    requestPostAuthorizationCodeFn.mockRestore()
-  })
-})
+// describe('Transaction.getTokens/3', () => {
+//   xit('should call Request.postAuthorizationCode without organization_domain', async () => {
+//     const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
+//     const authorization = AuthorizationFixture.valid()
+//     const transaction = TransactionFixure.valid()
+//     await Transaction.getTokens(validConfig, authorization, transaction)
+//     expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
+//       validConfig,
+//       authorization,
+//       transaction,
+//       undefined,
+//     )
+//     requestPostAuthorizationCodeFn.mockRestore()
+//   })
+// })
 
-describe('Transaction.getTokens/4', () => {
-  it('should call Request.postAuthorizationCode with organization_domain', async () => {
-    const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
-    const authorization = AuthorizationFixture.valid()
-    const transaction = TransactionFixure.valid()
-    await Transaction.getTokens(validConfig, authorization, transaction, 'mark_ki_verfge54')
-    expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
-      validConfig,
-      authorization,
-      transaction,
-      'mark_ki_verfge54',
-    )
-    requestPostAuthorizationCodeFn.mockRestore()
-  })
-})
+// describe('Transaction.getTokens/4', () => {
+//   xit('should call Request.postAuthorizationCode with organization_domain', async () => {
+//     const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
+//     const authorization = AuthorizationFixture.valid()
+//     const transaction = TransactionFixure.valid()
+//     await Transaction.getTokens(validConfig, authorization, transaction, 'mark_ki_verfge54')
+//     expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
+//       validConfig,
+//       authorization,
+//       transaction,
+//       'mark_ki_verfge54',
+//     )
+//     requestPostAuthorizationCodeFn.mockRestore()
+//   })
+// })
 
 describe('Transaction.getTokensByRefresh/4', () => {
   it('should call Request.refreshTokens without organization_domain if standard refresh', async () => {

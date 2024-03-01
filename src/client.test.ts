@@ -581,7 +581,7 @@ describe('decorate request process', () => {
 
   it('should call Request decoratedRequest', async () => {
     const decoratedRequestFn = jest.spyOn(Request, 'decoratedRequest')
-    await client.decoratedRequest(null)
+    await client.decoratedRequest('http://localhost:5000')
     expect(decoratedRequestFn).toHaveBeenLastCalledWith(client.getCurrentAccessToken(), null)
     decoratedRequestFn.mockRestore()
   })

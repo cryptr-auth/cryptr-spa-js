@@ -193,7 +193,7 @@ describe('Request.revokeTokenUrl', () => {
 
 describe('Request.revokeAccessToken', () => {
   beforeAll(() => {
-    mockedAxios.post.mockResolvedValueOnce({ url: '' })
+    // mockedAxios.post.mockResolvedValueOnce({ url: '' })
   })
   it('calls revokeTokenUrl', async () => {
     const revokeTokenUrlFn = jest.spyOn(RequestAPI, 'revokeTokenUrl')
@@ -267,15 +267,9 @@ describe('Request.sloAfterRevokeTokenUrl/3', () => {
 
 describe('Request.decoratedRequest', () => {
   it('returns proper headers', () => {
-    let request = RequestAPI.decoratedAxiosRequestConfig('access_token_azerty', {
-      method: 'POST',
-      data: { items: [12, 'blue', 'azerty'] },
-      headers: { 'X-User': 'john.doe' },
-    })
+    let request = RequestAPI.decoratedKyOptions('access_token_azerty')
     expect(request).toEqual({
-      method: 'POST',
-      data: { items: [12, 'blue', 'azerty'] },
-      headers: { Authorization: 'Bearer access_token_azerty', 'X-User': 'john.doe' },
+      headers: { Authorization: 'Bearer access_token_azerty' },
     })
   })
 })
