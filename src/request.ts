@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
 import { organizationDomain } from './utils'
@@ -47,8 +46,9 @@ export const refreshTokensParams = (
 })
 
 export const revokeTokenUrl = (config: Config, organization_domain?: string) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/oauth/token/revoke`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
+    organization_domain || config.tenant_domain
+  }/${config.client_id}/oauth/token/revoke`
 }
 
 export const sloAfterRevokeTokenUrl = (
@@ -59,21 +59,20 @@ export const sloAfterRevokeTokenUrl = (
 ) => {
   let organization_domain = organizationDomain(refreshToken)
   let url: URL = new URL(cryptrBaseUrl(config))
-  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${config.client_id
-    }/oauth/token/slo-after-revoke-token`
+  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${
+    config.client_id
+  }/oauth/token/slo-after-revoke-token`
   url.searchParams.append('slo_code', sloCode)
   url.searchParams.append('target_url', targetUrl)
   return url
 }
 
-export const decoratedKyOptions = (
-  accessToken: string | undefined,
-): Object => {
+export const decoratedKyOptions = (accessToken: string | undefined): Object => {
   if (accessToken !== undefined) {
     return {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     }
   }
   return {}
@@ -89,9 +88,11 @@ export const tokenUrl = (
   transaction: TransactionInterface,
   organization_domain?: string,
 ) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
-    }/token`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
+    organization_domain || config.tenant_domain
+  }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${
+    authorization.id
+  }/token`
 }
 
 export const refreshTokensUrl = (
@@ -99,20 +100,11 @@ export const refreshTokensUrl = (
   transaction: TransactionInterface,
   organization_domain?: string,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
+    organization_domain || config.tenant_domain
   }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
-  postAuthorizationCode: async (
-    config: Config,
-    authorization: Authorization,
-    transaction: TransactionInterface,
-    organization_domain?: string,
-  ) => {
-    let url = tokenUrl(config, authorization, transaction, organization_domain)
-    return axios.post(url, tokenParams(config, authorization, transaction))
-  },
-
   postUniversalAuthorizationCode: async (
     config: Config,
     authorization: Authorization,
@@ -148,11 +140,7 @@ const Request = {
     return ky.post(url, { json: refreshTokensParams(config, transaction, refresh_token) }).json()
   },
 
-  decoratedRequest: (
-    url: string,
-    accessToken: any,
-    kyOptions?: Object,
-  ): ResponsePromise => {
+  decoratedRequest: (url: string, accessToken: any, kyOptions?: Object): ResponsePromise => {
     let original = ky.create(kyOptions || {})
     const decorated = original.extend(decoratedKyOptions(accessToken))
     return decorated(url)

@@ -151,20 +151,15 @@ class Client {
 
   async handleRedirectCallback(redirectParams = parseRedirectParams()) {
     const transaction = await Transaction.get(redirectParams.state)
-    const tokens = redirectParams.request_id
-      ? await Transaction.getUniversalTokens(
+    const tokens =
+      redirectParams.request_id &&
+      (await Transaction.getUniversalTokens(
         this.config,
         redirectParams.authorization,
         transaction,
         redirectParams.request_id,
         redirectParams.organization_domain,
-      )
-      : await Transaction.getTokens(
-        this.config,
-        redirectParams.authorization,
-        transaction,
-        redirectParams.organization_domain,
-      )
+      ))
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
@@ -291,12 +286,9 @@ class Client {
     }
   }
 
-  decoratedRequest(
-    url: string,
-    kyOptions?: Object,
-  ): ResponsePromise {
+  decoratedRequest(url: string, kyOptions?: Object): ResponsePromise {
     if (url === undefined) {
-      throw new Error("url is required");
+      throw new Error('url is required')
     }
     console.debug('url to decorate', url)
     return Request.decoratedRequest(url, this.getCurrentAccessToken(), kyOptions)

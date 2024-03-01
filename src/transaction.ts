@@ -118,67 +118,6 @@ const Transaction: any = {
   },
 
   /*
-  Get initial tokens from config & new transaction
-
-  * config of client
-
-  * transaction current state of the Authorization Code Transaction with PKCE
-
-  * transaction has authorization code
-
-  returns tokens + parameters
-
-  */
-  getTokens: async (
-    config: I.Config,
-    authorization: I.Authorization,
-    transaction: I.Transaction,
-    organization_domain?: string,
-  ): Promise<I.TokenResult> => {
-    const errors: I.TokenError[] = []
-    let accessResult: I.TokenResult = {
-      valid: false,
-      accessToken: '',
-      idToken: '',
-      refreshToken: '',
-      errors: errors,
-    }
-    await Request.postAuthorizationCode(config, authorization, transaction, organization_domain)
-      .then((response: any) => {
-        accessResult = handlePostAuthorizationCode(
-          response,
-          errors,
-          accessResult,
-          transaction,
-          config,
-          organization_domain,
-        )
-      })
-      .catch((error) => {
-        console.error('error in postAuth catch')
-        if (!config) {
-          const transactionConfigNullMsg = 'config is null'
-          errors.push({
-            error: 'transaction',
-            error_description: transactionConfigNullMsg,
-            http_response: error.response,
-          })
-        }
-        errors.push({
-          error: 'getTokens Error',
-          error_description: `${error}`,
-          http_response: error.response,
-        })
-        accessResult = {
-          ...accessResult,
-          valid: false,
-          errors: errors,
-        }
-      })
-    return accessResult
-  },
-
-  /*
   Refresh tokens from previous transaction
 
   * config of client
