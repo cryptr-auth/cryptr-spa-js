@@ -462,37 +462,6 @@ describe('Client.handleRedirectCallback/?', () => {
     transactionGetFn.mockRestore()
   })
 
-  it('calls Transaction.getTokens without organization attribute', async () => {
-    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
-    await client.handleRedirectCallback({
-      state: '12',
-      authorization: { id: '42', code: 'azerty' },
-    })
-    expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig },
-      { id: '42', code: 'azerty' },
-      expect.anything(),
-      undefined,
-    )
-    transactionGetTokensFn.mockRestore()
-  })
-
-  it('calls Transaction.getTokens with organization attribute if present', async () => {
-    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
-    await client.handleRedirectCallback({
-      state: '12',
-      authorization: { id: '42', code: 'azerty' },
-      organization_domain: 'misapret',
-    })
-    expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig },
-      { id: '42', code: 'azerty' },
-      expect.anything(),
-      'misapret',
-    )
-    transactionGetTokensFn.mockRestore()
-  })
-
   it('calls Transaction.getUniversalTokens with request_id attribute if present', async () => {
     let transactionGetUniversalTokensFn = jest.spyOn(Transaction, 'getUniversalTokens')
     await client.handleRedirectCallback({

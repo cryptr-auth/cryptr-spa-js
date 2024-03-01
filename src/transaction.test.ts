@@ -42,22 +42,6 @@ describe('Transaction', () => {
     })
   })
 
-  // TO FIX
-  // it('returns access & id tokens', async () => {
-  //   const transaction = await Transaction.getTokens(
-  //     ConfigFixture.valid(),
-  //     AuthorizationFixture.valid(),
-  //     TransactionFixure.valid(),
-  //   )
-
-  //   expect(transaction).toMatchObject({
-  //     valid: true,
-  //     accessToken: RequestFixture.authorizationCodeResponse.valid().access_token,
-  //     idToken: RequestFixture.authorizationCodeResponse.valid().id_token,
-  //     errors: [],
-  //   })
-  // })
-
   it('signUrl returns a formatted url for signin/up redirection', () => {
     const url = Transaction.signUrl(ConfigFixture.valid(), TransactionFixure.valid())
     expect(url.href).toMatch(
@@ -388,38 +372,6 @@ describe('Transaction.getUniversalTokens/5', () => {
     requestPostUniversalAuthCodeFn.mockRestore()
   })
 })
-
-// describe('Transaction.getTokens/3', () => {
-//   xit('should call Request.postAuthorizationCode without organization_domain', async () => {
-//     const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
-//     const authorization = AuthorizationFixture.valid()
-//     const transaction = TransactionFixure.valid()
-//     await Transaction.getTokens(validConfig, authorization, transaction)
-//     expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
-//       validConfig,
-//       authorization,
-//       transaction,
-//       undefined,
-//     )
-//     requestPostAuthorizationCodeFn.mockRestore()
-//   })
-// })
-
-// describe('Transaction.getTokens/4', () => {
-//   xit('should call Request.postAuthorizationCode with organization_domain', async () => {
-//     const requestPostAuthorizationCodeFn = jest.spyOn(Request, 'postAuthorizationCode')
-//     const authorization = AuthorizationFixture.valid()
-//     const transaction = TransactionFixure.valid()
-//     await Transaction.getTokens(validConfig, authorization, transaction, 'mark_ki_verfge54')
-//     expect(requestPostAuthorizationCodeFn).toHaveBeenCalledWith(
-//       validConfig,
-//       authorization,
-//       transaction,
-//       'mark_ki_verfge54',
-//     )
-//     requestPostAuthorizationCodeFn.mockRestore()
-//   })
-// })
 
 describe('Transaction.getTokensByRefresh/4', () => {
   it('should call Request.refreshTokens without organization_domain if standard refresh', async () => {
