@@ -2,6 +2,7 @@ import axios, { AxiosPromise, AxiosRequestConfig } from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
 import { organizationDomain } from './utils'
+import ky from 'ky'
 
 const API_VERSION = 'v1'
 
@@ -132,7 +133,7 @@ const Request = {
   ) => {
     let url = universalTokenUrl(config, organization_domain)
     const params = universalTokenParams(config, authorization, transaction, request_id)
-    return axios.post(url, params)
+    return ky.post(url, { json: params }).json() //.then((v) => console.debug('ky', v)).catch((r) => console.error('ky', r))
   },
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
