@@ -28,7 +28,6 @@
     "faker": "^4.1.0",
     "istanbul-badges-readme": "^1.0.5",
     "jest": "^26.0.0",
-    "jest-mock-axios": "^4.2.1",
     "light-server": "^2.9.1",
     "msw": "^0.19.5",
     "prettier": "^2.0.5",

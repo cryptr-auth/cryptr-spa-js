@@ -8,8 +8,6 @@ import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
 import { refreshKey, tomorrowDate } from './transaction.utils'
 
-jest.mock('axios')
-
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
   client_id: '123-xeab',

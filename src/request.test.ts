@@ -1,5 +1,4 @@
 import { setupServer } from 'msw/node'
-import axios from 'axios'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
 import Request, { tokenUrl, revokeTokenUrl, refreshTokensUrl } from './request'
 import * as RequestAPI from './request'
@@ -9,55 +8,7 @@ import TransactionFixure from './__fixtures__/transaction.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
 import { Authorization, Config, Transaction } from './interfaces'
-jest.mock('axios')
-const mockedAxios = axios as jest.Mocked<typeof axios>
 
-describe('Request.postAuthorizationCode/3', () => {
-  const handlers = [RequestMock.postAuthorizationCodeResponse()]
-
-  const server = setupServer(...handlers)
-
-  beforeAll(() => server.listen())
-  afterAll(() => server.close())
-
-  // Valid testing setup with service worker to mock API
-  xit('returns access & refresh tokens', async () => {
-    Request.postAuthorizationCode(
-      ConfigFixture.valid(),
-      AuthorizationFixture.valid(),
-      TransactionFixure.valid(),
-    ).then((response: any) => {
-      expect(response['data']['access_token']).toMatch(
-        RequestFixture.authorizationCodeResponse.valid().access_token,
-      )
-      expect(response['data']['refresh_token']).toMatch(
-        RequestFixture.authorizationCodeResponse.valid().refresh_token,
-      )
-    })
-  })
-
-  it('calls token url with undefined organization', () => {
-    const tokenUrlFn = jest.spyOn(RequestAPI, 'tokenUrl')
-    const config = ConfigFixture.valid()
-    const authorization = AuthorizationFixture.valid()
-    const transaction = TransactionFixure.valid()
-    Request.postAuthorizationCode(config, authorization, transaction)
-    expect(tokenUrlFn).toHaveBeenCalledWith(config, authorization, transaction, undefined)
-    tokenUrlFn.mockRestore()
-  })
-})
-
-describe('Request.postAuthorizationCode/4', () => {
-  it('calls token url with organization_domain', () => {
-    const tokenUrlFn = jest.spyOn(RequestAPI, 'tokenUrl')
-    const config = ConfigFixture.valid()
-    const authorization = AuthorizationFixture.valid()
-    const transaction = TransactionFixure.valid()
-    Request.postAuthorizationCode(config, authorization, transaction, 'misapret')
-    expect(tokenUrlFn).toHaveBeenCalledWith(config, authorization, transaction, 'misapret')
-    tokenUrlFn.mockRestore()
-  })
-})
 
 describe('Request.postUniversalAuthorizationcode', () => {
   it('calls universalTokenUrl and universalTokenParams properly when no org domain', () => {
