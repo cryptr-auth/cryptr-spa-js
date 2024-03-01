@@ -13,8 +13,7 @@
     "declaration": true,
     "target": "es2015",
     "module": "es2015",
-    "strict": true,
-    "types": ["node", "jest"]
+    "strict": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "*/**/snapshots/**/*", "*/**/*.{test,spec}.{js,ts,jsx,tsx}"]
