@@ -78,7 +78,17 @@
             </div>
           </div>
         </div>
-        <div class="card mb-4 box-shadow">
+        <div v-if="isAuthenticated" class="card mb-4 box-shadow">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">Tools</h4>
+            </div>
+            <div class="card-body">
+              <a href="#" class="btn btn-info" @click="callbackendApi">
+                Call backend API
+              </a>
+            </div>
+        </div>
+        <div v-if="!isAuthenticated" class="card mb-4 box-shadow">
           <div class="card-header">
             <h4 class="my-0 font-weight-normal">Gateway</h4>
 
@@ -162,6 +172,11 @@
             window.location.replace(location.href.split('?')[0])
             // this.isAuthenticated = false
            }, window.location, window.location.href, true);
+        },
+        callbackendApi() {
+          return this.cryptrClient.decoratedRequest(
+            window.BACKEND_API_URL
+          )
         }
       },
       /** Use this lifecycle method to instantiate the SDK client */
