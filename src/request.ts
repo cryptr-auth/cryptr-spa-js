@@ -145,7 +145,7 @@ const Request = {
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
     let organization_domain = organizationDomain(refreshToken)
     let url = revokeTokenUrl(client_config, organization_domain)
-    return axios.post(url, { token: refreshToken, token_type_hint: 'refresh_token' })
+    return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token' } }).json()
   },
 
   // POST /t/:tenant_domain/oauth/token

@@ -125,7 +125,7 @@ class Client {
     } else {
       console.error('error(s) while handling tokens')
       errors.forEach((error) => {
-        console.error(error.error_description)
+        console.error('handling token error', error.error_description)
       })
     }
     return false
@@ -244,21 +244,20 @@ class Client {
   ) {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
-      Request.revokeRefreshToken(this.config, refreshToken)
-        .then(async (resp) => {
-          if (resp.data.revoked_at !== undefined) {
-            await Storage.clearCookies(this.config.client_id)
-            this.memory.clearTokens()
-            this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
-          } else {
-            console.error('logout response not compliant')
-            console.error(resp.data)
-          }
-        })
-        .catch((error) => {
-          console.error('logout SPA error')
-          console.error(error)
-        })
+      try {
+        const resp = await Request.revokeRefreshToken(this.config, refreshToken)
+        if (resp.revoked_at !== undefined) {
+          await Storage.clearCookies(this.config.client_id)
+          this.memory.clearTokens()
+          this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
+        } else {
+          console.error('logout response not compliant')
+          console.error(resp.data)
+        }
+      } catch (error) {
+        console.error('logout SPA error')
+        console.error(error)
+      }
     } else {
       console.log('No accessToken found')
     }
