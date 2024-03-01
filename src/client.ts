@@ -1,5 +1,5 @@
 import * as Interface from './interfaces'
-import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import {
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
@@ -17,6 +17,7 @@ import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
 import { locationSearch, parseRedirectParams } from './utils'
 import { refreshKey } from './transaction.utils'
+import { ResponsePromise } from 'ky'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
@@ -152,18 +153,18 @@ class Client {
     const transaction = await Transaction.get(redirectParams.state)
     const tokens = redirectParams.request_id
       ? await Transaction.getUniversalTokens(
-          this.config,
-          redirectParams.authorization,
-          transaction,
-          redirectParams.request_id,
-          redirectParams.organization_domain,
-        )
+        this.config,
+        redirectParams.authorization,
+        transaction,
+        redirectParams.request_id,
+        redirectParams.organization_domain,
+      )
       : await Transaction.getTokens(
-          this.config,
-          redirectParams.authorization,
-          transaction,
-          redirectParams.organization_domain,
-        )
+        this.config,
+        redirectParams.authorization,
+        transaction,
+        redirectParams.organization_domain,
+      )
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
@@ -291,9 +292,14 @@ class Client {
   }
 
   decoratedRequest(
-    axiosRequestConfig: AxiosRequestConfig | null,
-  ): AxiosRequestConfig | AxiosPromise | null {
-    return Request.decoratedRequest(this.getCurrentAccessToken(), axiosRequestConfig)
+    url: string,
+    kyOptions?: Object,
+  ): ResponsePromise {
+    if (url === undefined) {
+      throw new Error("url is required");
+    }
+    console.debug('url to decorate', url)
+    return Request.decoratedRequest(url, this.getCurrentAccessToken(), kyOptions)
   }
 }
 
