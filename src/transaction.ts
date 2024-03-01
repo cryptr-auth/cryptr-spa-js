@@ -8,7 +8,6 @@ import {
   getRefreshParameters,
   handlePostUniversalAuthorizationCode,
   newTransaction,
-  newTransactionWithState,
   parseTokensAndStoreRefresh,
   setTransactionKey,
   signPath,
@@ -44,24 +43,6 @@ const Transaction: any = {
     }
     const transaction = newTransaction(signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction, tomorrowDate())
-    return transaction
-  },
-
-  createFromState: (
-    state: string,
-    signType: Sign,
-    scope: string,
-    locale: string,
-    redirect_uri: string,
-  ): I.Transaction => {
-    if (redirect_uri !== undefined && redirect_uri != null) {
-      validRedirectUri(redirect_uri)
-    }
-    if (locale && !ALLOWED_LOCALES.includes(locale)) {
-      throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
-    }
-    const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
-    Storage.createCookie(transactionKey(state), transaction, tomorrowDate())
     return transaction
   },
 

@@ -5,7 +5,6 @@ import ConfigFixture from './__fixtures__/config.fixture'
 import { Config } from './interfaces'
 import Request from './request'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
-import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
 
 jest.mock('es-cookie')
 describe('Transaction', () => {
@@ -24,21 +23,6 @@ describe('Transaction', () => {
       sign_type: Sign.Sso,
       nonce: expect.any(String),
       locale: 'en',
-    })
-  })
-
-  it('creates proper SSO transaction using createFromState function', () => {
-    var state = '123-xeab'
-    const transaction = Transaction.createFromState(false, state, Sign.Sso, 'openid email')
-    expect(transaction).toMatchObject({
-      ...TransactionFixure.valid(),
-      pkce: {
-        code_challenge: expect.any(String),
-        code_verifier: expect.any(String),
-        state: state,
-      },
-      sign_type: Sign.Sso,
-      nonce: expect.any(String),
     })
   })
 
@@ -410,22 +394,6 @@ describe('Transaction.getTokensByRefresh/4', () => {
       refreshToken: '',
       errors: [],
     })
-  })
-})
-
-describe('Transaction.createFromState', () => {
-  it('should test redirect uri if defined', () => {
-    const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
-    Transaction.createFromState(
-      false,
-      'some_state',
-      Sign.Sso,
-      'openid email',
-      'fr',
-      'http://localhost:3200',
-    )
-    expect(validRedirectUriFn).toHaveBeenCalledTimes(2)
-    validRedirectUriFn.mockRestore()
   })
 })
 
