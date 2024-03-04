@@ -13,7 +13,7 @@ describe('Transaction', () => {
   })
 
   it('creates proper SSO transaction', () => {
-    expect(Transaction.create(false, Sign.Sso, 'openid email', 'en')).toMatchObject({
+    expect(Transaction.create(Sign.Sso, 'openid email', 'en')).toMatchObject({
       ...TransactionFixure.valid(),
       pkce: {
         code_challenge: expect.any(String),
@@ -24,56 +24,6 @@ describe('Transaction', () => {
       nonce: expect.any(String),
       locale: 'en',
     })
-  })
-
-  it('signUrl returns a formatted url for signin/up redirection', () => {
-    const url = Transaction.signUrl(ConfigFixture.valid(), TransactionFixure.valid())
-    expect(url.href).toMatch(
-      'http://localhost:4000/a/cryptr/en/da2379bc-46b2-4e9e-a7c4-62a891827944/signin/new?scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
-    )
-
-    const config: Config = {
-      tenant_domain: 'shark-academy',
-      client_id: '876fe074-3be7-4616-98e5-b4195c97e0b5',
-      audience: 'http://127.0.0.1:5000/dev/',
-      default_redirect_uri: 'http://127.0.0.1:5000/dev/',
-      cryptr_base_url: 'http://localhost:4000',
-      // locale: 'en',
-    }
-
-    const transaction = {
-      config: config,
-      pkce: {
-        code_verifier:
-          'NTIsNTcsMTY2LDYzLDIyMSwxMTMsMTM3LDE5NywxMzUsMTg5LD…4LDIxMCwxOTYsMTk3LDE3LDYsMjU0LDE0NywzLDUyLDEzMCwx',
-        code_challenge: 'HMMe6EtguOPNGsaiZxPdNckSSwdYulbjiJHufYqrA7U=',
-        code_challenge_method: 'S256',
-        state: '0d64259f-377a-46ea-8b53-83a15e91c9be',
-      },
-      scope: 'openid email',
-      sign_type: 'signin',
-    }
-
-    const newUrl = Transaction.signUrl(config, transaction)
-    expect(newUrl.href).toMatch('http://localhost:4000/t/shark-academy/en/')
-  })
-
-  it('should returns a proper SSO signUrl when SSO transaction and idpId provided', () => {
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    const url = Transaction.signUrl(
-      ConfigFixture.valid(),
-      TransactionFixure.validWithType(Sign.Sso),
-      idpId,
-    )
-    expect(url.href).toMatch(
-      'http://localhost:4000/enterprise/misapret_QtqpTS7itBLt4HdoCj5Qck/login?state=da2379bc-46b2-4e9e-a7c4-62a891827944&scope=openid+email&client_id=1c2417e6-757d-47fe-b564-57b7c6f39b1b&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&code_challenge_method=S256&code_challenge=',
-    )
-  })
-
-  it('should throw an error SSO signUrl when SSO transaction without idpId provided', () => {
-    expect(() =>
-      Transaction.signUrl(ConfigFixture.valid(), TransactionFixure.validWithType(Sign.Sso)),
-    ).toThrowError('Should provide idpId when SSO transaction')
   })
 
   it('should return default token error if no response provided', () => {

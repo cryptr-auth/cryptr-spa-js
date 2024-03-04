@@ -10,8 +10,6 @@ import {
   newTransaction,
   parseTokensAndStoreRefresh,
   setTransactionKey,
-  signPath,
-  ssoSignPath,
   tomorrowDate,
   transactionKey,
 } from './transaction.utils'
@@ -144,31 +142,6 @@ const Transaction: any = {
     return refreshResult
   },
   getRefreshParameters: getRefreshParameters,
-  signUrl: (config: I.Config, transaction: I.Transaction, idpId?: string): void | URL => {
-    let url: URL = new URL(cryptrBaseUrl(config))
-    if (transaction.sign_type == Sign.Sso && !idpId) {
-      throw new Error('Should provide idpId when SSO transaction')
-    }
-    const currentSignPath =
-      transaction.sign_type == Sign.Sso && idpId
-        ? ssoSignPath(idpId)
-        : signPath(config, transaction)
-    url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
-
-    if (transaction.sign_type == Sign.Sso) {
-      if (transaction.locale) {
-        url.searchParams.append('locale', transaction.locale)
-      }
-      url.searchParams.append('state', transaction.pkce.state)
-    }
-
-    url.searchParams.append('scope', transaction.scope)
-    url.searchParams.append('client_id', config.client_id)
-    url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
-    url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
-    url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
-    return url
-  },
   gatewaySignUrl: (
     config: I.Config,
     transaction: I.Transaction,

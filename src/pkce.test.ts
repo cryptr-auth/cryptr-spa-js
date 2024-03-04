@@ -10,7 +10,7 @@ describe('Pkce', () => {
       code_challenge_method: 'S256',
       state: expect.any(String),
     })
-    expect(pkce.code_verifier.length).toEqual(128)
+    expect(pkce.code_verifier.length).toEqual(43)
     expect(pkce.code_challenge).toEqual(Crypto.sha256Base64UrlEncoded(pkce.code_verifier))
   })
 
@@ -23,7 +23,7 @@ describe('Pkce', () => {
       code_challenge_method: 'S256',
       state: 'dc9fc366-3b36-4465-b547-e43b45d34076',
     })
-    expect(pkceState.code_verifier.length).toEqual(128)
+    expect(pkceState.code_verifier.length).toEqual(43)
     expect(pkceState.code_challenge).toEqual(Crypto.sha256Base64UrlEncoded(pkceState.code_verifier))
   })
 })
