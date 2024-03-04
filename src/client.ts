@@ -1,5 +1,5 @@
 import * as Interface from './interfaces'
-import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import {
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
@@ -17,6 +17,7 @@ import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
 import { locationSearch, parseRedirectParams } from './utils'
 import { refreshKey } from './transaction.utils'
+import { ResponsePromise } from 'ky'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
@@ -125,7 +126,7 @@ class Client {
     } else {
       console.error('error(s) while handling tokens')
       errors.forEach((error) => {
-        console.error(error.error_description)
+        console.error('handling token error', error.error_description)
       })
     }
     return false
@@ -150,20 +151,15 @@ class Client {
 
   async handleRedirectCallback(redirectParams = parseRedirectParams()) {
     const transaction = await Transaction.get(redirectParams.state)
-    const tokens = redirectParams.request_id
-      ? await Transaction.getUniversalTokens(
+    const tokens =
+      redirectParams.request_id &&
+      (await Transaction.getUniversalTokens(
         this.config,
         redirectParams.authorization,
         transaction,
         redirectParams.request_id,
         redirectParams.organization_domain,
-      )
-      : await Transaction.getTokens(
-        this.config,
-        redirectParams.authorization,
-        transaction,
-        redirectParams.organization_domain,
-      )
+      ))
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
@@ -244,21 +240,20 @@ class Client {
   ) {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
-      Request.revokeRefreshToken(this.config, refreshToken)
-        .then(async (resp) => {
-          if (resp.data.revoked_at !== undefined) {
-            await Storage.clearCookies(this.config.client_id)
-            this.memory.clearTokens()
-            this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
-          } else {
-            console.error('logout response not compliant')
-            console.error(resp.data)
-          }
-        })
-        .catch((error) => {
-          console.error('logout SPA error')
-          console.error(error)
-        })
+      try {
+        const resp = await Request.revokeRefreshToken(this.config, refreshToken)
+        if (resp.revoked_at !== undefined) {
+          await Storage.clearCookies(this.config.client_id)
+          this.memory.clearTokens()
+          this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
+        } else {
+          console.error('logout response not compliant')
+          console.error(resp.data)
+        }
+      } catch (error) {
+        console.error('logout SPA error')
+        console.error(error)
+      }
     } else {
       console.log('No accessToken found')
     }
@@ -291,10 +286,12 @@ class Client {
     }
   }
 
-  decoratedRequest(
-    axiosRequestConfig: AxiosRequestConfig | null,
-  ): AxiosRequestConfig | AxiosPromise | null {
-    return Request.decoratedRequest(this.getCurrentAccessToken(), axiosRequestConfig)
+  decoratedRequest(url: string, kyOptions?: Object): ResponsePromise {
+    if (url === undefined) {
+      throw new Error('url is required')
+    }
+    console.debug('url to decorate', url)
+    return Request.decoratedRequest(url, this.getCurrentAccessToken(), kyOptions)
   }
 }
 
