@@ -47,8 +47,7 @@ class Client {
         }
       }
     } catch (error) {
-      console.log('simple worker error')
-      console.error(error)
+      console.log('simple worker error', error)
     }
   }
 
@@ -250,8 +249,7 @@ class Client {
           console.error(resp)
         }
       } catch (error) {
-        console.error('logout SPA error')
-        console.error(error)
+        console.error('logout SPA error', error)
       }
     } else {
       console.log('No accessToken found')
@@ -289,7 +287,6 @@ class Client {
     if (url === undefined) {
       throw new Error('url is required')
     }
-    console.debug('url to decorate', url)
     return Request.decoratedRequest(url, this.getCurrentAccessToken(), kyOptions)
   }
 }
