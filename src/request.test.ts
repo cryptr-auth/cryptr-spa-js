@@ -236,6 +236,7 @@ describe('revoke tokens', () => {
 
 describe('Request.sloAfterRevokeTokenUrl/3', () => {
   let validConfig = ConfigFixture.valid()
+
   it('should returns proper url', () => {
     let sloUrl = RequestAPI.sloAfterRevokeTokenUrl(
       validConfig,
