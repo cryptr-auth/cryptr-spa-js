@@ -179,9 +179,7 @@ describe('Transaction.gatewaySignUrl/3', () => {
   it('should generate idp gateway url if provided', () => {
     const transaction = TransactionFixure.validWithType(Sign.Sso)
     const url = Transaction.gatewaySignUrl(validConfig, transaction, 'mac_ally_1245')
-    expect(url.href).toMatch(
-      'http://localhost:4000/a/shark-academy/?idp_id=mac_ally_1245',
-    )
+    expect(url.href).toMatch('http://localhost:4000/a/shark-academy/?idp_id=mac_ally_1245')
     expect(url.searchParams.get('idp_id')).toEqual('mac_ally_1245')
     expect(url.searchParams.getAll('idp_ids[]')).toEqual([])
     expect(url.searchParams.get('client_state')).toEqual(transaction.pkce.state)
