@@ -1312,9 +1312,9 @@
   integrity sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==
 
 "@jridgewell/trace-mapping@^0.3.12", "@jridgewell/trace-mapping@^0.3.17", "@jridgewell/trace-mapping@^0.3.18", "@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.9":
-  version "0.3.24"
-  resolved "https://registry.yarnpkg.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.24.tgz#e5640be1cab4085e4012a94c132ae86138f90f48"
-  integrity sha512-+VaWXDa6+l6MhflBvVXjIEAzb59nQ2JUK3bwRp2zRpPtU+8TFRy9Gg/5oIcNlkEL5PGlBFGfemUVvIgLnTzq7Q==
+  version "0.3.25"
+  resolved "https://registry.yarnpkg.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz#15f190e98895f3fc23276ee14bc76b675c2e50f0"
+  integrity sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==
   dependencies:
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
@@ -2185,9 +2185,9 @@ camelcase@^7.0.0:
   integrity sha512-xlx1yCK2Oc1APsPXDL2LdlNP6+uu8OCDdhOBSVT279M/S+y75O30C2VuD8T2ogdePBBl7PfPF4504tnLgX3zfw==
 
 caniuse-lite@^1.0.30001587:
-  version "1.0.30001591"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001591.tgz#16745e50263edc9f395895a7cd468b9f3767cf33"
-  integrity sha512-PCzRMei/vXjJyL5mJtzNiUCKP59dm8Apqc3PH8gJkMnMXZGox93RbE76jHsmLwmIo6/3nsYIpJtx0O7u5PqFuQ==
+  version "1.0.30001594"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001594.tgz#bea552414cd52c2d0c985ed9206314a696e685f5"
+  integrity sha512-VblSX6nYqyJVs8DKFMldE2IVCJjZ225LW00ydtUWwh5hk9IfkTOffO6r8gJNsH0qqqeAF8KrbMYA2VEwTlGW5g==
 
 chalk-template@0.4.0:
   version "0.4.0"
@@ -2673,9 +2673,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.668:
-  version "1.4.689"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.689.tgz#94fe370b800d978b606a2b4c0c5db5c8c98db4f2"
-  integrity sha512-GatzRKnGPS1go29ep25reM94xxd1Wj8ritU0yRhCJ/tr1Bg8gKnm6R9O/yPOhGQBoLMZ9ezfrpghNaTw97C/PQ==
+  version "1.4.693"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.693.tgz#001bb5dcb57ba404366ec39e1957d11886fc8a93"
+  integrity sha512-/if4Ueg0GUQlhCrW2ZlXwDAm40ipuKo+OgeHInlL8sbjt+hzISxZK949fZeJaVsheamrzANXvw1zQTvbxTvSHw==
 
 emittery@^0.13.1:
   version "0.13.1"
