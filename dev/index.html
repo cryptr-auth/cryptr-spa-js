@@ -25,9 +25,8 @@
         </h5>
         <nav class="my-2 my-md-0 mr-md-3">
           <a class="p-2 text-dark" href="https://www.cryptr.co">By Cryptr</a>
-          |
           <div v-if="user.email">
-            Bonjour {{ user.email }} !
+            | Bonjour {{ user.email }} !
           </div>
         </nav>
         <a v-if="isAuthenticated" class="btn btn-outline-danger mr-3" @click="logOut" href="#">Logout</a>
@@ -36,16 +35,6 @@
           Refresh
         </a>
 
-        <a v-if="isAuthenticated" class="btn btn-outline-primary mr-3" @click="openAccount" href="#">
-          Account
-        </a>
-
-        <div v-if="!isAuthenticated">
-          <a data-cy="btn__sign-in" v-if="!loading" @click="signinWithRedirect" class="btn btn-outline-primary mr-3"
-            href="#">Login</a>
-          <a data-cy="btn__sign-up" v-if="!loading" @click="signupWithRedirect" class="btn btn-primary" href="#">Sign
-            up</a>
-        </div>
       </div>
 
       <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
@@ -89,7 +78,17 @@
             </div>
           </div>
         </div>
-        <div class="card mb-4 box-shadow">
+        <div v-if="isAuthenticated" class="card mb-4 box-shadow">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">Tools</h4>
+            </div>
+            <div class="card-body">
+              <a href="#" class="btn btn-info" @click="callbackendApi">
+                Call backend API
+              </a>
+            </div>
+        </div>
+        <div v-if="!isAuthenticated" class="card mb-4 box-shadow">
           <div class="card-header">
             <h4 class="my-0 font-weight-normal">Gateway</h4>
 
@@ -107,6 +106,10 @@
                 Signin unknown user/context
               </a>
 
+              <a href="#" class="btn btn-secondary" @click="universalGatewayFr">
+                Me connecter
+              </a>
+
             </div>
           </div>
         </div>
@@ -122,16 +125,9 @@
       audience: window.VUE_APP_AUDIENCE || 'http://localhost:8000',
       default_redirect_uri: window.VUE_APP_DEFAULT_REDIRECT_URL || 'http://localhost:8000',
       cryptr_base_url: window.VUE_APP_CRYPTR_BASE_URL || 'http://localhost:4000',
-      default_locale: window.VUE_APP_DEFAULT_LOCALE || 'en',
-      telemetry: window.VUE_APP_CRYPTR_TELEMETRY || false,
       dedicated_server: window.VUE_APP_CRYPTR_DEDICATED_SERVER || false,
-      fixed_pkce: window.VUE_APP_CRYPTR_FIXED_PKCE || false,
       default_slo_after_revoke: window.VUE_APP_CRYPTR_DEFAULT_SLO_AFTER_REVOKE || false,
     };
-
-    const clientId2 = window.VUE_APP_CLIENT_ID2 || '9d187be3-ba46-4930-a728-672ae0c0d7f0'
-    const idpIds = (window.VUE_APP_IDP_IDS?.split(",")) || []
-
     var app = new Vue({
       el: '#app',
       data() {
@@ -145,27 +141,8 @@
         }
       },
       methods: {
-        /** Authenticates the user using the redirect method */
-        signinWithRedirect() {
-          return this.cryptrClient.signInWithRedirect(scopes);
-        },
-
-        /** Authenticates the user using the redirect method */
-        signupWithRedirect() {
-          return this.cryptrClient.signUpWithRedirect();
-        },
         refreshTokens() {
           return this.cryptrClient.handleRefreshTokens();
-        },
-        openAccount() {
-          this.cryptrClient.userAccountAccess().then((data) => {
-            if (data !== undefined) {
-              const popupHeight = 935
-              const popupwidth = 915
-              const popupParams = `location=yes,height=${popupHeight},width=${popupwidth},scrollbars=yes,status=yes`
-              window.open(data.data.data.url, '_blank', popupParams)
-            }
-          })
         },
         signInWithDomain() {
           this.cryptrClient.signInWithDomain(window.VUE_APP_ORGA_DOMAIN);
@@ -175,6 +152,9 @@
         },
         universalGateway() {
           this.cryptrClient.signInWithDomain();
+        },
+        universalGatewayFr() {
+          this.cryptrClient.signInWithDomain(null, {locale: 'fr'});
         },
         /** Logs out the current user**/
         logOut() {
@@ -192,6 +172,11 @@
             window.location.replace(location.href.split('?')[0])
             // this.isAuthenticated = false
            }, window.location, window.location.href, true);
+        },
+        callbackendApi() {
+          return this.cryptrClient.decoratedRequest(
+            window.BACKEND_API_URL
+          )
         }
       },
       /** Use this lifecycle method to instantiate the SDK client */

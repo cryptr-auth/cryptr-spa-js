@@ -1,7 +1,7 @@
-import axios, { AxiosPromise, AxiosRequestConfig } from 'axios'
 import { cryptrBaseUrl } from './constants'
 import { Authorization, Transaction as TransactionInterface, Config } from './interfaces'
 import { organizationDomain } from './utils'
+import ky, { ResponsePromise } from 'ky'
 
 const API_VERSION = 'v1'
 
@@ -65,20 +65,15 @@ export const sloAfterRevokeTokenUrl = (
   return url
 }
 
-export const decoratedAxiosRequestConfig = (
-  accessToken: any,
-  axiosRequestConfig: AxiosRequestConfig | null,
-) => {
-  if (axiosRequestConfig === null || axiosRequestConfig === undefined) {
-    return axiosRequestConfig
-  }
+export const decoratedKyOptions = (accessToken: string | undefined): Object => {
   if (accessToken !== undefined) {
-    let authBearer = `Bearer ${accessToken}`
-    let requestHeaders = axiosRequestConfig.headers || {}
-    requestHeaders['Authorization'] = authBearer
-    axiosRequestConfig.headers = requestHeaders
+    return {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
   }
-  return axiosRequestConfig
+  return {}
 }
 
 export const universalTokenUrl = (config: Config, organization_domain?: string) => {
@@ -105,19 +100,6 @@ export const refreshTokensUrl = (
   }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
 
 const Request = {
-  // POST /t/:tenant_domain/oauth/token
-  // postAuthorizationCode: async (authorization: Authorization, transaction: Transaction) => axios.post(tokenUrl(authorization, transaction), tokenParams(authorization, transaction)),
-
-  postAuthorizationCode: async (
-    config: Config,
-    authorization: Authorization,
-    transaction: TransactionInterface,
-    organization_domain?: string,
-  ) => {
-    let url = tokenUrl(config, authorization, transaction, organization_domain)
-    return axios.post(url, tokenParams(config, authorization, transaction))
-  },
-
   postUniversalAuthorizationCode: async (
     config: Config,
     authorization: Authorization,
@@ -127,19 +109,19 @@ const Request = {
   ) => {
     let url = universalTokenUrl(config, organization_domain)
     const params = universalTokenParams(config, authorization, transaction, request_id)
-    return axios.post(url, params)
+    return ky.post(url, { json: params }).json() //.then((v) => console.debug('ky', v)).catch((r) => console.error('ky', r))
   },
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)
-    return axios.post(url, { token: accessToken, token_type_hint: 'access_token' })
+    return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token' } }).json()
   },
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
     let organization_domain = organizationDomain(refreshToken)
     let url = revokeTokenUrl(client_config, organization_domain)
-    return axios.post(url, { token: refreshToken, token_type_hint: 'refresh_token' })
+    return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token' } }).json()
   },
 
   // POST /t/:tenant_domain/oauth/token
@@ -150,18 +132,13 @@ const Request = {
     organization_domain?: string,
   ) => {
     let url = refreshTokensUrl(config, transaction, organization_domain)
-    return axios.post(url, refreshTokensParams(config, transaction, refresh_token))
+    return ky.post(url, { json: refreshTokensParams(config, transaction, refresh_token) }).json()
   },
 
-  decoratedRequest: (
-    accessToken: any,
-    axiosRequestConfig: AxiosRequestConfig | null,
-  ): AxiosRequestConfig | AxiosPromise | null => {
-    let decoratedConfig = decoratedAxiosRequestConfig(accessToken, axiosRequestConfig)
-    if (decoratedConfig !== null) {
-      return axios(decoratedConfig)
-    }
-    return axiosRequestConfig
+  decoratedRequest: (url: string, accessToken: any, kyOptions?: Object): ResponsePromise => {
+    let original = ky.create(kyOptions || {})
+    const decorated = original.extend(decoratedKyOptions(accessToken))
+    return decorated(url)
   },
 }
 

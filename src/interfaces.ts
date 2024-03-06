@@ -11,11 +11,14 @@ export interface Config {
   audience: string
   default_redirect_uri: string
   default_slo_after_revoke?: boolean
+  /** @deprecated */
   default_locale?: string
   region?: string
   cryptr_base_url?: string
+  /** @deprecated  */
   telemetry?: boolean
   dedicated_server?: boolean
+  /** @deprecated  */
   fixed_pkce?: boolean
 }
 
@@ -94,4 +97,13 @@ export interface RedirectionParams {
   authorization: Authorization
   organization_domain?: string
   request_id?: string
+}
+
+export interface RevokeResponse {
+  access_token: string
+  refresh_token: string
+  nonce: string
+  revoked_at: number
+  scope: string
+  slo_code?: string | null
 }

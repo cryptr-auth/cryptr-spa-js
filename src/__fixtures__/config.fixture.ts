@@ -7,7 +7,6 @@ const ConfigFixure = {
     audience: 'http://localhost/',
     default_redirect_uri: 'http://localhost:8000/',
     cryptr_base_url: 'http://localhost:4000',
-    default_locale: 'en',
   }),
 }
 

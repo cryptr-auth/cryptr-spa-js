@@ -2,17 +2,11 @@ import Client from './client'
 import Request from './request'
 import Storage from './storage'
 import Transaction from './transaction'
-import * as Sentry from '@sentry/browser'
 import { Config } from './interfaces'
 import { cryptrBaseUrl, DEFAULT_SCOPE } from './constants'
 import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
-import * as CryptrConfigValidation from '@cryptr/cryptr-config-validation'
-import * as Utils from './utils'
-import axios from 'axios'
 import { refreshKey, tomorrowDate } from './transaction.utils'
-
-jest.mock('axios')
 
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
@@ -20,8 +14,7 @@ const validConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   cryptr_base_url: 'http://localhost:4000',
-  default_locale: 'fr',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const euValidConfig: Config = {
@@ -30,7 +23,7 @@ const euValidConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const usValidConfig: Config = {
@@ -39,7 +32,7 @@ const usValidConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'us',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const wrongBaseUrlConfig: Config = {
@@ -47,7 +40,7 @@ const wrongBaseUrlConfig: Config = {
   client_id: '123-xeab',
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const wrongLocaleConfig: Config = {
@@ -56,8 +49,7 @@ const wrongLocaleConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   region: 'eu',
-  default_locale: 'de',
-  default_slo_after_revoke: false
+  default_slo_after_revoke: false,
 }
 
 const wrongRegionConfig: Config = {
@@ -75,7 +67,6 @@ const wrongSloConfig: Config = {
   audience: 'http://localhost:4200',
   default_redirect_uri: 'http://localhost:1234',
   cryptr_base_url: 'http://localhost:4000',
-  default_locale: 'fr',
 }
 
 describe('Cryptr Base url', () => {
@@ -105,9 +96,6 @@ describe('client creation', () => {
   it('should not permit authentication', async () => {
     expect(client.canHandleAuthentication('')).toBe(false)
   })
-  it('should not permit authentication', async () => {
-    expect(await client.canHandleInvitation('')).toBe(false)
-  })
 
   it('should be unauthenticated', async () => {
     expect(await client.isAuthenticated()).toBe(false)
@@ -117,14 +105,6 @@ describe('client creation', () => {
     await client.isAuthenticated()
     expect(accessTokenFn).toHaveBeenCalled()
     accessTokenFn.mockRestore()
-  })
-
-  it('should not init sentry if telemetry false', () => {
-    const sentryInitFn = jest.spyOn(Sentry, 'init')
-    new Client({ ...validConfig, telemetry: false })
-    expect(sentryInitFn).not.toBeCalled()
-    expect(sentryInitFn).not.toHaveBeenCalled()
-    sentryInitFn.mockRestore()
   })
 
   it('should throw error if  wrong locale defined', () => {
@@ -141,7 +121,7 @@ describe('client creation', () => {
 
   it('should throw error if no default_slo_after_revoke defined', () => {
     expect(() => new Client(wrongSloConfig)).toThrow(
-      "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'"
+      "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'",
     )
   })
 })
@@ -255,7 +235,7 @@ describe('handlerefresh token', () => {
   //     createCookieFn.mockRestore()
   //   })
 
-  xit('should set accesstoken', () => {
+  it('should set accesstoken', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
     client.handleRefreshTokens()
     expect(setAccessTokenFn).toHaveBeenCalledWith('1')
@@ -300,233 +280,6 @@ describe('valid client handling redirect callback', () => {
 describe('signin process', () => {
   let client = new Client(validConfig)
 
-  it('signInWithoutRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signInWithoutRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signin',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signUpWithoutRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signUpWithoutRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signup',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('inviteWithoutRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.inviteWithoutRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'invite',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signInWithRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signInWithRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signin',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signUpWithRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.signUpWithRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'signup',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('inviteWithRedirect creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    await client.inviteWithRedirect()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'invite',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso creates a Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId)
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso with minimal scope creates a proper scoped Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, { scope: 'openid email' })
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso with higher scope creates a proper scoped Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, { scope: 'openid email profile admin' })
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile admin',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso creates a chosen redirection Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, {
-      scope: 'openid email profile',
-      redirectUri: 'http://localhost:3000',
-    })
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      undefined,
-      'http://localhost:3000',
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso creates a chosen locale Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, {
-      scope: 'openid email profile',
-      redirectUri: 'http://localhost:3000',
-      locale: 'fr',
-    })
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      'fr',
-      'http://localhost:3000',
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso with specific clientId creates standard Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, {
-      clientId: 'some-client-id',
-    })
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      undefined,
-      'http://localhost:1234',
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso with specific clientId calls Transaction signUrl fn', async () => {
-    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, {
-      clientId: 'some-client-id',
-    })
-    expect(transactionSignUrlFn).toHaveBeenCalledWith(
-      { ...client.config, client_id: 'some-client-id' },
-      expect.anything(),
-      'misapret_QtqpTS7itBLt4HdoCj5Qck',
-    )
-    transactionSignUrlFn.mockRestore()
-  })
-
-  it('signWithSso with specific tenantDomain creates standard Transaction', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, {
-      tenantDomain: 'some-tenant-domain',
-    })
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      undefined,
-      'http://localhost:1234',
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('signWithSso with specific tenantDomain calls Transaction signUrl fn', async () => {
-    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId, {
-      tenantDomain: 'some-tenant-domain',
-    })
-    expect(transactionSignUrlFn).toHaveBeenCalledWith(
-      { ...client.config, tenant_domain: 'some-tenant-domain' },
-      expect.anything(),
-      'misapret_QtqpTS7itBLt4HdoCj5Qck',
-    )
-    transactionSignUrlFn.mockRestore()
-  })
-
-  it('signWithSso call Transaction signUrl fn', async () => {
-    const transactionSignUrlFn = jest.spyOn(Transaction, 'signUrl')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSO(idpId)
-    expect(transactionSignUrlFn).toHaveBeenCalledWith(
-      client.config,
-      expect.anything(),
-      'misapret_QtqpTS7itBLt4HdoCj5Qck',
-    )
-    transactionSignUrlFn.mockRestore()
-  })
-
   it('signInWithDomain without domain, call Transaction universalGatewayUrl fn without attribute', async () => {
     const transactionUniversalSignUrlFn = jest.spyOn(Transaction, 'universalGatewayUrl')
     await client.signInWithDomain()
@@ -567,7 +320,6 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signInWithEmail('john.doe@cryptr.co', { locale: 'fr' })
     expect(transactionCreateFn).toBeCalledWith(
-      client.config.fixed_pkce,
       'sso',
       'openid email profile',
       'fr',
@@ -597,7 +349,6 @@ describe('signin process', () => {
     const transactionCreateFn = jest.spyOn(Transaction, 'create')
     await client.signInWithDomain('some-domain', { locale: 'fr' })
     expect(transactionCreateFn).toBeCalledWith(
-      client.config.fixed_pkce,
       'sso',
       'openid email profile',
       'fr',
@@ -620,76 +371,6 @@ describe('signin process', () => {
     )
     transactionCreateFn.mockRestore()
     transactionUniversalSignUrlFn.mockRestore()
-  })
-})
-
-describe('Client.userAccountAccess/0', () => {
-  let client = new Client(validConfig)
-
-  it('should call getCurrentAccessToken', async () => {
-    const accessTokenFn = jest.spyOn(client, 'getCurrentAccessToken')
-    await client.userAccountAccess()
-    expect(accessTokenFn).toHaveBeenCalled()
-    accessTokenFn.mockRestore()
-  })
-
-  it('should call proper endpoint depending on tnt', async () => {
-    const token = TokenFixture.accessToken.valid()
-    await client.userAccountAccess(token)
-    const axiosGetFn = jest.spyOn(axios, 'post')
-    expect(axiosGetFn).toHaveBeenCalledWith(
-      'http://localhost:4000/api/v1/client-management/tenants/cryptr/account-access',
-      {
-        client_id: client.config.client_id,
-        access_token: token,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
-    axiosGetFn.mockRestore()
-  })
-
-  it('should call proper endpoint depending on differnet tnt', async () => {
-    const token = TokenFixture.accessToken.misapretSample()
-    await client.userAccountAccess(token)
-    const axiosGetFn = jest.spyOn(axios, 'post')
-    expect(axiosGetFn).toHaveBeenCalledWith(
-      'http://localhost:4000/api/v1/client-management/tenants/misapret/account-access',
-      {
-        client_id: client.config.client_id,
-        access_token: token,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
-    axiosGetFn.mockRestore()
-  })
-})
-
-describe('Client.signWithoutRedirect/?', () => {
-  it("calls validRedirectUri if redirectUri is no equals to config's", () => {
-    const validRedirectUriFn = jest.spyOn(CryptrConfigValidation, 'validRedirectUri')
-    let client = new Client(validConfig)
-    let redirectUri = validConfig.default_redirect_uri + '?param=azerty'
-    client.signInWithoutRedirect('openid email', redirectUri, 'fr')
-    expect(validRedirectUriFn).toHaveBeenCalledWith(redirectUri)
-  })
-})
-
-describe('Client.handleInvitationState', () => {
-  let client = new Client(validConfig)
-
-  it('calls locationSearch', () => {
-    const locationSarchFn = jest.spyOn(Utils, 'locationSearch')
-    client.handleInvitationState()
-    expect(locationSarchFn).toHaveBeenCalled()
-    locationSarchFn.mockRestore()
   })
 })
 
@@ -764,7 +445,7 @@ describe('Client.recurringRefreshToken/1', () => {
     Storage.clearCookies(validConfig.client_id)
   })
 
-  xit('throws error outside browser config', () => {
+  it('throws error outside browser config', () => {
     const consoleErrorFn = jest.spyOn(console, 'error')
     client.recurringRefreshToken(client.getRefreshStore())
     expect(consoleErrorFn).toHaveBeenCalledWith('error while reccuring refresh token')
@@ -781,37 +462,6 @@ describe('Client.handleRedirectCallback/?', () => {
     transactionGetFn.mockRestore()
   })
 
-  it('calls Transaction.getTokens without organization attribute', async () => {
-    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
-    await client.handleRedirectCallback({
-      state: '12',
-      authorization: { id: '42', code: 'azerty' },
-    })
-    expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
-      { id: '42', code: 'azerty' },
-      expect.anything(),
-      undefined,
-    )
-    transactionGetTokensFn.mockRestore()
-  })
-
-  it('calls Transaction.getTokens with organization attribute if present', async () => {
-    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
-    await client.handleRedirectCallback({
-      state: '12',
-      authorization: { id: '42', code: 'azerty' },
-      organization_domain: 'misapret',
-    })
-    expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
-      { id: '42', code: 'azerty' },
-      expect.anything(),
-      'misapret',
-    )
-    transactionGetTokensFn.mockRestore()
-  })
-
   it('calls Transaction.getUniversalTokens with request_id attribute if present', async () => {
     let transactionGetUniversalTokensFn = jest.spyOn(Transaction, 'getUniversalTokens')
     await client.handleRedirectCallback({
@@ -820,7 +470,7 @@ describe('Client.handleRedirectCallback/?', () => {
       request_id: 'some-request-id',
     })
     expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
+      { ...validConfig },
       { id: '42', code: 'azerty' },
       expect.anything(),
       'some-request-id',
@@ -838,7 +488,7 @@ describe('Client.handleRedirectCallback/?', () => {
       organization_domain: 'misapret',
     })
     expect(transactionGetUniversalTokensFn).toHaveBeenCalledWith(
-      { ...validConfig, fixed_pkce: false },
+      { ...validConfig },
       { id: '42', code: 'azerty' },
       expect.anything(),
       'some-request-id',
@@ -900,59 +550,8 @@ describe('decorate request process', () => {
 
   it('should call Request decoratedRequest', async () => {
     const decoratedRequestFn = jest.spyOn(Request, 'decoratedRequest')
-    await client.decoratedRequest(null)
+    await client.decoratedRequest('http://localhost:5000')
     expect(decoratedRequestFn).toHaveBeenLastCalledWith(client.getCurrentAccessToken(), null)
     decoratedRequestFn.mockRestore()
-  })
-})
-
-describe('signInWithGateway', () => {
-  let client = new Client(validConfig)
-
-  it('should call transaction create', async () => {
-    const transactionCreateFn = jest.spyOn(Transaction, 'create')
-    client.signInWithSSOGateway()
-    expect(transactionCreateFn).toHaveBeenCalledWith(
-      false,
-      'sso',
-      'openid email profile',
-      undefined,
-      validConfig.default_redirect_uri,
-    )
-    transactionCreateFn.mockRestore()
-  })
-
-  it('should call transaction gatewaySignUrl without idp', async () => {
-    const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
-    await client.signInWithSSOGateway()
-    expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(
-      client.config,
-      expect.anything(),
-      undefined,
-    )
-    transactionGatewaySignUrlFn.mockRestore()
-  })
-
-  it('should call transaction gatewaySignUrl with idp if present', async () => {
-    const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
-    const idpId = 'misapret_QtqpTS7itBLt4HdoCj5Qck'
-    await client.signInWithSSOGateway(idpId)
-    expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(
-      client.config,
-      expect.anything(),
-      'misapret_QtqpTS7itBLt4HdoCj5Qck',
-    )
-    transactionGatewaySignUrlFn.mockRestore()
-  })
-
-  it('should call transaction gatewaySignUrl with idps if present', async () => {
-    const transactionGatewaySignUrlFn = jest.spyOn(Transaction, 'gatewaySignUrl')
-    const idpId = ['misapret_QtqpTS7itBLt4HdoCj5Qck', 'shark_QtqpTS7itBLt4HdoCj5Qck']
-    await client.signInWithSSOGateway(idpId)
-    expect(transactionGatewaySignUrlFn).toHaveBeenCalledWith(client.config, expect.anything(), [
-      'misapret_QtqpTS7itBLt4HdoCj5Qck',
-      'shark_QtqpTS7itBLt4HdoCj5Qck',
-    ])
-    transactionGatewaySignUrlFn.mockRestore()
   })
 })

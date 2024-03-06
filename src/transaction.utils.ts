@@ -1,15 +1,17 @@
 import { v4 as uuid } from 'uuid'
-import { validRedirectUri } from "@cryptr/cryptr-config-validation"
-import Pkce from "./pkce"
-import { Sign } from "./types"
+import { validRedirectUri } from '@cryptr/cryptr-config-validation'
+import Pkce from './pkce'
+import { Sign } from './types'
 import * as I from './interfaces'
-import { DEFAULT_REFRESH_EXPIRATION, DEFAULT_REFRESH_ROTATION_DURATION, STORAGE_KEY_PREFIX } from './constants'
+import {
+  DEFAULT_REFRESH_EXPIRATION,
+  DEFAULT_REFRESH_ROTATION_DURATION,
+  STORAGE_KEY_PREFIX,
+} from './constants'
 import Jwt from './jwt'
 import Storage from './storage'
-import axios from 'axios'
 
 export const newTransaction = (
-  fixedPkce: boolean,
   signType: Sign,
   scope: string,
   redirect_uri: string,
@@ -19,7 +21,7 @@ export const newTransaction = (
     validRedirectUri(redirect_uri)
   }
   return {
-    pkce: Pkce.gen(fixedPkce),
+    pkce: Pkce.gen(),
     sign_type: signType,
     scope: scope,
     nonce: uuid(),
@@ -29,7 +31,6 @@ export const newTransaction = (
 }
 
 export const newTransactionWithState = (
-  fixedPkce: boolean,
   signType: Sign,
   scope: string,
   state: string,
@@ -40,7 +41,7 @@ export const newTransactionWithState = (
     validRedirectUri(redirect_uri)
   }
   return {
-    pkce: Pkce.gen(fixedPkce, state),
+    pkce: Pkce.gen(state),
     sign_type: signType,
     scope: scope,
     nonce: uuid(),
@@ -96,13 +97,13 @@ export const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
@@ -113,7 +114,6 @@ export const validateAndFormatAuthResp = (
     errors: errors,
   }
 }
-
 
 export const getRefreshParameters = (resp: any): I.RefreshParameters => {
   let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
@@ -135,7 +135,7 @@ export const getRefreshParameters = (resp: any): I.RefreshParameters => {
     refresh_expiration_date: refreshExpiration,
   }
   const uniqValues = [...new Set(Object.values(refreshParameters))]
-  return (uniqValues.includes(NaN) || uniqValues.includes(undefined)) ? {} : refreshParameters
+  return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
 }
 
 export const parseTokensAndStoreRefresh = (
@@ -144,7 +144,7 @@ export const parseTokensAndStoreRefresh = (
   transaction: any,
   opts: any,
 ): I.TokenResult => {
-  const responseData = response['data']
+  const responseData = response
   const accessToken: string = responseData['access_token']
   const idToken: string = responseData['id_token']
   const refreshToken: string = responseData['refresh_token']
@@ -190,21 +190,26 @@ export const parseTokensAndStoreRefresh = (
   }
 }
 
-export const handlePostUniversalAuthorizationCode = (response: any, errors: I.TokenError[], accessResult: I.TokenResult, transaction: I.Transaction, config: I.Config, organization_domain?: string) => {
+export const handlePostUniversalAuthorizationCode = (
+  response: any,
+  errors: I.TokenError[],
+  accessResult: I.TokenResult,
+  transaction: I.Transaction,
+  config: I.Config,
+  organization_domain?: string,
+) => {
   try {
-    validatesNonce(transaction, response['data']['nonce'])
+    validatesNonce(transaction, response['nonce'])
     accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
       withPKCE: true,
       organization_domain: organization_domain,
     })
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      errors.push({
-        error: 'transaction parse tokens',
-        error_description: `${error}`,
-        http_response: error.response,
-      })
-    }
+    errors.push({
+      error: 'transaction parse tokens',
+      error_description: `${error}`,
+      http_response: error,
+    })
     accessResult = {
       ...accessResult,
       valid: false,
@@ -213,31 +218,6 @@ export const handlePostUniversalAuthorizationCode = (response: any, errors: I.To
   }
   return accessResult
 }
-
-export const handlePostAuthorizationCode = (response: any, errors: I.TokenError[], accessResult: I.TokenResult, transaction: I.Transaction, config: I.Config, organization_domain?: string) => {
-  try {
-    validatesNonce(transaction, response['data']['nonce'])
-    accessResult = parseTokensAndStoreRefresh(config, response, transaction, {
-      withPKCE: true,
-      organization_domain: organization_domain,
-    })
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      errors.push({
-        error: 'transaction parse tokens',
-        error_description: `${error}`,
-        http_response: error.response,
-      })
-    }
-    accessResult = {
-      ...accessResult,
-      valid: false,
-      errors: errors,
-    }
-  }
-  return accessResult
-}
-
 
 export const validatesNonce = (transaction: I.Transaction, submittedNonce: string): void | true => {
   if (submittedNonce !== transaction.nonce) {

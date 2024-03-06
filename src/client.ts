@@ -1,8 +1,5 @@
 import * as Interface from './interfaces'
-import * as Sentry from '@sentry/browser'
-import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios'
 import {
-  ALLOWED_LOCALES,
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
   DEFAULT_REFRESH_RETRY,
@@ -15,38 +12,30 @@ import Transaction from './transaction'
 import Jwt from './jwt'
 import InMemory from './memory'
 import { validAppBaseUrl, validClientId, validRedirectUri } from '@cryptr/cryptr-config-validation'
-import { Integrations } from '@sentry/tracing'
 import EventTypes from './event_types'
 import { SsoSignOptsAttrs, TokenError } from './interfaces'
 import { locationSearch, parseRedirectParams } from './utils'
 import { refreshKey } from './transaction.utils'
+import { ResponsePromise } from 'ky'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
-const AUTH_PARAMS = /[?&]authorization_id=[^&]+/
 class Client {
-  config: Interface.Config
+  config!: Interface.Config
   private memory: InMemory = new InMemory()
   private worker?: Worker
 
   constructor(config: Interface.Config) {
-    this.configureSentry(config)
     validAppBaseUrl(cryptrBaseUrl(config))
     validClientId(config.client_id)
     validRedirectUri(config.default_redirect_uri)
-    if (config.default_locale && !ALLOWED_LOCALES.includes(config.default_locale)) {
+    if (config.default_slo_after_revoke == undefined) {
       throw new Error(
-        `'${config.default_locale}' locale not valid, possible values ${ALLOWED_LOCALES}`,
+        "Since v(1.3.0), you have to define boolean value for key 'default_slo_after_revoke'",
       )
     }
-    if (config.default_slo_after_revoke == undefined) {
-      throw new Error('Since v(1.3.0), you have to define boolean value for key \'default_slo_after_revoke\'')
-    }
+    this.config = config
 
-    console.warn(
-      "[Cryptr] 'fixed_pkce' value in Config will be remove from version '1.4.0' and have behavior related to 'true' value",
-    )
-    this.config = { ...{ fixed_pkce: false }, ...config }
     try {
       const workerString =
         "onmessage = function(oEvt) {setTimeout(() => {postMessage('rotate');}, 10000)};"
@@ -58,25 +47,8 @@ class Client {
         }
       }
     } catch (error) {
-      console.log('simple worker error')
-      console.error(error)
+      console.log('simple worker error', error)
     }
-  }
-
-  private configureSentry(config: Interface.Config) {
-    if (config.telemetry !== undefined && !config.telemetry) {
-      return
-    }
-    Sentry.init({
-      dsn: 'https://4fa5d7f40b554570b64af9c4326b0efb@o468922.ingest.sentry.io/5497495',
-      integrations: [new Integrations.BrowserTracing()],
-      tracesSampleRate: 1.0,
-    })
-    Sentry.setContext('app', {
-      tenant: config.tenant_domain,
-      client_id: config.client_id,
-      audience: config.audience,
-    })
   }
 
   getCurrentAccessToken(): string | undefined {
@@ -106,117 +78,8 @@ class Client {
     return union.join(' ')
   }
 
-  private async signWithoutRedirect(
-    sign: Sign,
-    scope = DEFAULT_SCOPE,
-    locale?: string,
-    redirectUri = this.config.default_redirect_uri,
-  ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
-    await Transaction.create(
-      this.config.fixed_pkce,
-      sign,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
-    )
-  }
-
-  async signInWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.In, scope, locale, redirectUri)
-  }
-
-  async signUpWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.Up, scope, locale, redirectUri)
-  }
-
-  async inviteWithoutRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithoutRedirect(Sign.Invite, scope, locale, redirectUri)
-  }
-
-  private async signWithRedirect(
-    sign: Sign,
-    scope = DEFAULT_SCOPE,
-    locale?: string,
-    redirectUri = this.config.default_redirect_uri,
-  ) {
-    if (redirectUri !== this.config.default_redirect_uri) {
-      validRedirectUri(redirectUri)
-    }
-    const transaction = await Transaction.create(
-      this.config.fixed_pkce,
-      sign,
-      this.finalScope(scope),
-      locale,
-      redirectUri,
-    )
-    const url = await Transaction.signUrl(this.config, transaction)
-
-    window.location.assign(url.href)
-  }
-
-  async signInWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.In, scope, locale, redirectUri)
-  }
-
-  async signInWithSSO(idpId: string, options?: SsoSignOptsAttrs) {
-    const transaction = await Transaction.create(
-      this.config.fixed_pkce,
-      Sign.Sso,
-      this.finalScope(options?.scope || DEFAULT_SCOPE),
-      options?.locale,
-      options?.redirectUri || this.config.default_redirect_uri,
-    )
-    var transactionConfig = options?.clientId
-      ? { ...this.config, client_id: options.clientId }
-      : this.config
-    transactionConfig = options?.tenantDomain
-      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
-      : transactionConfig
-    const url = await Transaction.signUrl(transactionConfig, transaction, idpId)
-
-    window.location.assign(url.href)
-  }
-
-  async signInWithSSOGateway(idpId?: string | string[], options?: SsoSignOptsAttrs) {
-    const transaction = await Transaction.create(
-      this.config.fixed_pkce,
-      Sign.Sso,
-      this.finalScope(options?.scope || DEFAULT_SCOPE),
-      options?.locale,
-      options?.redirectUri || this.config.default_redirect_uri,
-    )
-    var transactionConfig = options?.clientId
-      ? { ...this.config, client_id: options.clientId }
-      : this.config
-    transactionConfig = options?.tenantDomain
-      ? { ...transactionConfig, tenant_domain: options.tenantDomain }
-      : transactionConfig
-    const url = await Transaction.gatewaySignUrl(transactionConfig, transaction, idpId)
-    window.location.assign(url.href)
-  }
-
   async buildUniversalAttrs(options?: SsoSignOptsAttrs) {
     const transaction = await Transaction.create(
-      this.config.fixed_pkce,
       Sign.Sso,
       this.finalScope(options?.scope || DEFAULT_SCOPE),
       options?.locale,
@@ -252,35 +115,6 @@ class Client {
     window.location.assign(url.href)
   }
 
-  async signUpWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.Up, scope, locale, redirectUri)
-  }
-
-  async inviteWithRedirect(
-    scope = DEFAULT_SCOPE,
-    redirectUri = this.config.default_redirect_uri,
-    locale?: string,
-  ) {
-    this.signWithRedirect(Sign.Invite, scope, locale, redirectUri)
-  }
-
-  async handleInvitationState(scope = DEFAULT_SCOPE) {
-    const urlParams = new URLSearchParams(locationSearch())
-    const state = urlParams.get('state')
-    const transaction = await Transaction.createFromState(
-      this.config.fixed_pkce,
-      state,
-      Sign.Invite,
-      scope,
-    )
-    const url = await Transaction.signUrl(this.config, transaction)
-    window.location.assign(url.href)
-  }
-
   handleTokensErrors(errors: TokenError[]): boolean {
     const invalidGrantError = errors.find((e: TokenError) => e.error === 'invalid_grant')
     if (invalidGrantError) {
@@ -290,7 +124,7 @@ class Client {
     } else {
       console.error('error(s) while handling tokens')
       errors.forEach((error) => {
-        console.error(error.error_description)
+        console.error('handling token error', error.error_description)
       })
     }
     return false
@@ -315,20 +149,15 @@ class Client {
 
   async handleRedirectCallback(redirectParams = parseRedirectParams()) {
     const transaction = await Transaction.get(redirectParams.state)
-    const tokens = redirectParams.request_id
-      ? await Transaction.getUniversalTokens(
+    const tokens =
+      redirectParams.request_id &&
+      (await Transaction.getUniversalTokens(
         this.config,
         redirectParams.authorization,
         transaction,
         redirectParams.request_id,
         redirectParams.organization_domain,
-      )
-      : await Transaction.getTokens(
-        this.config,
-        redirectParams.authorization,
-        transaction,
-        redirectParams.organization_domain,
-      )
+      ))
 
     this.handleNewTokens(this.getRefreshStore(), tokens)
 
@@ -397,60 +226,34 @@ class Client {
   private hasAuthenticationParams(searchParams = locationSearch()): boolean {
     return CODE_PARAMS.test(searchParams) && STATE_PARAMS.test(searchParams)
   }
-
-  private hasInvitationParams(searchParams = locationSearch()) {
-    return STATE_PARAMS.test(searchParams) && !AUTH_PARAMS.test(searchParams)
-  }
-
   canHandleAuthentication(searchParams = locationSearch()): boolean {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
   }
 
-  canHandleInvitation(searchParams = locationSearch()) {
-    return !this.currentAccessTokenPresent() && this.hasInvitationParams(searchParams)
-  }
-
-  async userAccountAccess(accessToken = this.getCurrentAccessToken()) {
-    if (accessToken) {
-      let decoded = Jwt.body(accessToken)
-      let domain = decoded.hasOwnProperty('tnt') ? (decoded as any).tnt : this.config.tenant_domain
-      let url: URL = new URL(cryptrBaseUrl(this.config))
-      url.pathname = `/api/v1/client-management/tenants/${domain}/account-access`
-      let params = {
-        client_id: this.config.client_id,
-        access_token: accessToken,
-      }
-      let config = {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-      return axios.post(url.toString(), params, config)
-    } else {
-      console.log('no accessToken found')
-      return null
-    }
-  }
-
-  async logOut(callback: any, location = window.location, targetUrl = window.location.href, sloAfterRevoke = this.config.default_slo_after_revoke) {
+  async logOut(
+    callback: any,
+    location = window.location,
+    targetUrl = window.location.href,
+    sloAfterRevoke = this.config.default_slo_after_revoke,
+  ) {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
-      Request.revokeRefreshToken(this.config, refreshToken)
-        .then(async (resp) => {
-          if (resp.data.revoked_at !== undefined) {
-            await Storage.clearCookies(this.config.client_id)
-            this.memory.clearTokens()
-            this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
-          } else {
-            console.error('logout response not compliant')
-            console.error(resp.data)
-          }
-        })
-        .catch((error) => {
-          console.error('logout SPA error')
-          if (this.config.telemetry == undefined || this.config.telemetry) {
-            Sentry.captureException(error)
-          }
-          console.error(error)
-        })
+      try {
+        const resp = (await Request.revokeRefreshToken(
+          this.config,
+          refreshToken,
+        )) as Interface.RevokeResponse
+        if (resp.revoked_at !== undefined) {
+          await Storage.clearCookies(this.config.client_id)
+          this.memory.clearTokens()
+          this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
+        } else {
+          console.error('logout response not compliant')
+          console.error(resp)
+        }
+      } catch (error) {
+        console.error('logout SPA error', error)
+      }
     } else {
       console.log('No accessToken found')
     }
@@ -458,19 +261,14 @@ class Client {
   }
 
   private handleSloCode(
-    resp: AxiosResponse<any>,
+    resp: Interface.RevokeResponse | null,
     callback: any,
     location: Location,
     targetUrl: string,
     sloAfterRevoke: boolean,
   ) {
-    if (sloAfterRevoke && resp.data?.slo_code !== undefined) {
-      const url = sloAfterRevokeTokenUrl(
-        this.config,
-        resp.data.slo_code,
-        targetUrl,
-        resp.data.refresh_token,
-      )
+    if (sloAfterRevoke && resp?.slo_code !== undefined && resp?.slo_code) {
+      const url = sloAfterRevokeTokenUrl(this.config, resp.slo_code, targetUrl, resp.refresh_token)
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
       callback()
@@ -483,10 +281,11 @@ class Client {
     }
   }
 
-  decoratedRequest(
-    axiosRequestConfig: AxiosRequestConfig | null,
-  ): AxiosRequestConfig | AxiosPromise | null {
-    return Request.decoratedRequest(this.getCurrentAccessToken(), axiosRequestConfig)
+  decoratedRequest(url: string, kyOptions?: Object): ResponsePromise {
+    if (url === undefined) {
+      throw new Error('url is required')
+    }
+    return Request.decoratedRequest(url, this.getCurrentAccessToken(), kyOptions)
   }
 }
 

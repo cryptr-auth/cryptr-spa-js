@@ -10,7 +10,7 @@
 
 ## Installation
 
-current version `1.3.6`
+current version `1.4.0`
 
 ```bash
 //yarn
@@ -33,31 +33,25 @@ var config = {
   audience: 'http://localhost:8000',
   default_redirect_uri: 'http://localhost:8000/',
   cryptr_base_url: 'https://your_cryptr_server_url',
-  default_locale: 'en',
-  telemetry: false,
   dedicated_server: true,
-  fixed_pkce: true,
   default_slo_after_revoke: false,
 }
 ```
 
 Explanation of config
 
-| key                        | Required/Optional | type          | Default | Description                                                              |
-| -------------------------- | ----------------- | ------------- | ------- | ------------------------------------------------------------------------ |
-| `tenant_domain`            | required          | string slug   | -       | Reference to your company entity                                         |
-| `client_id`                | required          | uuid          | -       | Reference to your front app id                                           |
-| `audience`                 | required          | string URL    | -       | Root URL of your front app                                               |
-| `default_redirect_uri`     | required          | string URL    | -       | Desired redirection URL after authentication process                     |
-| `cryptr_base_url`          | required          | string URL    | -       | URL of your Cryptr service                                               |
-| `default_locale`           | Optional          | string locale | `en`    | -                                                                        |
-| `dedicated_server`         | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
-| `fixed_pkce`               | Optional          | boolean       | false   | Contact Cryptr Team to set properly                                      |
-| `telemetry`                | Optional          | boolean       | false   | Set to `true` if debug required with Cryptr Team                         |
-| `default_slo_after_revoke` | required          | boolean       | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
-| ---                        | ---               | ---           | ---     | ---                                                                      |
+| key                        | Required/Optional | type        | Default | Description                                                              |
+| -------------------------- | ----------------- | ----------- | ------- | ------------------------------------------------------------------------ |
+| `tenant_domain`            | required          | string slug | -       | Reference to your company entity                                         |
+| `client_id`                | required          | uuid        | -       | Reference to your front app id                                           |
+| `audience`                 | required          | string URL  | -       | Root URL of your front app                                               |
+| `default_redirect_uri`     | required          | string URL  | -       | Desired redirection URL after authentication process                     |
+| `cryptr_base_url`          | required          | string URL  | -       | URL of your Cryptr service                                               |
+| `dedicated_server`         | Optional          | boolean     | false   | Contact Cryptr Team to set properly                                      |
+| `default_slo_after_revoke` | required          | boolean     | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
+| ---                        | ---               | ---         | ---     | ---                                                                      |
 
-⚠️ `fixed_pkce` will be removed in the future `1.4.0` release version
+⚠️ `fixed_pkce` has been removed in the `1.4.0` release version
 
 ### Cryptr Client Instance
 
@@ -79,7 +73,7 @@ The following methods will allow you to open a session either from the email or 
 
 ### Sign with email
 
-If you have the email of the end-user you can call the below method, and depending if the email matches to an organization or to an existing account, user will be guided into to proper login process (sso, magic link, password ..)
+If you have the email of the end-user you can call the below method, and depending on whether the email matches an organization or an existing account, the user will be guided into to proper login process (sso, magic link, password ..)
 
 ```js
 // signature
@@ -112,7 +106,7 @@ signInWithDomain()
 
 ## Close session
 
-When you want to let the user close its session (either Magic Link or SSO) proceed as follow:
+When you want to let the user close its session (either Magic Link or SSO) proceed as follows:
 
 To start the process call `logOut(callback, location, targetUrl)`
 
@@ -141,12 +135,10 @@ Example:
 this.cryptrClient.getUser()
 ```
 
-This method will return you a struct with different properties such as email, user id or organization domain.
+This method will return you a struct with different properties such as email, user ID or organization domain.
 
 For more information please contact us.
 
-### Deprecated methods
+## Deleted items
 
-~~`signInWithRedirect`~~~
-
-~~`signInWithSSOGateway`~~
+Some legacy items have been deleted since `1.3.0`. If you need some support for migration [contact us](https://meet.cryptr.tech/team/developer-success)
