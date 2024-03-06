@@ -239,7 +239,10 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        const resp = await Request.revokeRefreshToken(this.config, refreshToken) as Interface.RevokeResponse
+        const resp = (await Request.revokeRefreshToken(
+          this.config,
+          refreshToken,
+        )) as Interface.RevokeResponse
         if (resp.revoked_at !== undefined) {
           await Storage.clearCookies(this.config.client_id)
           this.memory.clearTokens()
@@ -265,12 +268,7 @@ class Client {
     sloAfterRevoke: boolean,
   ) {
     if (sloAfterRevoke && resp?.slo_code !== undefined && resp?.slo_code) {
-      const url = sloAfterRevokeTokenUrl(
-        this.config,
-        resp.slo_code,
-        targetUrl,
-        resp.refresh_token,
-      )
+      const url = sloAfterRevokeTokenUrl(this.config, resp.slo_code, targetUrl, resp.refresh_token)
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
       callback()

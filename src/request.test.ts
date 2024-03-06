@@ -9,7 +9,6 @@ import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
 import { Authorization, Config, Transaction } from './interfaces'
 
-
 describe('Request.postUniversalAuthorizationcode', () => {
   it('calls universalTokenUrl and universalTokenParams properly when no org domain', () => {
     const universalTokenUrlFn = jest.spyOn(RequestAPI, 'universalTokenUrl')
