@@ -10,7 +10,6 @@ import {
 } from './constants'
 import Jwt from './jwt'
 import Storage from './storage'
-import axios from 'axios'
 
 export const newTransaction = (
   signType: Sign,
@@ -206,13 +205,12 @@ export const handlePostUniversalAuthorizationCode = (
       organization_domain: organization_domain,
     })
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      errors.push({
-        error: 'transaction parse tokens',
-        error_description: `${error}`,
-        http_response: error.response,
-      })
-    }
+    errors.push({
+      error: 'transaction parse tokens',
+      error_description: `${error}`,
+      http_response: error,
+    })
+
     accessResult = {
       ...accessResult,
       valid: false,
@@ -237,13 +235,12 @@ export const handlePostAuthorizationCode = (
       organization_domain: organization_domain,
     })
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      errors.push({
-        error: 'transaction parse tokens',
-        error_description: `${error}`,
-        http_response: error.response,
-      })
-    }
+    errors.push({
+      error: 'transaction parse tokens',
+      error_description: `${error}`,
+      http_response: error,
+    })
+
     accessResult = {
       ...accessResult,
       valid: false,

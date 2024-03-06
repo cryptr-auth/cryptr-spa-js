@@ -85,7 +85,7 @@ describe('Jwt.validatesAccessToken(accessToken)', () => {
 
   it('returns false if empty access token', () => {
     expect(() => Jwt.validatesAccessToken('', ConfigFixture.valid())).toThrowError(
-      "Invalid token specified: Cannot read property 'replace' of undefined",
+      "Invalid token specified: Cannot read properties of undefined (reading 'replace')",
     )
   })
 

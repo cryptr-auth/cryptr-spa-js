@@ -8,8 +8,6 @@ import TokenFixture from './__fixtures__/token.fixture'
 import InMemory from './memory'
 import { refreshKey, tomorrowDate } from './transaction.utils'
 
-jest.mock('axios')
-
 const validConfig: Config = {
   tenant_domain: 'shark-academy',
   client_id: '123-xeab',
@@ -237,7 +235,7 @@ describe('handlerefresh token', () => {
   //     createCookieFn.mockRestore()
   //   })
 
-  xit('should set accesstoken', () => {
+  it('should set accesstoken', () => {
     const setAccessTokenFn = jest.spyOn(InMemory.prototype, 'setAccessToken')
     client.handleRefreshTokens()
     expect(setAccessTokenFn).toHaveBeenCalledWith('1')
@@ -447,7 +445,7 @@ describe('Client.recurringRefreshToken/1', () => {
     Storage.clearCookies(validConfig.client_id)
   })
 
-  xit('throws error outside browser config', () => {
+  it('throws error outside browser config', () => {
     const consoleErrorFn = jest.spyOn(console, 'error')
     client.recurringRefreshToken(client.getRefreshStore())
     expect(consoleErrorFn).toHaveBeenCalledWith('error while reccuring refresh token')
@@ -462,37 +460,6 @@ describe('Client.handleRedirectCallback/?', () => {
     client.handleRedirectCallback({ state: '12', authorization: { id: '42', code: 'azerty' } })
     expect(transactionGetFn).toHaveBeenCalledWith('12')
     transactionGetFn.mockRestore()
-  })
-
-  it('calls Transaction.getTokens without organization attribute', async () => {
-    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
-    await client.handleRedirectCallback({
-      state: '12',
-      authorization: { id: '42', code: 'azerty' },
-    })
-    expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig },
-      { id: '42', code: 'azerty' },
-      expect.anything(),
-      undefined,
-    )
-    transactionGetTokensFn.mockRestore()
-  })
-
-  it('calls Transaction.getTokens with organization attribute if present', async () => {
-    let transactionGetTokensFn = jest.spyOn(Transaction, 'getTokens')
-    await client.handleRedirectCallback({
-      state: '12',
-      authorization: { id: '42', code: 'azerty' },
-      organization_domain: 'misapret',
-    })
-    expect(transactionGetTokensFn).toHaveBeenCalledWith(
-      { ...validConfig },
-      { id: '42', code: 'azerty' },
-      expect.anything(),
-      'misapret',
-    )
-    transactionGetTokensFn.mockRestore()
   })
 
   it('calls Transaction.getUniversalTokens with request_id attribute if present', async () => {
@@ -583,7 +550,7 @@ describe('decorate request process', () => {
 
   it('should call Request decoratedRequest', async () => {
     const decoratedRequestFn = jest.spyOn(Request, 'decoratedRequest')
-    await client.decoratedRequest(null)
+    await client.decoratedRequest('http://localhost:5000')
     expect(decoratedRequestFn).toHaveBeenLastCalledWith(client.getCurrentAccessToken(), null)
     decoratedRequestFn.mockRestore()
   })

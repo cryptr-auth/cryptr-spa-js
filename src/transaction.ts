@@ -6,14 +6,10 @@ import Storage from './storage'
 import { organizationDomain } from './utils'
 import {
   getRefreshParameters,
-  handlePostAuthorizationCode,
   handlePostUniversalAuthorizationCode,
   newTransaction,
-  newTransactionWithState,
   parseTokensAndStoreRefresh,
   setTransactionKey,
-  signPath,
-  ssoSignPath,
   tomorrowDate,
   transactionKey,
 } from './transaction.utils'
@@ -22,7 +18,7 @@ import { validRedirectUri } from '@cryptr/cryptr-config-validation'
 
 export const parseErrors = (response: any): I.TokenError => {
   if (response) {
-    return { http_response: response, ...response.data }
+    return { http_response: response, ...response }
   }
   return {
     error: 'error',
@@ -45,24 +41,6 @@ const Transaction: any = {
     }
     const transaction = newTransaction(signType, scope, redirect_uri, locale)
     Storage.createCookie(setTransactionKey(transaction), transaction, tomorrowDate())
-    return transaction
-  },
-
-  createFromState: (
-    state: string,
-    signType: Sign,
-    scope: string,
-    locale: string,
-    redirect_uri: string,
-  ): I.Transaction => {
-    if (redirect_uri !== undefined && redirect_uri != null) {
-      validRedirectUri(redirect_uri)
-    }
-    if (locale && !ALLOWED_LOCALES.includes(locale)) {
-      throw new Error(`'${locale}' locale not valid, possible values ${ALLOWED_LOCALES}`)
-    }
-    const transaction = newTransactionWithState(signType, scope, state, redirect_uri, locale)
-    Storage.createCookie(transactionKey(state), transaction, tomorrowDate())
     return transaction
   },
 
@@ -164,31 +142,6 @@ const Transaction: any = {
     return refreshResult
   },
   getRefreshParameters: getRefreshParameters,
-  signUrl: (config: I.Config, transaction: I.Transaction, idpId?: string): void | URL => {
-    let url: URL = new URL(cryptrBaseUrl(config))
-    if (transaction.sign_type == Sign.Sso && !idpId) {
-      throw new Error('Should provide idpId when SSO transaction')
-    }
-    const currentSignPath =
-      transaction.sign_type == Sign.Sso && idpId
-        ? ssoSignPath(idpId)
-        : signPath(config, transaction)
-    url.pathname = url.pathname.concat(currentSignPath).replace('//', '/')
-
-    if (transaction.sign_type == Sign.Sso) {
-      if (transaction.locale) {
-        url.searchParams.append('locale', transaction.locale)
-      }
-      url.searchParams.append('state', transaction.pkce.state)
-    }
-
-    url.searchParams.append('scope', transaction.scope)
-    url.searchParams.append('client_id', config.client_id)
-    url.searchParams.append('redirect_uri', transaction.redirect_uri || config.default_redirect_uri)
-    url.searchParams.append('code_challenge_method', transaction.pkce.code_challenge_method)
-    url.searchParams.append('code_challenge', transaction.pkce.code_challenge)
-    return url
-  },
   gatewaySignUrl: (
     config: I.Config,
     transaction: I.Transaction,

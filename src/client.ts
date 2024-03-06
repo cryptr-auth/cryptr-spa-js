@@ -1,5 +1,4 @@
 import * as Interface from './interfaces'
-import { AxiosResponse } from 'axios'
 import {
   cryptrBaseUrl,
   DEFAULT_LEEWAY_IN_SECONDS,
@@ -48,8 +47,7 @@ class Client {
         }
       }
     } catch (error) {
-      console.log('simple worker error')
-      console.error(error)
+      console.log('simple worker error', error)
     }
   }
 
@@ -241,18 +239,17 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        const resp = await Request.revokeRefreshToken(this.config, refreshToken)
+        const resp = await Request.revokeRefreshToken(this.config, refreshToken) as Interface.RevokeResponse
         if (resp.revoked_at !== undefined) {
           await Storage.clearCookies(this.config.client_id)
           this.memory.clearTokens()
           this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
         } else {
           console.error('logout response not compliant')
-          console.error(resp.data)
+          console.error(resp)
         }
       } catch (error) {
-        console.error('logout SPA error')
-        console.error(error)
+        console.error('logout SPA error', error)
       }
     } else {
       console.log('No accessToken found')
@@ -261,18 +258,18 @@ class Client {
   }
 
   private handleSloCode(
-    resp: AxiosResponse<any>,
+    resp: Interface.RevokeResponse | null,
     callback: any,
     location: Location,
     targetUrl: string,
     sloAfterRevoke: boolean,
   ) {
-    if (sloAfterRevoke && resp.data?.slo_code !== undefined) {
+    if (sloAfterRevoke && resp?.slo_code !== undefined && resp?.slo_code) {
       const url = sloAfterRevokeTokenUrl(
         this.config,
-        resp.data.slo_code,
+        resp.slo_code,
         targetUrl,
-        resp.data.refresh_token,
+        resp.refresh_token,
       )
       window.location.assign(url.href)
     } else if (typeof callback === 'function' && callback !== null) {
@@ -290,7 +287,6 @@ class Client {
     if (url === undefined) {
       throw new Error('url is required')
     }
-    console.debug('url to decorate', url)
     return Request.decoratedRequest(url, this.getCurrentAccessToken(), kyOptions)
   }
 }

@@ -40,19 +40,16 @@ var config = {
 
 Explanation of config
 
-| key                        | Required/Optional | type          | Default  | Description                                                              |
-| -------------------------- | ----------------- | ------------- | -------- | ------------------------------------------------------------------------ |
-| `tenant_domain`            | required          | string slug   | -        | Reference to your company entity                                         |
-| `client_id`                | required          | uuid          | -        | Reference to your front app id                                           |
-| `audience`                 | required          | string URL    | -        | Root URL of your front app                                               |
-| `default_redirect_uri`     | required          | string URL    | -        | Desired redirection URL after authentication process                     |
-| `cryptr_base_url`          | required          | string URL    | -        | URL of your Cryptr service                                               |
-| ~~`default_locale`~~       | **Deprecated**    | string locale | ~~`en`~~ | -                                                                        |
-| `dedicated_server`         | Optional          | boolean       | false    | Contact Cryptr Team to set properly                                      |
-| ~~`fixed_pkce`~~           | **Deprecated**    | boolean       | true     | As mentioned fixed_pkce is now considered as `true`                      |
-| ~~`telemetry`~~            | **Deprecated**    | boolean       | false    | -                                                                        |
-| `default_slo_after_revoke` | required          | boolean       | false    | Set to `true`to always proceed SLO while logging out from an SSO session |
-| ---                        | ---               | ---           | ---      | ---                                                                      |
+| key                        | Required/Optional | type        | Default | Description                                                              |
+| -------------------------- | ----------------- | ----------- | ------- | ------------------------------------------------------------------------ |
+| `tenant_domain`            | required          | string slug | -       | Reference to your company entity                                         |
+| `client_id`                | required          | uuid        | -       | Reference to your front app id                                           |
+| `audience`                 | required          | string URL  | -       | Root URL of your front app                                               |
+| `default_redirect_uri`     | required          | string URL  | -       | Desired redirection URL after authentication process                     |
+| `cryptr_base_url`          | required          | string URL  | -       | URL of your Cryptr service                                               |
+| `dedicated_server`         | Optional          | boolean     | false   | Contact Cryptr Team to set properly                                      |
+| `default_slo_after_revoke` | required          | boolean     | false   | Set to `true`to always proceed SLO while logging out from an SSO session |
+| ---                        | ---               | ---         | ---     | ---                                                                      |
 
 ⚠️ `fixed_pkce` has been removed in the `1.4.0` release version
 
@@ -142,19 +139,6 @@ This method will return you a struct with different properties such as email, us
 
 For more information please contact us.
 
-## Deprecations
+## Deleted items
 
-| Type   | Name                      |
-| ------ | ------------------------- |
-| Method | ~~signInWithRedirect~~    |
-|        | ~~signInWithSSOGateway~~  |
-|        | ~~signUpWithRedirect~~    |
-|        | ~~inviteWithRedirect~~    |
-|        | ~~signInWithoutRedirect~~ |
-|        | ~~signUpWithoutRedirect~~ |
-|        | ~~inviteWithoutRedirect~~ |
-|        | ~~signInWithSSO~~         |
-|        | ~~userAccountAccess~~     |
-| Config | ~~telemetry~~             |
-|        | ~~fixed_pkce~~            |
-|        | ~~default_locale~~        |
+Some legacy items have been deleted since `1.3.0`. If you need some support for migration [contact us](https://meet.cryptr.tech/team/developer-success)
