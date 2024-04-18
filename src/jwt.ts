@@ -128,6 +128,8 @@ export const validatesIssuer = (
   config: Config,
   organization_domain?: string,
 ): void | true => {
+  // no more iss in v3 jwt token body
+  if (isV3Token(tokenBody)) return true
   const tmpCryptrUrl = cryptrBaseUrl(config)
   const cryptrUrl = tmpCryptrUrl.replace('/backoffice', '')
   const issuer = `${cryptrUrl}/t/${organization_domain || config.tenant_domain}`
