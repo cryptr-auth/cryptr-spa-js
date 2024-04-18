@@ -73,6 +73,14 @@ export const validatesHeader = (token: any): void | true => {
   return true
 }
 
+const isV3Token = (jwtBody: any): boolean => {
+  var ver = 1
+  if ("ver" in jwtBody) {
+    ver = jwtBody.ver as number
+  }
+  return ver >= 3
+}
+
 export const validatesFieldsExist = (jwtBody: any, fields: Array<string>): void | true => {
   fields.map((key) => {
     if (!jwtBody.hasOwnProperty(key)) {
