@@ -115,9 +115,11 @@ export const validatesClient = (tokenBody: any, config: Config): void | true => 
 }
 
 export const validatesAudience = (tokenBody: any, config: Config): void | true => {
-  if (config.audience !== tokenBody.aud) {
+  // openid v3 jwt contains config's client_id instead of config's audience
+  const expectedAudience = isV3Token(tokenBody) && tokenBody.jtt == 'openid' ? config.client_id : config.audience
+  if (tokenBody.aud != expectedAudience) {
     throw new Error(
-      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${config.audience} from config`,
+      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${expectedAudience} from config`,
     )
   }
   return true
