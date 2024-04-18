@@ -56,6 +56,8 @@ const ACCESS_FIELDS = COMMON_FIELDS
   +-----------+--------------+--------+-----------------------------------------+
 */
 const ID_FIELDS = ['at_hash', 'c_hash', 'nonce'].concat(COMMON_FIELDS)
+// V3 tokens has no more iss cid scp and tnt
+const V3_ABSENT_FIELDS = ['iss', 'cid', 'scp', 'tnt']
 
 export const validatesHeader = (token: any): void | true => {
   const header: { alg: string; typ: string } = jwtDecode(token, { header: true })
@@ -82,9 +84,10 @@ const isV3Token = (jwtBody: any): boolean => {
 }
 
 export const validatesFieldsExist = (jwtBody: any, fields: Array<string>): void | true => {
-  fields.map((key) => {
+  const fieldsToCheck = isV3Token(jwtBody) ? fields.filter(f => !V3_ABSENT_FIELDS.includes(f)) : fields
+  fieldsToCheck.map((key) => {
     if (!jwtBody.hasOwnProperty(key)) {
-      throw new Error(key + ' is missing')
+      throw new Error(key + ' is missing in ' + jwtBody.jtt)
     }
   })
   return true
