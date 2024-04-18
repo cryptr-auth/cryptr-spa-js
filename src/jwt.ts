@@ -56,6 +56,8 @@ const ACCESS_FIELDS = COMMON_FIELDS
   +-----------+--------------+--------+-----------------------------------------+
 */
 const ID_FIELDS = ['at_hash', 'c_hash', 'nonce'].concat(COMMON_FIELDS)
+// V3 ID token has no more nonce
+const V3_ID_FIELDS = ['at_hash', 'c_hash'].concat(COMMON_FIELDS)
 // V3 tokens has no more iss cid scp and tnt
 const V3_ABSENT_FIELDS = ['iss', 'cid', 'scp', 'tnt']
 
@@ -182,10 +184,11 @@ const Jwt = {
   },
   validatesIdToken: (idToken: string, config: Config, organization_domain?: string): boolean => {
     const jwtBody = Jwt.body(idToken)
+    const FIELDS_TO_CHECK = isV3Token(jwtBody) ? V3_ID_FIELDS : ID_FIELDS
+
     validatesHeader(idToken)
     validatesJwtBody(jwtBody, config, organization_domain)
-    validatesFieldsExist(jwtBody, ID_FIELDS)
-
+    validatesFieldsExist(jwtBody, FIELDS_TO_CHECK)
     return true
   },
 }
