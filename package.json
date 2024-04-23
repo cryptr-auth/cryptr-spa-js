@@ -68,6 +68,9 @@
     "publish:lib": "jest && yarn make-badges && yarn prepare && ls && yarn publish",
     "fix-yarn": "yarn-audit-fix"
   },
+  "engines": {
+    "node": ">=20.12.2"
+  },
   "renovate": {
     "extends": [
       "config:js-lib"
