@@ -102,6 +102,9 @@
     "secure-random": "^1.1.2",
     "uuid": "^8.2.0"
   },
+  "resolutions": {
+    "light-server/**/follow-redirects": "1.15.6"
+  },
   "keywords": [
     "cryptr",
     "authentication",
