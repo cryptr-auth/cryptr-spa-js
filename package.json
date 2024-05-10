@@ -89,7 +89,7 @@
     "@types/jwt-decode": "^2.2.1",
     "Base64": "^1.2.0",
     "crypto-js": "^4.2.0",
-    "es-cookie": "^1.4.0",
+    "es-cookie": "^1.5.0",
     "fast-text-encoding": "^1.0.3",
     "hasha": "^5.2.0",
     "jwt-decode": "^2.2.0",
