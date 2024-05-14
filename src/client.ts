@@ -239,20 +239,13 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        // const resp = (await Request.revokeRefreshToken(
         await Request.revokeRefreshToken(
           this.config,
           refreshToken,
         )
-        // )) as Interface.RevokeResponse
-        // if (resp.revoked_at !== undefined) {
         await Storage.clearCookies(this.config.client_id)
         this.memory.clearTokens()
         this.handleSloCode(null, callback, location, targetUrl, sloAfterRevoke || false)
-        // } else {
-        //   console.error('logout response not compliant')
-        //   console.error(resp)
-        // }
       } catch (error) {
         console.error('logout SPA error', error)
       }
