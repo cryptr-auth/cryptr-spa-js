@@ -134,7 +134,7 @@ export const getRefreshParameters = (resp: any): I.RefreshParameters => {
     refresh_retry: resp.refresh_retry,
     // refresh_expiration_date: refreshExpiration,
   }
-  const uniqValues = [...new Set(Object.values(refreshParameters))]
+  // const uniqValues = [...new Set(Object.values(refreshParameters))]
   // return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
   return refreshParameters
 }
