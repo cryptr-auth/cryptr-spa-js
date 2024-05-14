@@ -102,19 +102,19 @@ const Request = {
     const params = universalTokenParams(config, authorization, transaction, request_id)
     return ky.post(url, { json: params }).json() //.then((v) => console.debug('ky', v)).catch((r) => console.error('ky', r))
   },
-  // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
+  // POST /oauth/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)
     return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token', client_id: client_config.client_id } }).json()
   },
 
-  // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
+  // POST /oauth/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
     let url = revokeTokenUrl(client_config)
     return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token', client_id: client_config.client_id } }).json()
   },
 
-  // POST /t/:tenant_domain/oauth/token
+  // POST /oauth/token
   refreshTokens: async (
     config: Config,
     transaction: TransactionInterface,
