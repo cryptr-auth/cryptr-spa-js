@@ -45,9 +45,7 @@ export const refreshTokensParams = (
   token: refresh_token,
 })
 
-export const revokeTokenUrl = (config: Config, _organization_domain?: string) => {
-  return `${cryptrBaseUrl(config)}/oauth/revoke`
-}
+export const revokeTokenUrl = (config: Config) => `${cryptrBaseUrl(config)}/oauth/revoke`
 
 export const sloAfterRevokeTokenUrl = (
   config: Config,
@@ -90,12 +88,7 @@ export const tokenUrl = (
     }/token`
 }
 
-export const refreshTokensUrl = (
-  config: Config,
-  _transaction: TransactionInterface,
-  _organization_domain?: string,
-) =>
-  `${cryptrBaseUrl(config)}/oauth/token`
+export const refreshTokensUrl = (config: Config) => `${cryptrBaseUrl(config)}/oauth/token`
 
 const Request = {
   postUniversalAuthorizationCode: async (
@@ -117,8 +110,7 @@ const Request = {
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
-    let organization_domain = organizationDomain(refreshToken)
-    let url = revokeTokenUrl(client_config, organization_domain)
+    let url = revokeTokenUrl(client_config)
     return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token', client_id: client_config.client_id } }).json()
   },
 
@@ -126,10 +118,9 @@ const Request = {
   refreshTokens: async (
     config: Config,
     transaction: TransactionInterface,
-    refresh_token: string,
-    organization_domain?: string,
+    refresh_token: string
   ) => {
-    let url = refreshTokensUrl(config, transaction, organization_domain)
+    let url = refreshTokensUrl(config)
     return ky.post(url, { json: refreshTokensParams(config, transaction, refresh_token) }).json()
   },
 
