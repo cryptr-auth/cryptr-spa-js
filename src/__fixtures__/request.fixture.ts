@@ -1,15 +1,11 @@
-import AuthorizationFixure from './authorization.fixture'
 import TokenFixure from './token.fixture'
 import TransactionFixure from './transaction.fixture'
-import { tokenUrl } from '../request'
 import ConfigFixture from './config.fixture'
 
 const VALID_TRANSACTION = TransactionFixure.valid()
 const VALID_CONFIG = ConfigFixture.valid()
 
 const RequestFixture = {
-  api_endpoint: (): string =>
-    tokenUrl(VALID_CONFIG, AuthorizationFixure.valid(), VALID_TRANSACTION),
   authorizationCodeRequest: {
     valid: () => ({
       client_id: VALID_CONFIG.client_id,

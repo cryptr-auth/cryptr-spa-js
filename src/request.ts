@@ -77,17 +77,6 @@ export const universalTokenUrl = (config: Config, organization_domain?: string) 
   return [cryptrBaseUrl(config), 'org', organization_domain, 'oauth2', 'token'].join('/')
 }
 
-export const tokenUrl = (
-  config: Config,
-  authorization: Authorization,
-  transaction: TransactionInterface,
-  organization_domain?: string,
-) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
-    }/token`
-}
-
 export const refreshTokensUrl = (config: Config) => `${cryptrBaseUrl(config)}/oauth/token`
 
 const Request = {
