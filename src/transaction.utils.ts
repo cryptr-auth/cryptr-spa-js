@@ -97,13 +97,13 @@ export const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+      ])
     errors = idToken
       ? errors
       : errors.concat([
-          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-        ])
+        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+      ])
   }
 
   return {
@@ -116,26 +116,27 @@ export const validateAndFormatAuthResp = (
 }
 
 export const getRefreshParameters = (resp: any): I.RefreshParameters => {
-  let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
-  let accessExpiration =
-    typeof accessExpInputValue === 'string'
-      ? Date.parse(accessExpInputValue)
-      : new Date(accessExpInputValue).getTime()
+  // let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
+  // let accessExpiration =
+  //   typeof accessExpInputValue === 'string'
+  //     ? Date.parse(accessExpInputValue)
+  //     : new Date(accessExpInputValue).getTime()
 
-  let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
-  let refreshExpiration =
-    typeof refreshExpInputValue === 'string'
-      ? Date.parse(refreshExpInputValue)
-      : new Date(refreshExpInputValue).getTime()
+  // let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
+  // let refreshExpiration =
+  //   typeof refreshExpInputValue === 'string'
+  //     ? Date.parse(refreshExpInputValue)
+  //     : new Date(refreshExpInputValue).getTime()
   const refreshParameters = {
-    access_token_expiration_date: accessExpiration,
+    // access_token_expiration_date: accessExpiration,
     refresh_token: resp.refresh_token,
     refresh_leeway: resp.refresh_leeway,
     refresh_retry: resp.refresh_retry,
-    refresh_expiration_date: refreshExpiration,
+    // refresh_expiration_date: refreshExpiration,
   }
   const uniqValues = [...new Set(Object.values(refreshParameters))]
-  return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
+  // return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
+  return refreshParameters
 }
 
 export const parseTokensAndStoreRefresh = (
@@ -221,6 +222,8 @@ export const handlePostUniversalAuthorizationCode = (
 
 export const validatesNonce = (transaction: I.Transaction, submittedNonce: string): void | true => {
   if (submittedNonce !== transaction.nonce) {
+    console.debug('submittedNonce', submittedNonce)
+    console.debug('transaction.nonce', transaction.nonce)
     throw new Error(`Nonce values have to be the sames`)
   }
   return true

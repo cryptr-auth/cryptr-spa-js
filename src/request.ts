@@ -42,13 +42,11 @@ export const refreshTokensParams = (
   client_id: config.client_id,
   grant_type: 'refresh_token',
   nonce: transaction.nonce,
-  refresh_token: refresh_token,
+  token: refresh_token,
 })
 
-export const revokeTokenUrl = (config: Config, organization_domain?: string) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
-    organization_domain || config.tenant_domain
-  }/${config.client_id}/oauth/token/revoke`
+export const revokeTokenUrl = (config: Config, _organization_domain?: string) => {
+  return `${cryptrBaseUrl(config)}/oauth/revoke`
 }
 
 export const sloAfterRevokeTokenUrl = (
@@ -59,9 +57,8 @@ export const sloAfterRevokeTokenUrl = (
 ) => {
   let organization_domain = organizationDomain(refreshToken)
   let url: URL = new URL(cryptrBaseUrl(config))
-  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${
-    config.client_id
-  }/oauth/token/slo-after-revoke-token`
+  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${config.client_id
+    }/oauth/token/slo-after-revoke-token`
   url.searchParams.append('slo_code', sloCode)
   url.searchParams.append('target_url', targetUrl)
   return url
@@ -88,21 +85,17 @@ export const tokenUrl = (
   transaction: TransactionInterface,
   organization_domain?: string,
 ) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
-    organization_domain || config.tenant_domain
-  }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${
-    authorization.id
-  }/token`
+  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
+    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
+    }/token`
 }
 
 export const refreshTokensUrl = (
   config: Config,
-  transaction: TransactionInterface,
-  organization_domain?: string,
+  _transaction: TransactionInterface,
+  _organization_domain?: string,
 ) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${
-    organization_domain || config.tenant_domain
-  }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
+  `${cryptrBaseUrl(config)}/oauth/token`
 
 const Request = {
   postUniversalAuthorizationCode: async (
@@ -119,14 +112,14 @@ const Request = {
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)
-    return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token' } }).json()
+    return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token', client_id: client_config.client_id } }).json()
   },
 
   // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
     let organization_domain = organizationDomain(refreshToken)
     let url = revokeTokenUrl(client_config, organization_domain)
-    return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token' } }).json()
+    return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token', client_id: client_config.client_id } }).json()
   },
 
   // POST /t/:tenant_domain/oauth/token
