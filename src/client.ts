@@ -239,10 +239,10 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        await Request.revokeRefreshToken(
+        refreshToken != "disabled_refresh" ? await Request.revokeRefreshToken(
           this.config,
           refreshToken,
-        )
+        ) : await Request.revokeAccessToken(this.config, this.getCurrentAccessToken() || "")
         await Storage.clearCookies(this.config.client_id)
         this.memory.clearTokens()
         this.handleSloCode(null, callback, location, targetUrl, sloAfterRevoke || false)
