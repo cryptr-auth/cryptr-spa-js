@@ -69,7 +69,7 @@ describe('Request.refreshTokens/4', () => {
     Request.refreshTokens(
       config,
       transaction,
-      'misapret.7uIjfSbu1B-kfHLBRe0h6wadacQL4osWpiTIj0siy3k'
+      'misapret.7uIjfSbu1B-kfHLBRe0h6wadacQL4osWpiTIj0siy3k',
     )
     expect(refreshTokensUrlFn).toHaveBeenCalledWith(config, transaction, 'misapret')
     refreshTokensUrlFn.mockRestore()
@@ -116,7 +116,7 @@ describe('Request.refreshTokens # network', () => {
 
 describe('Request.refreshTokensUrl/2', () => {
   it('returns the standard refresh token URL', () => {
-    expect(refreshTokensUrl(ConfigFixture.valid(),)).toEqual(
+    expect(refreshTokensUrl(ConfigFixture.valid())).toEqual(
       'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/client/token',
     )
   })
