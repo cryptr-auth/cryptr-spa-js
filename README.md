@@ -100,8 +100,22 @@ signInWithDomain('some-organization')
 // domain + options
 signInWithDomain('some-organization', {locale: 'fr'})
 
-// access our gateway to let user fill our form
-signInWithDomain()
+```
+
+### Sign in without a domain or email
+
+If you would like to let the user type his email on your Cryptr service
+
+```js
+// signature
+signIn(options?: SsoSignOptsAttrs)
+
+// simple call
+signIn()
+
+// call with options
+signIn({ locale: 'fr' })
+
 ```
 
 ## Close session
