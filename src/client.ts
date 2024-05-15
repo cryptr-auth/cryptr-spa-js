@@ -98,7 +98,7 @@ class Client {
   // 🚚 Access Gateway without domain nor email
   async signIn(options?: SsoSignOptsAttrs) {
     const attrs = await this.buildUniversalAttrs(options)
-    const url = await Transaction.universalAttrs(attrs)
+    const url = await Transaction.universalGatewayUrl(attrs)
     window.location.assign(url.href)
   }
 

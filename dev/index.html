@@ -159,10 +159,10 @@
           this.cryptrClient.signInWithEmail(window.VUE_APP_EMAIL_SAMPLE);
         },
         universalGateway() {
-          this.cryptrClient.signInWithDomain();
+          this.cryptrClient.signIn();
         },
         universalGatewayFr() {
-          this.cryptrClient.signInWithDomain(null, {locale: 'fr'});
+          this.cryptrClient.signIn({locale: 'fr'});
         },
         /** Logs out the current user**/
         logOut() {
