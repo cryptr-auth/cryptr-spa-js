@@ -239,18 +239,12 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        const resp = (await Request.revokeRefreshToken(
-          this.config,
-          refreshToken,
-        )) as Interface.RevokeResponse
-        if (resp.revoked_at !== undefined) {
-          await Storage.clearCookies(this.config.client_id)
-          this.memory.clearTokens()
-          this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
-        } else {
-          console.error('logout response not compliant')
-          console.error(resp)
-        }
+        refreshToken == 'disabled_refresh'
+          ? await Request.revokeAccessToken(this.config, this.getCurrentAccessToken() || '')
+          : await Request.revokeRefreshToken(this.config, refreshToken)
+        await Storage.clearCookies(this.config.client_id)
+        this.memory.clearTokens()
+        this.handleSloCode(null, callback, location, targetUrl, sloAfterRevoke || false)
       } catch (error) {
         console.error('logout SPA error', error)
       }

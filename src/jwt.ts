@@ -56,6 +56,15 @@ const ACCESS_FIELDS = COMMON_FIELDS
   +-----------+--------------+--------+-----------------------------------------+
 */
 const ID_FIELDS = ['at_hash', 'c_hash', 'nonce'].concat(COMMON_FIELDS)
+// V3 ID token has no more nonce
+const V3_ID_FIELDS = ['at_hash', 'c_hash', 'identities'].concat(COMMON_FIELDS)
+// V3 tokens has no more iss cid scp and tnt
+const V3_ABSENT_FIELDS = ['iss', 'cid', 'scp', 'tnt']
+const V3_ADDED_FIELDS = ['org']
+const V3_ACCESS_FIELDS = COMMON_FIELDS.filter((f) => !V3_ABSENT_FIELDS.includes(f)).concat([
+  'org',
+  'scope',
+])
 
 export const validatesHeader = (token: any): void | true => {
   const header: { alg: string; typ: string } = jwtDecode(token, { header: true })
@@ -73,10 +82,21 @@ export const validatesHeader = (token: any): void | true => {
   return true
 }
 
+const isV3Token = (jwtBody: any): boolean => {
+  var ver = 1
+  if ('ver' in jwtBody) {
+    ver = jwtBody.ver as number
+  }
+  return ver >= 3
+}
+
 export const validatesFieldsExist = (jwtBody: any, fields: Array<string>): void | true => {
-  fields.map((key) => {
+  const fieldsToCheck = isV3Token(jwtBody)
+    ? fields.filter((f) => !V3_ABSENT_FIELDS.includes(f)).concat(V3_ADDED_FIELDS)
+    : fields
+  fieldsToCheck.map((key) => {
     if (!jwtBody.hasOwnProperty(key)) {
-      throw new Error(key + ' is missing')
+      throw new Error(key + ' is missing in ' + jwtBody.jtt)
     }
   })
   return true
@@ -102,9 +122,12 @@ export const validatesClient = (tokenBody: any, config: Config): void | true => 
 }
 
 export const validatesAudience = (tokenBody: any, config: Config): void | true => {
-  if (config.audience !== tokenBody.aud) {
+  // openid v3 jwt contains config's client_id instead of config's audience
+  const expectedAudience =
+    isV3Token(tokenBody) && tokenBody.jtt == 'openid' ? config.client_id : config.audience
+  if (tokenBody.aud != expectedAudience) {
     throw new Error(
-      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${config.audience} from config`,
+      `Audience (aud) ${tokenBody.aud} claim does not compliant with ${expectedAudience} from config`,
     )
   }
   return true
@@ -115,6 +138,8 @@ export const validatesIssuer = (
   config: Config,
   organization_domain?: string,
 ): void | true => {
+  // no more iss in v3 jwt token body
+  if (isV3Token(tokenBody)) return true
   const tmpCryptrUrl = cryptrBaseUrl(config)
   const cryptrUrl = tmpCryptrUrl.replace('/backoffice', '')
   const issuer = `${cryptrUrl}/t/${organization_domain || config.tenant_domain}`
@@ -163,18 +188,21 @@ const Jwt = {
     organization_domain?: string,
   ): boolean => {
     const jwtBody = Jwt.body(accessToken)
+    const FIELDS_TO_CHECK = isV3Token(jwtBody) ? V3_ACCESS_FIELDS : ACCESS_FIELDS
+
     validatesHeader(accessToken)
     validatesJwtBody(jwtBody, config, organization_domain)
-    validatesFieldsExist(jwtBody, ACCESS_FIELDS)
+    validatesFieldsExist(jwtBody, FIELDS_TO_CHECK)
 
     return true
   },
   validatesIdToken: (idToken: string, config: Config, organization_domain?: string): boolean => {
     const jwtBody = Jwt.body(idToken)
+    const FIELDS_TO_CHECK = isV3Token(jwtBody) ? V3_ID_FIELDS : ID_FIELDS
+
     validatesHeader(idToken)
     validatesJwtBody(jwtBody, config, organization_domain)
-    validatesFieldsExist(jwtBody, ID_FIELDS)
-
+    validatesFieldsExist(jwtBody, FIELDS_TO_CHECK)
     return true
   },
 }

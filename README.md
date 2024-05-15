@@ -29,7 +29,7 @@ Here is an example of CryptrConfig
 ```typescript
 var config = {
   tenant_domain: 'your-domain',
-  client_id: 'your-front-app-uuid',
+  client_id: 'your-api-key-client-id',
   audience: 'http://localhost:8000',
   default_redirect_uri: 'http://localhost:8000/',
   cryptr_base_url: 'https://your_cryptr_server_url',
@@ -43,7 +43,7 @@ Explanation of config
 | key                        | Required/Optional | type        | Default | Description                                                              |
 | -------------------------- | ----------------- | ----------- | ------- | ------------------------------------------------------------------------ |
 | `tenant_domain`            | required          | string slug | -       | Reference to your company entity                                         |
-| `client_id`                | required          | uuid        | -       | Reference to your front app id                                           |
+| `client_id`                | required          | uuid        | -       | Reference to your api key client id                                      |
 | `audience`                 | required          | string URL  | -       | Root URL of your front app                                               |
 | `default_redirect_uri`     | required          | string URL  | -       | Desired redirection URL after authentication process                     |
 | `cryptr_base_url`          | required          | string URL  | -       | URL of your Cryptr service                                               |
