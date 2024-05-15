@@ -2774,10 +2774,10 @@ es-array-method-boxes-properly@^1.0.0:
   resolved "https://registry.npmjs.org/es-array-method-boxes-properly/-/es-array-method-boxes-properly-1.0.0.tgz"
   integrity sha512-wd6JXUmyHmt8T5a2xreUwKcGPq6f1f+WwIJkijUqiGcJz1qqnZgP6XIK+QyIWU5lT7imeNxUll48bziG+TSYcA==
 
-es-cookie@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/es-cookie/-/es-cookie-1.4.0.tgz"
-  integrity sha512-V4bHxyGBmwwiV+CKTLUPLmwhcutTxGEC5n4HWaUDSnTvkNvfIjkMw8qIVTVgPeNCWojgR5IUzFnGenNvCoKQ5A==
+es-cookie@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/es-cookie/-/es-cookie-1.5.0.tgz#2847fa618b69662d498e4c70b648224f602556ad"
+  integrity sha512-fRv8TjgwY4/RmrP3kqQzfOwrQIMnAbQCHxSxqGVO1+3oWFsGYdIBOD8aqyALc/S4UY2wOIH894uvTDNP81tiyw==
 
 es-define-property@^1.0.0:
   version "1.0.0"
@@ -4372,10 +4372,10 @@ kleur@^3.0.3:
   resolved "https://registry.npmjs.org/kleur/-/kleur-3.0.3.tgz"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-ky@1.2.2:
-  version "1.2.2"
-  resolved "https://registry.npmjs.org/ky/-/ky-1.2.2.tgz"
-  integrity sha512-gYA2QOI3uIaImJPJjaBbLCdvKHzwxsuB03s7PjrXmoO6tcn6k53rwYoSRgqrmVsEV6wFFegOXDVjABxFZ0aRSg==
+ky@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/ky/-/ky-1.2.4.tgz#d095aa848c686116f3326bfce53d9c2ffdb692c1"
+  integrity sha512-CfSrf4a0yj1n6WgPT6kQNQOopIGLkQzqSAXo05oKByaH7G3SiqW4a8jGox0p9whMXqO49H7ljgigivrMyycAVA==
 
 leven@^3.1.0:
   version "3.1.0"
