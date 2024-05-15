@@ -55,8 +55,9 @@ export const sloAfterRevokeTokenUrl = (
 ) => {
   let organization_domain = organizationDomain(refreshToken)
   let url: URL = new URL(cryptrBaseUrl(config))
-  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${config.client_id
-    }/oauth/token/slo-after-revoke-token`
+  url.pathname = `/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain}/${
+    config.client_id
+  }/oauth/token/slo-after-revoke-token`
   url.searchParams.append('slo_code', sloCode)
   url.searchParams.append('target_url', targetUrl)
   return url
@@ -94,20 +95,36 @@ const Request = {
   // POST /oauth/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)
-    return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token', client_id: client_config.client_id } }).json()
+    return ky
+      .post(url, {
+        json: {
+          token: accessToken,
+          token_type_hint: 'access_token',
+          client_id: client_config.client_id,
+        },
+      })
+      .json()
   },
 
   // POST /oauth/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
     let url = revokeTokenUrl(client_config)
-    return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token', client_id: client_config.client_id } }).json()
+    return ky
+      .post(url, {
+        json: {
+          token: refreshToken,
+          token_type_hint: 'refresh_token',
+          client_id: client_config.client_id,
+        },
+      })
+      .json()
   },
 
   // POST /oauth/token
   refreshTokens: async (
     config: Config,
     transaction: TransactionInterface,
-    refresh_token: string
+    refresh_token: string,
   ) => {
     let url = refreshTokensUrl(config)
     return ky.post(url, { json: refreshTokensParams(config, transaction, refresh_token) }).json()

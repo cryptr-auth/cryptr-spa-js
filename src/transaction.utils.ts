@@ -97,13 +97,13 @@ export const validateAndFormatAuthResp = (
     errors = validIdToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Can’t process request', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Can’t process request', http_response: null },
+        ])
     errors = idToken
       ? errors
       : errors.concat([
-        { error: 'idToken', error_description: 'Not retrieve', http_response: null },
-      ])
+          { error: 'idToken', error_description: 'Not retrieve', http_response: null },
+        ])
   }
 
   return {
