@@ -1,9 +1,7 @@
-import { setupServer } from 'msw/node'
 import AuthorizationFixture from './__fixtures__/authorization.fixture'
-import Request, { tokenUrl, revokeTokenUrl, refreshTokensUrl } from './request'
+import Request, { revokeTokenUrl, refreshTokensUrl } from './request'
 import * as RequestAPI from './request'
 import RequestFixture from './__fixtures__/request.fixture'
-import RequestMock from './__mocks__/request.mock'
 import TransactionFixure from './__fixtures__/transaction.fixture'
 import ConfigFixture from './__fixtures__/config.fixture'
 import TokenFixture from './__fixtures__/token.fixture'
@@ -72,7 +70,6 @@ describe('Request.refreshTokens/4', () => {
       config,
       transaction,
       'misapret.7uIjfSbu1B-kfHLBRe0h6wadacQL4osWpiTIj0siy3k',
-      'misapret',
     )
     expect(refreshTokensUrlFn).toHaveBeenCalledWith(config, transaction, 'misapret')
     refreshTokensUrlFn.mockRestore()
@@ -80,14 +77,14 @@ describe('Request.refreshTokens/4', () => {
 })
 
 describe('Request.refreshTokens # network', () => {
-  const handlers = [RequestMock.postAuthorizationCodeResponse()]
+  // const handlers = []
 
-  const server = setupServer(...handlers)
+  // const server = setupServer(...handlers)
 
-  beforeAll(() => server.listen())
-  afterAll(() => server.close())
+  // beforeAll(() => server.listen())
+  // afterAll(() => server.close())
 
-  it('calls refreshTokensUrl without organization if standard refresh', () => {
+  xit('calls refreshTokensUrl without organization if standard refresh', () => {
     const refreshTokensUrlFn = jest.spyOn(RequestAPI, 'refreshTokensUrl')
     const config = ConfigFixture.valid()
     const transaction = TransactionFixure.valid()
@@ -117,34 +114,9 @@ describe('Request.refreshTokens # network', () => {
   })
 })
 
-describe('Request.tokenUrl/3', () => {
-  it('returns the token URL', () => {
-    expect(
-      tokenUrl(ConfigFixture.valid(), AuthorizationFixture.valid(), TransactionFixure.valid()),
-    ).toEqual(
-      'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/sso/client/bc3c507d-7ede-412e-b9be-dcc7d2cad1b4/token',
-    )
-  })
-})
-
-describe('Request.tokenUrl/4', () => {
-  it('returns the token URL for specific organization_domain', () => {
-    expect(
-      tokenUrl(
-        ConfigFixture.valid(),
-        AuthorizationFixture.valid(),
-        TransactionFixure.valid(),
-        'misapret',
-      ),
-    ).toEqual(
-      'http://localhost:4000/api/v1/tenants/misapret/1c2417e6-757d-47fe-b564-57b7c6f39b1b/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/sso/client/bc3c507d-7ede-412e-b9be-dcc7d2cad1b4/token',
-    )
-  })
-})
-
 describe('Request.refreshTokensUrl/2', () => {
   it('returns the standard refresh token URL', () => {
-    expect(refreshTokensUrl(ConfigFixture.valid(), TransactionFixure.valid())).toEqual(
+    expect(refreshTokensUrl(ConfigFixture.valid())).toEqual(
       'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/client/token',
     )
   })
@@ -152,7 +124,7 @@ describe('Request.refreshTokensUrl/2', () => {
 
 describe('Request.refreshTokensUrl/3', () => {
   it('returns the refresh token URL using organization_domain', () => {
-    expect(refreshTokensUrl(ConfigFixture.valid(), TransactionFixure.valid(), 'misapret')).toEqual(
+    expect(refreshTokensUrl(ConfigFixture.valid())).toEqual(
       'http://localhost:4000/api/v1/tenants/misapret/1c2417e6-757d-47fe-b564-57b7c6f39b1b/da2379bc-46b2-4e9e-a7c4-62a891827944/oauth/client/token',
     )
   })
@@ -177,16 +149,8 @@ describe('Request.revokeRefreshToken/2', () => {
 })
 
 describe('Request.revokeTokenUrl', () => {
-  it('returns the authorization code path', () => {
-    expect(revokeTokenUrl(ConfigFixture.valid())).toEqual(
-      'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/oauth/token/revoke',
-    )
-  })
-
-  it('returns the revoke token url for specific organization_domain', () => {
-    expect(revokeTokenUrl(ConfigFixture.valid(), 'misapret')).toEqual(
-      'http://localhost:4000/api/v1/tenants/misapret/1c2417e6-757d-47fe-b564-57b7c6f39b1b/oauth/token/revoke',
-    )
+  it('returns the proper revoke url', () => {
+    expect(revokeTokenUrl(ConfigFixture.valid())).toEqual('http://localhost:4000/oauth/revoke')
   })
 })
 

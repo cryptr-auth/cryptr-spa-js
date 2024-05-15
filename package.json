@@ -1,7 +1,7 @@
 {
   "name": "@cryptr/cryptr-spa-js",
   "description": "Cryptr SDK for Single Page Applications using passwordless authentication and/or SSO",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "main": "dist/cryptr-spa-js.cjs.js",
   "module": "dist/cryptr-spa-js.esm.js",
   "browser": "dist/cryptr-spa-js.umd.js",
@@ -68,6 +68,9 @@
     "publish:lib": "jest && yarn make-badges && yarn prepare && ls && yarn publish",
     "fix-yarn": "yarn-audit-fix"
   },
+  "engines": {
+    "node": ">=20.12.2"
+  },
   "renovate": {
     "extends": [
       "config:js-lib"
@@ -89,15 +92,18 @@
     "@types/jwt-decode": "^2.2.1",
     "Base64": "^1.2.0",
     "crypto-js": "^4.2.0",
-    "es-cookie": "^1.4.0",
+    "es-cookie": "^1.5.0",
     "fast-text-encoding": "^1.0.3",
     "hasha": "^5.2.0",
     "jwt-decode": "^2.2.0",
-    "ky": "^1.2.2",
+    "ky": "1.2.2",
     "promise-polyfill": "^8.2.3",
     "rollup-plugin-node-globals": "^1.4.0",
     "secure-random": "^1.1.2",
     "uuid": "^8.2.0"
+  },
+  "resolutions": {
+    "light-server/**/follow-redirects": "1.15.6"
   },
   "keywords": [
     "cryptr",

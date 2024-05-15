@@ -42,13 +42,10 @@ export const refreshTokensParams = (
   client_id: config.client_id,
   grant_type: 'refresh_token',
   nonce: transaction.nonce,
-  refresh_token: refresh_token,
+  token: refresh_token,
 })
 
-export const revokeTokenUrl = (config: Config, organization_domain?: string) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/oauth/token/revoke`
-}
+export const revokeTokenUrl = (config: Config) => `${cryptrBaseUrl(config)}/oauth/revoke`
 
 export const sloAfterRevokeTokenUrl = (
   config: Config,
@@ -80,24 +77,7 @@ export const universalTokenUrl = (config: Config, organization_domain?: string) 
   return [cryptrBaseUrl(config), 'org', organization_domain, 'oauth2', 'token'].join('/')
 }
 
-export const tokenUrl = (
-  config: Config,
-  authorization: Authorization,
-  transaction: TransactionInterface,
-  organization_domain?: string,
-) => {
-  return `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-    }/${config.client_id}/${transaction.pkce.state}/oauth/${transaction.sign_type}/client/${authorization.id
-    }/token`
-}
-
-export const refreshTokensUrl = (
-  config: Config,
-  transaction: TransactionInterface,
-  organization_domain?: string,
-) =>
-  `${cryptrBaseUrl(config)}/api/${API_VERSION}/tenants/${organization_domain || config.tenant_domain
-  }/${config.client_id}/${transaction.pkce.state}/oauth/client/token`
+export const refreshTokensUrl = (config: Config) => `${cryptrBaseUrl(config)}/oauth/token`
 
 const Request = {
   postUniversalAuthorizationCode: async (
@@ -111,27 +91,41 @@ const Request = {
     const params = universalTokenParams(config, authorization, transaction, request_id)
     return ky.post(url, { json: params }).json() //.then((v) => console.debug('ky', v)).catch((r) => console.error('ky', r))
   },
-  // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
+  // POST /oauth/revoke
   revokeAccessToken: async (client_config: Config, accessToken: string) => {
     let url = revokeTokenUrl(client_config)
-    return ky.post(url, { json: { token: accessToken, token_type_hint: 'access_token' } }).json()
+    return ky
+      .post(url, {
+        json: {
+          token: accessToken,
+          token_type_hint: 'access_token',
+          client_id: client_config.client_id,
+        },
+      })
+      .json()
   },
 
-  // POST /api/v1/tenants/:tenant_domain/client_id/oauth/token/revoke
+  // POST /oauth/revoke
   revokeRefreshToken: async (client_config: Config, refreshToken: string) => {
-    let organization_domain = organizationDomain(refreshToken)
-    let url = revokeTokenUrl(client_config, organization_domain)
-    return ky.post(url, { json: { token: refreshToken, token_type_hint: 'refresh_token' } }).json()
+    let url = revokeTokenUrl(client_config)
+    return ky
+      .post(url, {
+        json: {
+          token: refreshToken,
+          token_type_hint: 'refresh_token',
+          client_id: client_config.client_id,
+        },
+      })
+      .json()
   },
 
-  // POST /t/:tenant_domain/oauth/token
+  // POST /oauth/token
   refreshTokens: async (
     config: Config,
     transaction: TransactionInterface,
     refresh_token: string,
-    organization_domain?: string,
   ) => {
-    let url = refreshTokensUrl(config, transaction, organization_domain)
+    let url = refreshTokensUrl(config)
     return ky.post(url, { json: refreshTokensParams(config, transaction, refresh_token) }).json()
   },
 

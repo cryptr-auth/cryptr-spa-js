@@ -120,7 +120,7 @@ const Transaction: any = {
     const transaction = Transaction.create(Sign.Refresh, '')
     let organization_domain = organizationDomain(refresh_token)
     // @ts-ignore
-    await Request.refreshTokens(config, transaction, refresh_token, organization_domain)
+    await Request.refreshTokens(config, transaction, refresh_token)
       .then((response: any) => {
         refreshResult = parseTokensAndStoreRefresh(config, response, transaction, {
           withPKCE: false,

@@ -95,12 +95,21 @@ class Client {
     return { config: transactionConfig, transaction: transaction }
   }
 
-  async signInWithDomain(organizationDomain?: string, options?: SsoSignOptsAttrs) {
+  // 🚚 Access Gateway without domain nor email
+  async signIn(options?: SsoSignOptsAttrs) {
+    const attrs = await this.buildUniversalAttrs(options)
+    const url = await Transaction.universalGatewayUrl(attrs)
+    window.location.assign(url.href)
+  }
+
+  async signInWithDomain(organizationDomain: string, options?: SsoSignOptsAttrs) {
     const attrs = await this.buildUniversalAttrs(options)
 
-    const universalAttrs = organizationDomain
-      ? { ...attrs, domain: organizationDomain, organizationDomain: organizationDomain }
-      : attrs
+    const universalAttrs = {
+      ...attrs,
+      domain: organizationDomain,
+      organizationDomain: organizationDomain,
+    }
     const url = await Transaction.universalGatewayUrl(universalAttrs)
     window.location.assign(url.href)
   }
@@ -239,18 +248,12 @@ class Client {
     const { refresh_token: refreshToken } = this.getRefreshStore()
     if (refreshToken) {
       try {
-        const resp = (await Request.revokeRefreshToken(
-          this.config,
-          refreshToken,
-        )) as Interface.RevokeResponse
-        if (resp.revoked_at !== undefined) {
-          await Storage.clearCookies(this.config.client_id)
-          this.memory.clearTokens()
-          this.handleSloCode(resp, callback, location, targetUrl, sloAfterRevoke || false)
-        } else {
-          console.error('logout response not compliant')
-          console.error(resp)
-        }
+        refreshToken == 'disabled_refresh'
+          ? await Request.revokeAccessToken(this.config, this.getCurrentAccessToken() || '')
+          : await Request.revokeRefreshToken(this.config, refreshToken)
+        await Storage.clearCookies(this.config.client_id)
+        this.memory.clearTokens()
+        this.handleSloCode(null, callback, location, targetUrl, sloAfterRevoke || false)
       } catch (error) {
         console.error('logout SPA error', error)
       }

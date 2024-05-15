@@ -116,26 +116,11 @@ export const validateAndFormatAuthResp = (
 }
 
 export const getRefreshParameters = (resp: any): I.RefreshParameters => {
-  let accessExpInputValue = resp.access_token_expiration_date || resp.expires_at
-  let accessExpiration =
-    typeof accessExpInputValue === 'string'
-      ? Date.parse(accessExpInputValue)
-      : new Date(accessExpInputValue).getTime()
-
-  let refreshExpInputValue = resp.refresh_expiration_date || resp.refresh_token_expires_at
-  let refreshExpiration =
-    typeof refreshExpInputValue === 'string'
-      ? Date.parse(refreshExpInputValue)
-      : new Date(refreshExpInputValue).getTime()
-  const refreshParameters = {
-    access_token_expiration_date: accessExpiration,
+  return {
     refresh_token: resp.refresh_token,
     refresh_leeway: resp.refresh_leeway,
     refresh_retry: resp.refresh_retry,
-    refresh_expiration_date: refreshExpiration,
   }
-  const uniqValues = [...new Set(Object.values(refreshParameters))]
-  return uniqValues.includes(NaN) || uniqValues.includes(undefined) ? {} : refreshParameters
 }
 
 export const parseTokensAndStoreRefresh = (

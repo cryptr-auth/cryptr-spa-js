@@ -86,6 +86,14 @@
               <a href="#" class="btn btn-info" @click="callbackendApi">
                 Call backend API
               </a>
+              <hr/>
+              <p>
+                <pre>
+                  <code>
+                    {{cryptrClient.getCurrentAccessToken()}}
+                  </code>
+                </pre>
+              </p>
             </div>
         </div>
         <div v-if="!isAuthenticated" class="card mb-4 box-shadow">
@@ -151,10 +159,10 @@
           this.cryptrClient.signInWithEmail(window.VUE_APP_EMAIL_SAMPLE);
         },
         universalGateway() {
-          this.cryptrClient.signInWithDomain();
+          this.cryptrClient.signIn();
         },
         universalGatewayFr() {
-          this.cryptrClient.signInWithDomain(null, {locale: 'fr'});
+          this.cryptrClient.signIn({locale: 'fr'});
         },
         /** Logs out the current user**/
         logOut() {
