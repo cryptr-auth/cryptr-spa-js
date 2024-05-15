@@ -149,16 +149,8 @@ describe('Request.revokeRefreshToken/2', () => {
 })
 
 describe('Request.revokeTokenUrl', () => {
-  it('returns the authorization code path', () => {
-    expect(revokeTokenUrl(ConfigFixture.valid())).toEqual(
-      'http://localhost:4000/api/v1/tenants/cryptr/1c2417e6-757d-47fe-b564-57b7c6f39b1b/oauth/token/revoke',
-    )
-  })
-
-  it('returns the revoke token url for specific organization_domain', () => {
-    expect(revokeTokenUrl(ConfigFixture.valid())).toEqual(
-      'http://localhost:4000/api/v1/tenants/misapret/1c2417e6-757d-47fe-b564-57b7c6f39b1b/oauth/token/revoke',
-    )
+  it('returns the proper revoke url', () => {
+    expect(revokeTokenUrl(ConfigFixture.valid())).toEqual('http://localhost:4000/oauth/revoke')
   })
 })
 
