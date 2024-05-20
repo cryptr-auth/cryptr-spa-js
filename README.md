@@ -10,7 +10,7 @@
 
 ## Installation
 
-current version `2.0.0`
+current version `2.0.1`
 
 ⚠️ If you do not have access to your Cryptr dashboard using URL like `https://dashboard.your-cryptr-service-url..` please use version `1.4.0`
 
