@@ -98,12 +98,14 @@ class Client {
 
   // 🚚 Access Gateway without domain nor email
   async signIn(options?: SsoSignOptsAttrs) {
+    this.memory.clearTokens()
     const attrs = await this.buildUniversalAttrs(options)
     const url = await Transaction.universalGatewayUrl(attrs)
     window.location.assign(url.href)
   }
 
   async signInWithDomain(organizationDomain: string, options?: SsoSignOptsAttrs) {
+    this.memory.clearTokens()
     const attrs = await this.buildUniversalAttrs(options)
 
     const universalAttrs = {
@@ -116,6 +118,7 @@ class Client {
   }
 
   async signInWithEmail(email: string, options?: SsoSignOptsAttrs) {
+    this.memory.clearTokens()
     const attrs = await this.buildUniversalAttrs(options)
 
     const url = await Transaction.universalGatewayUrl({
