@@ -19,6 +19,7 @@ import { refreshKey } from './transaction.utils'
 import { ResponsePromise } from 'ky'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
+const AUTHORIZATION_ID_PARAMS = /[?&]authorization_id=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
 class Client {
   config!: Interface.Config
@@ -233,7 +234,11 @@ class Client {
   }
 
   private hasAuthenticationParams(searchParams = locationSearch()): boolean {
-    return CODE_PARAMS.test(searchParams) && STATE_PARAMS.test(searchParams)
+    return (
+      CODE_PARAMS.test(searchParams) &&
+      STATE_PARAMS.test(searchParams) &&
+      AUTHORIZATION_ID_PARAMS.test(searchParams)
+    )
   }
   canHandleAuthentication(searchParams = locationSearch()): boolean {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
