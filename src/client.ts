@@ -19,6 +19,7 @@ import { refreshKey } from './transaction.utils'
 import { ResponsePromise } from 'ky'
 
 const CODE_PARAMS = /[?&]code=[^&]+/
+const AUTHORIZATION_ID_PARAMS = /[?&]authorization_id=[^&]+/
 const STATE_PARAMS = /[?&]state=[^&]+/
 class Client {
   config!: Interface.Config
@@ -97,12 +98,14 @@ class Client {
 
   // 🚚 Access Gateway without domain nor email
   async signIn(options?: SsoSignOptsAttrs) {
+    this.memory.clearTokens()
     const attrs = await this.buildUniversalAttrs(options)
     const url = await Transaction.universalGatewayUrl(attrs)
     window.location.assign(url.href)
   }
 
   async signInWithDomain(organizationDomain: string, options?: SsoSignOptsAttrs) {
+    this.memory.clearTokens()
     const attrs = await this.buildUniversalAttrs(options)
 
     const universalAttrs = {
@@ -115,6 +118,7 @@ class Client {
   }
 
   async signInWithEmail(email: string, options?: SsoSignOptsAttrs) {
+    this.memory.clearTokens()
     const attrs = await this.buildUniversalAttrs(options)
 
     const url = await Transaction.universalGatewayUrl({
@@ -233,7 +237,11 @@ class Client {
   }
 
   private hasAuthenticationParams(searchParams = locationSearch()): boolean {
-    return CODE_PARAMS.test(searchParams) && STATE_PARAMS.test(searchParams)
+    return (
+      CODE_PARAMS.test(searchParams) &&
+      STATE_PARAMS.test(searchParams) &&
+      AUTHORIZATION_ID_PARAMS.test(searchParams)
+    )
   }
   canHandleAuthentication(searchParams = locationSearch()): boolean {
     return !this.currentAccessTokenPresent() && this.hasAuthenticationParams(searchParams)
