@@ -45,11 +45,12 @@
   },
   "scripts": {
     "prepare": "yarn build",
+    "check-version": "./check-version.sh",
     "type-check": "tsc --noEmit",
     "type-check:watch": "yarn type-check -- --watch",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "rollup -c",
-    "build": "rm -rf dist && yarn build:types && yarn build:js",
+    "build": "yarn check-version && rm -rf dist && yarn build:types && yarn build:js",
     "build:watch": "rollup -c -w",
     "make-badges": "istanbul-badges-readme",
     "watch": "concurrently 'yarn build:watch' 'yarn serve -l tcp://localhost'",
