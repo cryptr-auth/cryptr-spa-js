@@ -60,7 +60,7 @@
     "test:with-badges": "yarn coverage && yarn make-badges",
     "format": "prettier --write '**/*.{js,ts,json,md}'",
     "dev:playground": "yarn light-server -s ./dev/ -p 8000",
-    "dev:library": "yarn light-server -s ./dist/ -p 7000",
+    "dev:library": "yarn light-server -s ./dist/ -p 9000",
     "dev": "concurrently 'yarn build:watch' 'yarn dev:playground' 'yarn dev:library' 'sleep 1 && open http://localhost:8000'",
     "download-extension": "ced gleekbfjekiniecknbkamfmkohkpodhe extensions/ignore-x-frame-headers",
     "unpublish:lib": "yarn unpublish ${npm_package_name}@${npm_package_version} --force",
