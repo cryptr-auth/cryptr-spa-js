@@ -96,7 +96,7 @@
     "fast-text-encoding": "^1.0.3",
     "hasha": "^5.2.0",
     "jwt-decode": "^2.2.0",
-    "ky": "1.2.2",
+    "ky": "^1.5.0",
     "micromatch": "4.0.8",
     "promise-polyfill": "^8.2.3",
     "rollup-plugin-node-globals": "^1.4.0",
