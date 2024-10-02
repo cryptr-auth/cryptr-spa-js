@@ -102,6 +102,7 @@
     "promise-polyfill": "^8.2.3",
     "rollup-plugin-node-globals": "^1.4.0",
     "secure-random": "^1.1.2",
+    "send": ">=0.19.0",
     "serve-static": "^1.16.0",
     "uuid": "^8.2.0"
   },
